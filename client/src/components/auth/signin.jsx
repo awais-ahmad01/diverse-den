@@ -1,7 +1,11 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { showToast } from '../../tools';
+import { clearNotifications } from '../../store/reducers/notifications'
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -18,6 +22,10 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { signInUser } from "../../store/actions/auth";
 
 const Signin = () => {
+
+  const notifications = useSelector(state => state.notifications);
+  let navigate = useNavigate()
+
   const theme = createTheme({
     palette: {
       primary: {
@@ -51,6 +59,27 @@ const Signin = () => {
   const onSubmit = (data) => {
     dispatch(signInUser(data));
   };
+
+
+  useEffect(()=>{
+    let { global } = notifications; 
+    if(notifications && global.error){
+        const msg = global.msg ? global.msg : 'Error';
+        showToast('ERROR',msg)
+        dispatch(clearNotifications())
+    }
+    if(notifications && global.success){
+        const msg = global.msg ? global.msg : 'Good!!';
+        console.log(msg)
+        showToast('SUCCESS',msg)
+        dispatch(clearNotifications())
+        navigate('/subscription')
+        
+
+    }
+  },[notifications])
+
+
 
   return (
     <div className="flex flex-col justify-center items-center mt-8">

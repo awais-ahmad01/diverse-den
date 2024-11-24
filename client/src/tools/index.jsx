@@ -3,7 +3,9 @@ import { toast } from 'react-toastify';
 
 
 
+
 export const showToast = (type,msg) => {
+    console.log('Do na')
     switch(type){
         case 'SUCCESS':
             toast.success(msg,{

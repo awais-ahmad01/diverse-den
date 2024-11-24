@@ -10,11 +10,9 @@ export const registerUser = createAsyncThunk(
             console.log("Register user")
             console.log(formData)
 
-            const response = await axios.post('',formData)
+            const response = await axios.post('http://localhost:3000/register',formData)
 
-            if(response){
-                localStorage.setItem('token', response.token)
-            }
+            console.log(response.data)
 
             dispatch(successGlobal('Welcome !!.Check your emails to validate account'))
             return {data:response.data.user, auth:true}
@@ -35,14 +33,16 @@ export const signInUser = createAsyncThunk(
             // console.log("Login user")
             // console.log(email)
             // console.log(password)
-            const response = await axios.post('',{
+            const response = await axios.post('http://localhost:3000/login',{
                email:email,
                password:password
             })
 
             if(response){
-                localStorage.setItem('token', response.token)
+                localStorage.setItem('token', response.data.token)
             }
+
+            console.log(response.data)
 
             dispatch(successGlobal('Welcome !!'))
 

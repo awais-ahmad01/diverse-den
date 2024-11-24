@@ -90,6 +90,7 @@ const Signup = () => {
     }
     if(notifications && global.success){
         const msg = global.msg ? global.msg : 'Good!!';
+        console.log(msg)
         showToast('SUCCESS',msg)
         dispatch(clearNotifications())
         navigate('/signin')

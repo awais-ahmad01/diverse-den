@@ -1,3 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+
+:root{
+  --font-family: 'Roboto', Arial, sans-serif;
+  --font-size-body: 16px;
+  --font-size-heading: 24px;
+  --font-weight-regular: 400;
+  --font-weight-bold: 700;
+  --font-weight-medium: 500;
+
+  /* --color-primary: #007BFF;
+  --color-secondary: #6c757d;
+  --color-text: #333;
+  --color-background: #f8f9fa; */
+}
+
+
+
+
+
+
 *{
   margin: 0;
   padding: 0;
@@ -7,5 +29,8 @@
 body{
   width: 100vw;
   height: 100vh;
+
+  font-family: var(--font-family);
+  font-size: var(--font-size-body);
 }
 
