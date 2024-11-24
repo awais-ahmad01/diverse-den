@@ -2,6 +2,7 @@ import React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import axios from "axios";
 
 import {
   TextField,
@@ -27,16 +28,24 @@ const AddSubscription = () => {
     
 
 
-  const schema = yup.object({
-    name: yup.string().required('name is required'),
-    price: yup.number().required('price is required'),
-  });
+      const schema = yup.object({
+        name: yup.string().required("Name is required"),
+        price: yup
+          .number()
+          .typeError("Price must be a number")
+          .required("Price is required"),
+        features: yup
+          .array()
+          .of(yup.string().required("Feature cannot be empty"))
+          .min(1, "At least one feature is required"),
+      });
+      
 
   const form = useForm({
     defaultValues: {
       name: "",
       price: null,
-      features: [],
+      features: [''],
     },
 
     resolver: yupResolver(schema),
@@ -53,9 +62,34 @@ const AddSubscription = () => {
   })
 
 
-  const onSubmit = (data) => {
-    console.log(data);
-  };
+
+const onSubmit = async (data) => {
+  try {
+    const token = localStorage.getItem("token"); 
+
+    console.log("Retrieved Token:", token);
+    if (!token) {
+      console.error("No token found!");
+      return; 
+    }
+
+    const response = await axios.post(
+      "http://localhost:3000/addSubscriptionPlan",
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, 
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("Plan added successfully:", response.data);
+  } catch (error) {
+    console.error("Error adding plan:", error);
+  }
+};
+
 
   return (
     <div className="flex flex-col justify-center items-center mt-8">
@@ -102,33 +136,31 @@ const AddSubscription = () => {
 
           {fields.map((filed, index)=>(
                 <div key={filed.id}>
-                    <TextField
-                        variant="outlined"
-                        id="name"
-                        label="Add feature"
-                        error={errors.features ? true : false}
-                        helperText={errors.features?.message}
-                        {...register(`features[${index}]`)}
-                        sx={{
-                            width: "100%",
-                        }}
-                    />
-                    <div className="text-center">
-                                <Button
-                                variant="contained"
-                                color="primary"
-                                size="small"
-                                type="button"
-                                onClick={()=> remove(index)}
-                                sx={{
-                                    textTransform: "none",
-                                    width: "150px",
-                                }}
-                                >
-                                remove
-                                </Button>
+                    <div className="relative">
+                      <TextField
+                          variant="outlined"
+                          id="name"
+                          label={`Feature ${index + 1}`}
+                          error={!!errors.features?.[index]} 
+                          helperText={errors.features?.[index]?.message} 
+                          {...register(`features[${index}]`)}
+                          sx={{
+                              width: "100%",
+                          }}
+                      />
 
+                      
+                      {/* {index > 0 && (  */}
+                              <button
+                                className="text-center absolute top-4 right-2 hover:text-red-500"
+                                onClick={() => remove(index)}
+                              >
+                                <i className="fa-solid fa-trash"></i>
+                              </button>
+                      {/* )} */}
+                    
                     </div>
+                    
                 </div>
 
 
@@ -136,7 +168,7 @@ const AddSubscription = () => {
 
           }
 
-        <div className="text-center">
+        <div className="text-center my-4">
             <Button
               variant="contained"
               color="primary"
@@ -148,12 +180,12 @@ const AddSubscription = () => {
                 width: "150px",
               }}
             >
-            Add new Feature
+            Add Feature
             </Button>
 
           </div>
 
-          <div className="text-center">
+          <div className="text-center my-4">
             <Button
               variant="contained"
               color="primary"

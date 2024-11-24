@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import Signup from './components/auth/signup';
 import Signin from './components/auth/signin';
-import SubscritionPlans from './components/branchOwnerDashboard/subscription';
+import SubscriptionPlans from './components/branchOwnerDashboard/subscription';
 import AddSubscription from './components/subscription/add_subscription';
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
           <Route path='signup' element={<Signup/>}/>
           <Route path='signin' element={<Signin/>}/>
 
-          <Route path='subscription' element={<SubscritionPlans/>}/>
+          <Route path='subscription' element={<SubscriptionPlans/>}/>
 
           <Route path='addsubscription' element={<AddSubscription/>}/>
         </Routes>
