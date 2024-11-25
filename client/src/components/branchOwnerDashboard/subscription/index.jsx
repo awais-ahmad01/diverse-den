@@ -20,9 +20,9 @@ const SubscriptionPlans = () => {
   //   },
   // ]);
 
-  const [selectedPlan, setSelectedPlan] = useState(null);
+  // const [selectedPlan, setSelectedPlan] = useState(null);
 
-  console.log("selected Plan: ", selectedPlan )
+  // console.log("selected Plan: ", selectedPlan )
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -49,14 +49,16 @@ const SubscriptionPlans = () => {
   
 
 
-  const makePayment = (token) => {
+  const makePayment = (token, selectedPlan) => {
     const body = {
       token,
-      planId:selectedPlan,
+      planName:selectedPlan,
     };
 
+    console.log("Plan: ", selectedPlan )
+
     return axios
-      .post("", body)
+      .post("http://localhost:3000/planPayment", body)
       .then((response) => {
         console.log(response.data)
       })
@@ -93,7 +95,9 @@ const SubscriptionPlans = () => {
                 </h1>
                 <StripeCheckout
                   stripeKey="pk_test_51QOJ4oDZzPFomXhEJc2PFEnX4MqUEEzMkA8gwhbgA7I7GzXobg0QAwn06yuHn2Gb1ofTkwLHiGPI7N8XrxVMi0xt00zvcbJDcy"
-                  token={makePayment}
+                  token={(token) => {
+                    makePayment(token, plan.name)
+                  }}
                   name="Buy plan"
                   amount={plan.price * 100}
                   // currency="PKR"
@@ -108,7 +112,7 @@ const SubscriptionPlans = () => {
                       backgroundColor: "#603F26",
                       color: "#FFFFFF",
                     }}
-                    onClick={() => setSelectedPlan(plan.planId)}
+                    // onClick={() => setSelectedPlan(plan.name)}
                   >
                     Select {plan.name}
                   </Button>

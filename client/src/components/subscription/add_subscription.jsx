@@ -101,7 +101,7 @@ const onSubmit = async (data) => {
         onSubmit={handleSubmit(onSubmit)}
         style={{ width: "70%" }}
         className="border-[0.2px] border-black border-opacity-50 p-8 
-                    pt-3 rounded-lg my-8"
+                     pt-3 rounded-lg my-8"
       >
         <h1 className="mb-4 font-medium text-2xl">Create Plan</h1>
 
@@ -185,11 +185,11 @@ const onSubmit = async (data) => {
 
           </div>
 
-          <div className="text-center my-4">
+          <div className="text-center mt-10">
             <Button
               variant="contained"
               color="primary"
-              size="large"
+              size="medium"
               type="submit"
               sx={{
                 textTransform: "none",
