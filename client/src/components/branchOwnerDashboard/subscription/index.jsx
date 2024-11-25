@@ -22,6 +22,8 @@ const SubscriptionPlans = () => {
 
   const [selectedPlan, setSelectedPlan] = useState(null);
 
+  console.log("selected Plan: ", selectedPlan )
+
   useEffect(() => {
     const fetchPlans = async () => {
       try {
@@ -53,7 +55,6 @@ const SubscriptionPlans = () => {
       planId:selectedPlan,
     };
 
-    console.log(selectedPlan)
     return axios
       .post("", body)
       .then((response) => {
@@ -91,11 +92,11 @@ const SubscriptionPlans = () => {
                   <span className="font-medium text-[15px] ml-1">PKR/month</span>
                 </h1>
                 <StripeCheckout
-                  stripeKey="process.env.STRIPE_KEY"
+                  stripeKey="pk_test_51QOJ4oDZzPFomXhEJc2PFEnX4MqUEEzMkA8gwhbgA7I7GzXobg0QAwn06yuHn2Gb1ofTkwLHiGPI7N8XrxVMi0xt00zvcbJDcy"
                   token={makePayment}
                   name="Buy plan"
-                  amount={plan.price}
-                  currency="PKR"
+                  amount={plan.price * 100}
+                  // currency="PKR"
                 >
                   <Button
                     variant="contained"
@@ -107,7 +108,7 @@ const SubscriptionPlans = () => {
                       backgroundColor: "#603F26",
                       color: "#FFFFFF",
                     }}
-                    onClick={() => setSelectedPlan(plan.id)}
+                    onClick={() => setSelectedPlan(plan.planId)}
                   >
                     Select {plan.name}
                   </Button>
