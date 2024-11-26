@@ -64,8 +64,17 @@ const SubscriptionPlans = () => {
 
 
   const makePayment = (token, selectedPlan) => {
+
+    const tokenId = localStorage.getItem("token"); 
+
+    if (!token) {
+      console.error("No token found!");
+      return; 
+    }
+
     const body = {
       token,
+      tokenId,
       planName:selectedPlan,
       userId: userId
     };
