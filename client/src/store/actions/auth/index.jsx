@@ -15,7 +15,7 @@ export const registerUser = createAsyncThunk(
             console.log(response.data)
 
             dispatch(successGlobal('Welcome !!.Check your emails to validate account'))
-            return {data:response.data.user, auth:true}
+            return {data:response.data.user, auth:false}
         }
         catch(error){
             dispatch(errorGlobal(error.response.data.message))
@@ -54,4 +54,33 @@ export const signInUser = createAsyncThunk(
         }
     }
 
+)
+
+export const isAuth = createAsyncThunk(
+    'auth/isAuth',
+    async()=>{
+        try{
+
+            const token = localStorage.getItem("token"); 
+
+            console.log("Retrieved Token:", token);
+            if (!token) {
+                console.error("No token found!");
+                return; 
+            }
+
+
+            const request = await axios.get('', 
+                {
+                    headers: {
+                      Authorization: `Bearer ${token}`, 
+                      "Content-Type": "application/json",
+                    },
+                }
+             );
+            return { data:request.data, auth:true }
+        } catch(error){
+            return { data:{},auth:false }
+        }
+    }
 )

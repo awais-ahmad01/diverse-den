@@ -3,8 +3,22 @@ import { useState } from "react";
 import { Button } from "@mui/material";
 import StripeCheckout from "react-stripe-checkout";
 import axios from "axios";
+import { useSelector } from "react-redux";
+
+
 
 const SubscriptionPlans = () => {
+
+  const userData = useSelector(state => state.auth)
+
+  // console.log("User", userData)
+
+  const {_id:userId} = userData.user
+
+  // console.log("ID:", UserId)
+
+
+
   const [plans, setPlans] = useState([]);
   //   {
   //     id: 1,
@@ -53,9 +67,11 @@ const SubscriptionPlans = () => {
     const body = {
       token,
       planName:selectedPlan,
+      userId: userId
     };
 
     console.log("Plan: ", selectedPlan )
+    console.log('UserId: ', userId )
 
     return axios
       .post("http://localhost:3000/planPayment", body)
