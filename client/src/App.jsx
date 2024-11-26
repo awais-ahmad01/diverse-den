@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import "./App.css";
 
+import { useEffect } from "react";
+
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useDispatch, useSelector } from "react-redux";
-// import { isAuth } from './store/actions/auth';
+import { isAuth } from './store/actions/auth';
 
 import Signup from "./components/auth/signup";
 import Signin from "./components/auth/signin";
@@ -19,13 +21,14 @@ import BranchOwnerPanel from "./components/BranchOwnerPanel";
 import BranchOwnerDashboard from "./components/BranchOwnerPanel/branchOwnerDashboard";
 import RiderPanel from "./components/RiderPanel";
 import CustomerPanel from "./components/CustomerPanel";
+import AddBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/addBranches";
 
 function App() {
   const dispatch = useDispatch();
 
-  // useEffect(()=>{
-  //   dispatch(isAuth())
-  // },[])
+  useEffect(()=>{
+    dispatch(isAuth())
+  },[])
 
   return (
     <>
@@ -67,6 +70,8 @@ function App() {
           <Route path="addsubscription" element={<AddSubscription />} />
 
           <Route path="business_setup" element={<BusinessSetup />} />
+
+          <Route path="/addbranch" element={<AddBranches />} />
           
         </Routes>
       </BrowserRouter>
