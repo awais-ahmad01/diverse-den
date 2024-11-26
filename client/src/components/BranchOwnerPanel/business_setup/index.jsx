@@ -4,6 +4,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import axios from 'axios'
+import { useSelector } from "react-redux";
 
 import {
   TextField,
@@ -17,6 +18,10 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const BusinessSetup = () => {
+
+  const userData = useSelector(state => state.auth)
+
+  const {_id:userId} = userData.user
 
   const [bankNames, setBankNames] = useState([])
 
@@ -68,6 +73,11 @@ const BusinessSetup = () => {
   const onSubmit = async (data) => {
     try {
       const token = localStorage.getItem("token"); 
+
+      const body = {
+        data,
+        userId: userId
+      }
   
       console.log("Retrieved Token:", token);
       if (!token) {
@@ -77,7 +87,7 @@ const BusinessSetup = () => {
   
       const response = await axios.post(
         "http://localhost:3000/",
-        data,
+        body,
         {
           headers: {
             Authorization: `Bearer ${token}`, 
