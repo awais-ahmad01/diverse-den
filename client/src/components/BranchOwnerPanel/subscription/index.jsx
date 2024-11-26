@@ -41,7 +41,23 @@ const SubscriptionPlans = () => {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const plans_response = await axios.get("http://localhost:3000/subscriptionPlans");
+
+        const token = localStorage.getItem("token"); 
+
+        if (!token) {
+          console.error("No token found!");
+          return; 
+        }
+
+
+        const plans_response = await axios.get("http://localhost:3000/subscriptionPlans", 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, 
+              "Content-Type": "application/json",
+            },
+          }
+        );
         // console.log(plans_response.data)
 
         setPlans(plans_response.data.allplans);
@@ -67,14 +83,13 @@ const SubscriptionPlans = () => {
 
     const tokenId = localStorage.getItem("token"); 
 
-    if (!token) {
+    if (!tokenId) {
       console.error("No token found!");
       return; 
     }
 
     const body = {
       token,
-      tokenId,
       planName:selectedPlan,
       userId: userId
     };
@@ -83,7 +98,14 @@ const SubscriptionPlans = () => {
     console.log('UserId: ', userId )
 
     return axios
-      .post("http://localhost:3000/planPayment", body)
+      .post("http://localhost:3000/planPayment", body,
+        {
+          headers: {
+            Authorization: `Bearer ${tokenId}`, 
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((response) => {
         console.log(response.data)
       })
