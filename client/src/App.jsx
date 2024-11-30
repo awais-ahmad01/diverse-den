@@ -21,14 +21,31 @@ import BranchOwnerPanel from "./components/BranchOwnerPanel";
 import BranchOwnerDashboard from "./components/BranchOwnerPanel/branchOwnerDashboard";
 import RiderPanel from "./components/RiderPanel";
 import CustomerPanel from "./components/CustomerPanel";
-import AddBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/addBranches";
+import AddBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/addBranches";
+import UpdateBranch from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/updateBranch";
+import ViewBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/viewBranches";
+import BranchOwnerDashboardHeader from "./layouts/branchOwnerLayout/header";
+import SideBar from "./layouts/branchOwnerLayout/sideBar";
+import BranchOwnerLayout from "./layouts/branchOwnerLayout";
+import Test from "./components/BranchOwnerPanel/branchOwnerDashboard/test";
 
 function App() {
   const dispatch = useDispatch();
 
-  useEffect(()=>{
-    dispatch(isAuth())
-  },[])
+
+const { isloading, isauthenticated } = useSelector((state) => state.auth);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    console.log("Token Verification....");
+    dispatch(isAuth()).finally(() => {
+      setAuthChecked(true);
+    });
+  }, [dispatch]);
+
+  if (!authChecked || isloading) {
+    return <div>Loading...</div>; // A loader can be displayed here
+  }
 
   return (
     <>
@@ -57,9 +74,20 @@ function App() {
             <Route path="subscription" element={<SubscriptionPlans />} />
 
             
-            {/* <Route path="business_setup" element={<BusinessSetup />} /> */}
+            <Route path="business_setup" element={<BusinessSetup />} />
 
-            <Route path="branchOwnerDashboard" element={<BranchOwnerDashboard />} />
+            <Route path="addbranch" element={<AddBranches />} />
+
+            <Route path="updatebranch" element={<UpdateBranch />} />
+
+            <Route path="viewbranches" element={<ViewBranches />} />
+
+            
+
+            <Route path="branchOwnerDashboard" element={<BranchOwnerDashboard />}>
+
+              <Route path="test" element={<Test />} />
+            </Route> 
           </Route>
 
 
@@ -69,9 +97,16 @@ function App() {
           
           <Route path="addsubscription" element={<AddSubscription />} />
 
-          <Route path="business_setup" element={<BusinessSetup />} />
 
-          <Route path="/addbranch" element={<AddBranches />} />
+          
+
+          {/* <Route path="sideBar" element={<SideBar />} />
+
+          <Route path="layout" element={<BranchOwnerLayout />} /> */}
+
+          
+
+          
           
         </Routes>
       </BrowserRouter>

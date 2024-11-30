@@ -21,7 +21,9 @@ const BusinessSetup = () => {
 
   const userData = useSelector(state => state.auth)
 
-  const {_id:userId} = userData.user
+  const {_id:userId} = userData?.user
+
+  console.log('UserId:',userId)
 
   const [bankNames, setBankNames] = useState([])
 
@@ -71,13 +73,22 @@ const BusinessSetup = () => {
 
 
   const onSubmit = async (data) => {
+    console.log("Data to send:", data);
     try {
       const token = localStorage.getItem("token"); 
 
+      console.log("UserId: ", userId)
+
       const body = {
-        data,
-        userId: userId
-      }
+        name: data.business_name,
+        description: data.description,
+        user: userId, 
+        accountHolderName: data.account_holder,
+        bankName: data.bank,
+        accountNumber: data.account_number,
+      };
+
+      console.log("Body:", body);
   
       console.log("Retrieved Token:", token);
       if (!token) {
@@ -86,7 +97,7 @@ const BusinessSetup = () => {
       }
   
       const response = await axios.post(
-        "http://localhost:3000/",
+        "http://localhost:3000/addBusiness",
         body,
         {
           headers: {
@@ -98,7 +109,7 @@ const BusinessSetup = () => {
   
       console.log("Plan added successfully:", response.data);
     } catch (error) {
-      console.error("Error adding plan:", error);
+      console.log("Error adding plan:", error);
     }
   };
   

@@ -1,10 +1,13 @@
 import React from 'react'
+import { Outlet } from 'react-router-dom'
+import BranchOwnerLayout from '../../../layouts/branchOwnerLayout'
+
 
 const BranchOwnerDashboard = () => {
   return (
-    <div>
-      BranchOwnerDashboard
-    </div>
+    <BranchOwnerLayout>
+      <Outlet/>
+    </BranchOwnerLayout>
   )
 }
 

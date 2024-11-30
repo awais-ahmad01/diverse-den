@@ -4,18 +4,22 @@ import { useSelector } from 'react-redux'
 
 const PreventSignin = (props) => {
 
-    const location = useLocation()
-    const users = useSelector(state => state.auth)
+    const { isauthenticated, user, isloading } = useSelector((state) => state.auth);
+    const location = useLocation();
+  
+    if (isloading) {
+      return <div>Loading...</div>; // Optional: Add a loader
+    }
+  
 
     
-    if(users.isauthenticated){
+    if(isauthenticated){
 
-        if(users.user){
-            const userRole = users.user.role
+            const userRole = user?.role;
 
             if(userRole === 'Branch Owner'){
 
-                if(users.user.activePlan){
+                if(user.activePlan){
                     return <Navigate to='/branchOwnerPanel/branchOwnerDashboard' state={{from:location}} replace/>
                 }
                 return <Navigate to='/branchOwnerPanel/subscription' state={{from:location}} replace/>
@@ -32,11 +36,11 @@ const PreventSignin = (props) => {
             
         }
 
-
+        return props.children
         
     }
 
-    return props.children
-}
+    
+
 
 export default PreventSignin

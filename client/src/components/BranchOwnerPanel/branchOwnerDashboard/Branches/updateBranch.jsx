@@ -1,3 +1,5 @@
+
+
 import React from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
@@ -16,75 +18,97 @@ import {
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-const AddBranches = () => {
-  const theme = createTheme({
-    palette: {
-      primary: {
-        main: "#603F26",
-      },
-    },
-  });
 
-  const schema = yup.object({
-    branch_name: yup.string().required("Branch name is required"),
-    branch_code: yup.string().required("Branch code is required"),
-    branch_email: yup
-      .string()
-      .required("Email is required")
-      .email("Email format is not valid"),
-    branch_city: yup.string().required("Branch city is required"),
-    branch_address: yup.string().required("Branch address is required"),
-    branch_contact: yup.string().required("Branch contact is required"),
-  });
+const UpdateBranch = () => {
 
-  const form = useForm({
-    defaultValues: {
-      branch_name: "",
-      branch_code: "",
-      branch_email: "",
-      branch_address: "",
-      branch_city: "",
-      branch_contact: "",
-    },
 
-    resolver: yupResolver(schema),
-  });
+    const { register, setValue, handleSubmit, formState } = useForm();
+    const { errors } = formState;
 
-  const { register, control, formState, handleSubmit } = form;
 
-  const { errors } = formState;
-
-  const onSubmit = async (data) => {
-
-    // console.log(data)
-    try {
-      const token = localStorage.getItem("token");
-
-      console.log("Retrieved Token:", token);
-      if (!token) {
-        console.error("No token found!");
-        return;
-      }
-
-      const response = await axios.post(
-        "",
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+    const theme = createTheme({
+        palette: {
+          primary: {
+            main: "#603F26",
           },
-        }
-      );
+        },
+      });
+    
+      const schema = yup.object({
+        branch_name: yup.string().required("Branch name is required"),
+        branch_code: yup.string().required("Branch code is required"),
+        branch_email: yup
+          .string()
+          .required("Email is required")
+          .email("Email format is not valid"),
+        branch_city: yup.string().required("Branch city is required"),
+        branch_address: yup.string().required("Branch address is required"),
+        branch_contact: yup.string().required("Branch contact is required"),
+      });
+    
+      const form = useForm({
+        defaultValues: {
+          branch_name: "",
+          branch_code: "",
+          branch_email: "",
+          branch_address: "",
+          branch_city: "",
+          branch_contact: "",
+        },
+    
+        resolver: yupResolver(schema),
+      });
 
-      console.log("Plan added successfully:", response.data);
-    } catch (error) {
-      console.error("Error adding plan:", error);
-    }
-  };
+
+
+      useEffect(() => {
+        const fetchBranchDetails = async () => {
+          try {
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`http://localhost:3000/branch/${branchId}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+    
+            const branchData = response.data;
+            // Populate form fields with branch data
+            setValue("branch_name", branchData.name);
+            setValue("branch_code", branchData.branchCode);
+            setValue("branch_email", branchData.emailAddress);
+            setValue("branch_city", branchData.city);
+            setValue("branch_address", branchData.address);
+            setValue("branch_contact", branchData.contactNo);
+          } catch (error) {
+            console.error("Error fetching branch details:", error);
+          }
+        };
+    
+        fetchBranchDetails();
+      }, [branchId, setValue]);
+    
+      const onSubmit = async (data) => {
+        try {
+          const token = localStorage.getItem("token");
+          const response = await axios.put(`http://localhost:3000/branch/${branchId}`, data, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          });
+    
+          console.log("Branch updated successfully:", response.data);
+        } catch (error) {
+          console.error("Error updating branch:", error);
+        }
+      };
+    
+
+
 
   return (
     <div>
+      <div>
       <div className="flex flex-col justify-center items-center mt-8">
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -93,7 +117,7 @@ const AddBranches = () => {
                pt-3 rounded-lg my-8"
         >
           <h1 className="mb-4 font-medium text-2xl">
-            Add Branches
+            Update Branch
           </h1>
 
           <ThemeProvider theme={theme}>
@@ -199,14 +223,15 @@ const AddBranches = () => {
                   
                 }}
               >
-                Add
+                Update
               </Button>
             </div>
           </ThemeProvider>
         </form>
       </div>
     </div>
-  );
-};
+    </div>
+  )
+}
 
-export default AddBranches;
+export default UpdateBranch

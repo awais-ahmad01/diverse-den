@@ -5,12 +5,19 @@ import { useSelector } from 'react-redux'
 const AuthGuard = (props) => {
 
 
-    const location = useLocation()
-    const users = useSelector(state => state.auth)
+    const { isauthenticated, isloading } = useSelector((state) => state.auth);
+    const location = useLocation();
+  
+    if (isloading) {
+      return <div>Loading...</div>; // Optional: Add a loader for better UX
+    }
 
-    if(!users.isauthenticated){
+    if(!isauthenticated){
+        console.log("Auth Guard: Not authenticated");
         return <Navigate to='/signin' state={{from:location}} replace/>
     }
+
+    console.log('auth Guard2222....')
 
     return props.children
   

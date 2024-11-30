@@ -65,13 +65,13 @@ export const isAuth = createAsyncThunk(
 
             console.log("Retrieved Token:", token);
             if (!token) {
-                console.error("No token found!");
+                console.log("No token found!");
                 
-                return; 
+                return { data:{},auth:false }; 
             }
 
 
-            const request = await axios.get('', 
+            const request = await axios.get('http://localhost:3000/verifyRefresh', 
                 {
                     headers: {
                       Authorization: `Bearer ${token}`, 
@@ -79,7 +79,7 @@ export const isAuth = createAsyncThunk(
                     },
                 }
              );
-            return { data:request.data, auth:true }
+            return { data:request.data.user, auth:true }
             } 
             catch(error){
                 localStorage.removeItem('token')
