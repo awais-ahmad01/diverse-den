@@ -4,9 +4,11 @@ import { errorGlobal, successGlobal } from '../../reducers/notifications';
 
 export const getBranches = createAsyncThunk(
     'branches/getBranches',
-    async (_, thunkAPI) => {
+    async (business, thunkAPI) => {
       try {
         console.log("Get Branches.....");
+
+        console.log('business:',business)
   
         const token = localStorage.getItem("token");
         console.log("Retrieved Token:", token);
@@ -16,7 +18,7 @@ export const getBranches = createAsyncThunk(
           return;
         }
   
-        const response = await axios.get('http://localhost:3000/viewBranches', {
+        const response = await axios.get('http://localhost:3000/viewBranches', business, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

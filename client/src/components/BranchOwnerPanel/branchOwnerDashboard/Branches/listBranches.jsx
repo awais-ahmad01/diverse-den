@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { getBranches } from "../../../../store/actions/branches";
@@ -10,9 +10,13 @@ import { Button } from "@mui/material";
 const ListBranches = () => {
   const dispatch = useDispatch();
 
+  const {user} = useSelector(state => state.auth)
+
+  console.log("id:", user.business)
+
   useEffect(() => {
     console.log("getting.....");
-    dispatch(getBranches());
+    dispatch(getBranches(user.business));
   }, []);
 
   return (
