@@ -24,16 +24,15 @@ import CustomerPanel from "./components/CustomerPanel";
 import AddBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/addBranches";
 import UpdateBranch from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/updateBranch";
 import ViewBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/viewBranches";
-import BranchOwnerDashboardHeader from "./layouts/branchOwnerLayout/header";
-import SideBar from "./layouts/branchOwnerLayout/sideBar";
-import BranchOwnerLayout from "./layouts/branchOwnerLayout";
-import Test from "./components/BranchOwnerPanel/branchOwnerDashboard/test";
+import ListBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/listBranches";
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 function App() {
   const dispatch = useDispatch();
 
 
-const { isloading, isauthenticated } = useSelector((state) => state.auth);
+  const { isloading, isauthenticated } = useSelector((state) => state.auth);
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
@@ -44,7 +43,9 @@ const { isloading, isauthenticated } = useSelector((state) => state.auth);
   }, [dispatch]);
 
   if (!authChecked || isloading) {
-    return <div>Loading...</div>; // A loader can be displayed here
+    return  <div className='text-center mt-28'>
+                <CircularProgress/>
+            </div> 
   }
 
   return (
@@ -76,9 +77,9 @@ const { isloading, isauthenticated } = useSelector((state) => state.auth);
             
             <Route path="business_setup" element={<BusinessSetup />} />
 
-            <Route path="addbranch" element={<AddBranches />} />
+            
 
-            <Route path="updatebranch" element={<UpdateBranch />} />
+            
 
             <Route path="viewbranches" element={<ViewBranches />} />
 
@@ -86,7 +87,11 @@ const { isloading, isauthenticated } = useSelector((state) => state.auth);
 
             <Route path="branchOwnerDashboard" element={<BranchOwnerDashboard />}>
 
-              <Route path="test" element={<Test />} />
+              <Route path="branchesList" element={<ListBranches />} />
+
+              <Route path="addBranch" element={<AddBranches />} />
+
+              <Route path="updatebranch" element={<UpdateBranch />} />
             </Route> 
           </Route>
 

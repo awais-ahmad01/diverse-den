@@ -4,20 +4,20 @@ import BranchOwnerDashboardHeader from "./header";
 
 const BranchOwnerLayout = (props) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const hamburgerRef = useRef(null); // Ref for hamburger icon
+  const hamburgerRef = useRef(null); 
 
-  // Toggle the sidebar
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prevState) => !prevState);
   };
 
-  // Handle window resizing to open or collapse the sidebar
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 640) {
-        setIsSidebarOpen(true); // Automatically open sidebar on large screens
+        setIsSidebarOpen(true); 
       } else {
-        setIsSidebarOpen(false); // Collapse sidebar on small screens
+        setIsSidebarOpen(false); 
       }
     };
 
@@ -27,18 +27,18 @@ const BranchOwnerLayout = (props) => {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Fixed Header */}
+    <div className="flex flex-col min-h-screen overflow-x-hidden bg-gray-50">
+     
       <BranchOwnerDashboardHeader toggleSidebar={toggleSidebar} hamburgerRef={hamburgerRef} />
       
-      {/* Layout with Sidebar and Main Content */}
-      <div className="flex flex-1 mt-16"> {/* mt-16 creates space for the fixed header */}
-        {/* Sidebar */}
+      
+      <div className="flex flex-1 mt-14"> 
+
         <SideBar isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} toggleSidebar={toggleSidebar} 
         hamburgerRef={hamburgerRef} />
 
-        {/* Main Content */}
-        <div className="flex-1 ml-10 sm:ml-64 p-5 mt-4 sm:mt-10">
+        
+        <div className="flex-1 sm:pl-64 pt-1">
           {props.children}
         </div>
       </div>

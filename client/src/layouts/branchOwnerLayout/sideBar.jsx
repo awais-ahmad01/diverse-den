@@ -1,9 +1,9 @@
 import React, { useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // Use react-router Link or any routing library
-import { FaHome, FaBox } from 'react-icons/fa'; // Icons for navigation
+import { FaHome, FaBox } from 'react-icons/fa';
+import { Link } from 'react-router-dom'; 
 
 const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef }) => {
-  const sidebarRef = useRef(null); // Reference to sidebar element
+  const sidebarRef = useRef(null); 
 
 
   const handleSideBar = () => {
@@ -18,38 +18,37 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
   const handleClickOutside = (event) => {
 
     console.log("SideBArRef: ", sidebarRef)
-    // Check if sidebar is open and sidebarRef is not null before calling .contains()
+
     if (
       isSidebarOpen &&
       sidebarRef.current &&  
-      !sidebarRef.current.contains(event.target) && // Only proceed if click is outside the sidebar
-      !hamburgerRef.current.contains(event.target) // Exclude the hamburger icon click
+      !sidebarRef.current.contains(event.target) && 
+      !hamburgerRef.current.contains(event.target) 
     ) {
-      setIsSidebarOpen(false); // Close the sidebar if clicked outside
+      setIsSidebarOpen(false); 
     }
   };
 
   useEffect(() => {
-    // Add event listener to detect clicks outside the sidebar
+    
     if (isSidebarOpen && window.innerWidth < 640) {
-        document.addEventListener('mousedown', handleClickOutside);  // Add listener on open sidebar
+        document.addEventListener('mousedown', handleClickOutside);  
       } else {
-        document.removeEventListener('mousedown', handleClickOutside);  // Remove listener if sidebar is closed
+        document.removeEventListener('mousedown', handleClickOutside);  
       }
 
-    // Cleanup the event listener when the component is unmounted
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isSidebarOpen]);
+  },[isSidebarOpen])
 
   return (
     <div
       ref={sidebarRef}
       className={`${
-        isSidebarOpen ? 'w-60' : 'hidden'
-      } sm:w-60 bg-[#603F26] text-white h-full p-5 fixed top-10
-        sm:top-12 left-0 transition-all duration-300`}
+        isSidebarOpen ? 'w-64' : 'hidden'
+      } sm:w-64 bg-[#603F26] text-white h-full p-5 fixed top-10
+         left-0 transition-all duration-300 border-r-4 border-[#8e6c4f] z-40`}
     >
 
       {/* <div className='mb-2'>
@@ -57,22 +56,110 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
       </div> */}
       <nav className='my-2'>
         <ul>
-          <li>
+          <li className='mb-2'>
             <Link 
-              to="test" 
+              to="" 
               className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
-              onClick={() => handleSideBar()}  // Close sidebar on link click
+              onClick={() => handleSideBar()}  
             >
-              <FaHome /> {isSidebarOpen && <span>Dashboard</span>}
+              <FaHome /> {isSidebarOpen && <span className='font-bold'>Dashboard</span>}
             </Link>
           </li>
-          <li>
+          <li className='mb-2'>
             <Link
-              to=""
+              to="branchesList"
               className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
-              onClick={() => handleSideBar()}  // Close sidebar on link click
+              onClick={() => handleSideBar()}  
             >
-              <FaBox /> {isSidebarOpen && <span>Manage Branches</span>}
+              <FaBox /> {isSidebarOpen && <span className='font-bold'>Manage Branches</span>}
+            </Link>
+          </li>
+
+          
+
+          <li className='mb-2'>
+            <Link 
+              to="" 
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaHome /> {isSidebarOpen && <span className='font-bold'>Manage Salespersons</span>}
+            </Link>
+          </li>
+          <li className='mb-2'>
+            <Link
+              to="branchesList"
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaBox /> {isSidebarOpen && <span className='font-bold'>Manage Products</span>}
+            </Link>
+          </li>
+
+          <li className='mb-2'>
+            <Link 
+              to="" 
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaHome /> {isSidebarOpen && <span className='font-bold'>Manage Orders</span>}
+            </Link>
+          </li>
+          <li className='mb-2'>
+            <Link
+              to="branchesList"
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaBox /> {isSidebarOpen && <span className='font-bold'>Reports and Analytics</span>}
+            </Link>
+          </li>
+
+          <li className='mb-2'>
+            <Link 
+              to="" 
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaHome /> {isSidebarOpen && <span className='font-bold'>Product Reviews</span>}
+            </Link>
+          </li>
+          <li className='mb-2'>
+            <Link
+              to="branchesList"
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaBox /> {isSidebarOpen && <span className='font-bold'>Gift Cards</span>}
+            </Link>
+          </li>
+
+          <li className='mb-2'>
+            <Link 
+              to="" 
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaHome /> {isSidebarOpen && <span className='font-bold'>Sale Events</span>}
+            </Link>
+          </li>
+          <li className='mb-2'>
+            <Link
+              to="branchesList"
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaBox /> {isSidebarOpen && <span className='font-bold'>Chat</span>}
+            </Link>
+          </li>
+
+          <li className='mb-2'>
+            <Link
+              to="branchesList"
+              className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
+              onClick={() => handleSideBar()}  
+            >
+              <FaBox /> {isSidebarOpen && <span className='font-bold'>Subscriptions</span>}
             </Link>
           </li>
         </ul>

@@ -4,10 +4,13 @@ import { Button } from "@mui/material";
 import StripeCheckout from "react-stripe-checkout";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 
 
 const SubscriptionPlans = () => {
+
+  const navigate = useNavigate()
 
   const userData = useSelector(state => state.auth)
 
@@ -108,6 +111,7 @@ const SubscriptionPlans = () => {
       )
       .then((response) => {
         console.log(response.data)
+        navigate('../business_setup')
       })
       .catch((error) => {
         throw error;

@@ -87,3 +87,11 @@ export const isAuth = createAsyncThunk(
             }
     }
 )
+
+
+export const signOut = createAsyncThunk(
+    'users/signOut',
+    async()=>{
+        localStorage.removeItem('token')
+    }
+)
