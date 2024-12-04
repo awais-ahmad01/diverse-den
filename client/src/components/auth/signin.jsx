@@ -1,11 +1,10 @@
-import React, { useRef } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { showToast } from "../../tools";
-import { clearNotifications } from "../../store/reducers/notifications";
+import {useState } from "react";
+import { useDispatch } from "react-redux";
+
+
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import {
@@ -22,10 +21,28 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { signInUser } from "../../store/actions/auth";
 
 
-const Signin = () => {
-  const notifications = useSelector((state) => state.notifications);
-  let navigate = useNavigate();
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+
+
+
+const Signin = () => {
+
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
   const theme = createTheme({
     palette: {
       primary: {
@@ -60,22 +77,7 @@ const Signin = () => {
     dispatch(signInUser(data));
   };
 
-  useEffect(() => {
-    let { global } = notifications;
-    if (notifications && global.error) {
-      const msg = global.msg ? global.msg : "Error";
-      showToast("ERROR", msg);
-      dispatch(clearNotifications());
-    }
-    if (notifications && global.success) {
-      const msg = global.msg ? global.msg : "Good!!";
-      console.log(msg);
-      showToast("SUCCESS", msg);
-      dispatch(clearNotifications());
-      // navigate('/branchOwnerPanel/subscription')
-    }
-  }, [notifications]);
-
+  
   return (
     
       <div className="flex flex-col justify-center items-center mt-8">
@@ -85,6 +87,7 @@ const Signin = () => {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
+          autoComplete="off"
           style={{ width: "450px" }}
           className="border-[0.2px] border-black border-opacity-50 p-8 
   pt-3 rounded-lg my-8"
@@ -99,6 +102,7 @@ const Signin = () => {
                 label="Email"
                 error={errors.email ? true : false}
                 helperText={errors.email?.message}
+                autoComplete="new-email"
                 {...register("email")}
                 sx={{
                   width: "100%",
@@ -107,18 +111,40 @@ const Signin = () => {
             </div>
 
             <div className="mb-8">
-              <TextField
-                variant="outlined"
-                id="password"
-                label="Password"
-                error={errors.password ? true : false}
-                helperText={errors.password?.message}
-                {...register("password")}
-                sx={{
-                  width: "100%",
-                }}
-              />
-            </div>
+      <TextField
+        variant="outlined"
+        id="password"
+        label="Password"
+        type={showPassword ? "text" : "password"}  // Toggle input type based on state
+        error={!!errors.password} // Show error if there's a password validation error
+        helperText={errors.password?.message} // Show error message from validation
+        autoComplete="new-password" // Disable autocomplete
+        {...register("password")} // Register the input field with react-hook-form
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                onClick={handleClickShowPassword}
+                onMouseDown={handleMouseDownPassword}
+                edge="end"
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+        sx={{
+          width: "100%",
+        }}
+      />
+    </div>
+
+
+
+            
+
+
 
             <div className="text-center">
               <Button

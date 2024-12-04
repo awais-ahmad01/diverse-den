@@ -3,7 +3,8 @@ import { getBranches } from "../../actions/branches";
 
 let default_state = {
   isloading: false,
-  branches: []
+  branches: [],
+  
 };
 
 export const branchesSlice = createSlice({
@@ -20,6 +21,7 @@ export const branchesSlice = createSlice({
       .addCase(getBranches.fulfilled, (state, action) => {
         state.isloading = false;
         state.branches = action.payload.data;
+        state.meta = action.payload.metaData;
       })
       .addCase(getBranches.rejected, (state) => {
         state.isloading = false;

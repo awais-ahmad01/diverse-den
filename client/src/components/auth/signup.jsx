@@ -1,5 +1,5 @@
-import React, { useRef } from "react";
-import { useEffect } from 'react';
+import React from "react";
+import { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from 'react-redux';
@@ -20,13 +20,32 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
+
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+
+import InputAdornment from '@mui/material/InputAdornment';
+import IconButton from '@mui/material/IconButton';
+
 import { registerUser } from "../../store/actions/auth";
 
 const Signup = () => {
 
-
   const notifications = useSelector(state => state.notifications);
   let navigate = useNavigate()
+
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
 
 
 
@@ -205,9 +224,24 @@ const Signup = () => {
               variant="outlined"
               id="password"
               label="Password"
+              type={showPassword ? "text" : "password"} 
               error={errors.password ? true : false}
               helperText={errors.password?.message}
               {...register("password")}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               sx={{
                 width: "100%",
               }}
@@ -219,9 +253,24 @@ const Signup = () => {
               variant="outlined"
               id="confirmpassword"
               label="Confirm Password"
+              type={showPassword ? "text" : "password"} 
               error={errors.confirmpassword ? true : false}
               helperText={errors.confirmpassword?.message}
               {...register("confirmpassword")}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
               sx={{
                 width: "100%",
               }}

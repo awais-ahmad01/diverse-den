@@ -8,7 +8,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import { useDispatch, useSelector } from "react-redux";
-import { isAuth } from './store/actions/auth';
+import { isAuth } from "./store/actions/auth";
 
 import Signup from "./components/auth/signup";
 import Signin from "./components/auth/signin";
@@ -23,14 +23,14 @@ import RiderPanel from "./components/RiderPanel";
 import CustomerPanel from "./components/CustomerPanel";
 import AddBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/addBranches";
 import UpdateBranch from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/updateBranch";
-import ViewBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/viewBranches";
 import ListBranches from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/listBranches";
-import CircularProgress from '@mui/material/CircularProgress';
-
+import CircularProgress from "@mui/material/CircularProgress";
+import ListSalespersons from "./components/BranchOwnerPanel/branchOwnerDashboard/salesperson/listSalespersons";
+import AddSalesperson from "./components/BranchOwnerPanel/branchOwnerDashboard/salesperson/addSalesperson";
+import UpdateSalesperson from "./components/BranchOwnerPanel/branchOwnerDashboard/salesperson/updateSalesperson";
 
 function App() {
   const dispatch = useDispatch();
-
 
   const { isloading, isauthenticated } = useSelector((state) => state.auth);
   const [authChecked, setAuthChecked] = useState(false);
@@ -43,9 +43,11 @@ function App() {
   }, [dispatch]);
 
   if (!authChecked || isloading) {
-    return  <div className='text-center mt-28'>
-                <CircularProgress/>
-            </div> 
+    return (
+      <div className="text-center mt-28">
+        <CircularProgress />
+      </div>
+    );
   }
 
   return (
@@ -74,45 +76,44 @@ function App() {
           >
             <Route path="subscription" element={<SubscriptionPlans />} />
 
-            
             <Route path="business_setup" element={<BusinessSetup />} />
 
-            
 
-            
-
-            <Route path="viewbranches" element={<ViewBranches />} />
-
-            
-
-            <Route path="branchOwnerDashboard" element={<BranchOwnerDashboard />}>
-
+            <Route
+              path="branchOwnerDashboard"
+              element={<BranchOwnerDashboard />}
+            >
               <Route path="branchesList" element={<ListBranches />} />
 
               <Route path="addBranch" element={<AddBranches />} />
 
               <Route path="updatebranch" element={<UpdateBranch />} />
-            </Route> 
-          </Route>
 
+              <Route path="addSalesperson" element={<AddSalesperson />} />
+
+              <Route path="SalespersonsList" element={<ListSalespersons />}>
+                {/* <Route path="addSalesperson" element={<AddSalesperson />} /> */}
+
+                <Route
+                  path="updateSalesperson"
+                  element={<UpdateSalesperson />}
+                />
+              </Route>
+            </Route>
+          </Route>
 
           <Route path="/riderPanel" element={<RiderPanel />} />
 
           <Route path="/customerPanel" element={<CustomerPanel />} />
-          
+
           <Route path="addsubscription" element={<AddSubscription />} />
 
-
           
+          {/* <Route path="branchesList" element={<ListBranches />} /> */}
 
           {/* <Route path="sideBar" element={<SideBar />} />
 
           <Route path="layout" element={<BranchOwnerLayout />} /> */}
-
-          
-
-          
-          
         </Routes>
       </BrowserRouter>
     </>

@@ -1,17 +1,20 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 
 import { FaArrowLeft } from "react-icons/fa";
-
 import { TextField, Button, ThemeProvider, createTheme } from "@mui/material";
 import { Link } from "react-router-dom";
 
+
+
 const AddBranches = () => {
   const { user } = useSelector((state) => state.auth);
+  
+  const dispatch = useDispatch();
 
   const theme = createTheme({
     palette: {
@@ -45,16 +48,16 @@ const AddBranches = () => {
     resolver: yupResolver(schema),
   });
 
-  const { register, formState, handleSubmit } = form;
-
+  const { register, formState, handleSubmit, reset } = form;
   const { errors } = formState;
+
+
 
   const onSubmit = async (data) => {
     console.log(data);
     try {
       const token = localStorage.getItem("token");
 
-      console.log("Retrieved Token:", token);
       if (!token) {
         console.error("No token found!");
         return;
@@ -70,8 +73,6 @@ const AddBranches = () => {
         business: user.business,
       };
 
-      console.log(body);
-
       const response = await axios.post(
         "http://localhost:3000/createBranch",
         body,
@@ -83,12 +84,16 @@ const AddBranches = () => {
         }
       );
 
-      console.log("Branch added successfully:", response.data);
+      dispatch(successGlobal('Branch added successfully'));
+      reset();
+      
     } catch (error) {
+      dispatch(errorGlobal(error?.response?.data?.message || 'Failed to add branch'));
       console.error("Error adding branch:", error);
     }
   };
 
+  
   return (
     <div className="bg-gray-50 flex flex-col p-5">
       <div className="mb-6 flex items-center space-x-3 ml-2 md:ml-8 lg:ml-12">
@@ -112,6 +117,7 @@ const AddBranches = () => {
                 error={!!errors.branch_name}
                 helperText={errors.branch_name?.message}
                 {...register("branch_name")}
+                
                 sx={{ width: "100%" }}
               />
             </div>
@@ -124,6 +130,7 @@ const AddBranches = () => {
                 error={!!errors.branch_code}
                 helperText={errors.branch_code?.message}
                 {...register("branch_code")}
+                
                 sx={{ width: "100%" }}
               />
             </div>
@@ -136,6 +143,7 @@ const AddBranches = () => {
                 error={!!errors.branch_email}
                 helperText={errors.branch_email?.message}
                 {...register("branch_email")}
+                
                 sx={{ width: "100%" }}
               />
             </div>
@@ -148,6 +156,7 @@ const AddBranches = () => {
                 error={!!errors.branch_city}
                 helperText={errors.branch_city?.message}
                 {...register("branch_city")}
+                
                 sx={{ width: "100%" }}
               />
             </div>
@@ -160,6 +169,7 @@ const AddBranches = () => {
                 error={!!errors.branch_address}
                 helperText={errors.branch_address?.message}
                 {...register("branch_address")}
+                
                 sx={{ width: "100%" }}
               />
             </div>
@@ -172,6 +182,7 @@ const AddBranches = () => {
                 error={!!errors.branch_contact}
                 helperText={errors.branch_contact?.message}
                 {...register("branch_contact")}
+                
                 sx={{ width: "100%" }}
               />
             </div>

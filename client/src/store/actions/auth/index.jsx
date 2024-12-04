@@ -14,7 +14,7 @@ export const registerUser = createAsyncThunk(
 
             console.log(response.data)
 
-            dispatch(successGlobal('Welcome !!.Check your emails to validate account'))
+            dispatch(successGlobal('Welcome !! now You can login to your account'))
             return {data:response.data.user, auth:false}
         }
         catch(error){
