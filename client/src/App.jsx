@@ -91,13 +91,14 @@ function App() {
 
               <Route path="addSalesperson" element={<AddSalesperson />} />
 
-              <Route path="SalespersonsList" element={<ListSalespersons />}>
+              <Route path="salespersonsList" element={<ListSalespersons />}>
+
                 {/* <Route path="addSalesperson" element={<AddSalesperson />} /> */}
 
-                <Route
+                {/* <Route
                   path="updateSalesperson"
                   element={<UpdateSalesperson />}
-                />
+                /> */}
               </Route>
             </Route>
           </Route>

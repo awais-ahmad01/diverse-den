@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { addSalesperson } from "../../actions/salespersons";
-import { act } from "react";
+import { addSalesperson, getSalespersons } from "../../actions/salespersons";
 
 const default_State = {
     isloading: false,
@@ -20,15 +19,26 @@ export const salespersonSlice = createSlice({
 
         .addCase(addSalesperson.fulfilled, (state, action)=>{
             state.isloading = false,
-            state.lastAdded = action.payload
+            state.lastadded = action.payload
         })
 
         .addCase(addSalesperson.rejected, (state, action)=>{
             state.isloading = false
         })
+
+
+        .addCase(getSalespersons.pending, (state, action)=>{
+            state.isloading = true
+        })
+        .addCase(getSalespersons.fulfilled, (state, action)=>{
+            state.isloading = false,
+            state.salespersons = action.payload.data,
+            state.meta = action.payload.metaData
+        })
+        .addCase(getSalespersons.rejected, (state, action)=>{
+            state.isloading = false
+        })
     }
 })
-
-
 
 export default salespersonSlice.reducer;

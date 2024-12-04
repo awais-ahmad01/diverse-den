@@ -1,9 +1,9 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import axios from "axios";
 
 import { FaArrowLeft } from "react-icons/fa";
 import {
@@ -19,19 +19,16 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Link } from "react-router-dom";
 
+import { getAllBranches } from "../../../../store/actions/branches";
+import { addSalesperson } from "../../../../store/actions/salespersons";
+
 const AddSalesperson = () => {
 
+  const dispatch = useDispatch();
 
-  const branches = [
-    'branch1',
-    'branch2',
-    'branch3',
-    'branch4'
-  ]
+  const navigate = useNavigate()
 
-
-
-
+  const {allBranches} = useSelector(state => state.branches) 
 
   const { user } = useSelector((state) => state.auth);
 
@@ -63,31 +60,45 @@ const AddSalesperson = () => {
     resolver: yupResolver(schema),
   });
 
-  const { register, formState, handleSubmit } = form;
+  const { register, formState, handleSubmit, reset } = form;
 
   const { errors } = formState;
 
   const onSubmit = (data) => {
     
-
       const body = {
         name: data.salesperson_name,
         email: data.salesperson_email,
-        assignBranch: data.assigned_branch,
+        assignBranch: data.branch,
         business: user.business,
       };
 
       console.log(body);
 
-    //   dispatch......
+      dispatch(addSalesperson(body))
 
-
+      
+      navigate('../salespersonsList')
+      
+      
   };
+
+
+  useEffect(()=>{
+
+    const business = user?.business;
+
+    dispatch(getAllBranches(business))
+
+  }, [])
+
+
+
 
   return (
     <div className="bg-gray-50 flex flex-col p-5">
       <div className="mb-6 flex items-center space-x-3 ml-2 md:ml-8 lg:ml-12">
-        <Link to="../branchesList">
+        <Link to="../salespersonsList">
           <FaArrowLeft className="text-[#603F26] text-xl cursor-pointer" />
         </Link>
         <h1 className="font-bold text-2xl text-[#603F26]">Add Salesperson</h1>
@@ -143,9 +154,9 @@ const AddSalesperson = () => {
                     disableScrollLock: true,
                   }}
                 >
-                  {branches.map((branch, index) => (
-                    <MenuItem key={index} value={branch}>
-                      {branch}
+                  {allBranches.map((branch, index) => (
+                    <MenuItem key={index} value={branch.branchCode}>
+                      {branch.branchCode}
                     </MenuItem>
                   ))}
                 </Select>
@@ -162,12 +173,12 @@ const AddSalesperson = () => {
               <Button
                 variant="contained"
                 color="primary"
-                size="medium"
+                size="small"
                 type="submit"
                 sx={{
                   textTransform: "none",
-                  width: "150px",
-                  fontSize: "18px",
+                  width: "100px",
+                  fontSize: "16px",
                   fontWeight: "bold",
                 }}
               >

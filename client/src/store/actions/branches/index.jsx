@@ -193,4 +193,46 @@ export const removeBranch = createAsyncThunk(
 )
 
 
+
+export const getAllBranches = createAsyncThunk(
+  'branches/getAllBranches',
+  async (business, thunkAPI) => {
+    try {
+      console.log("Get All Branches.....");
+
+      console.log('business:',business)
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal('No token found'));
+        return;
+      }
+
+      const response = await axios.get('http://localhost:3000/allBranches', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        params: {
+          business,
+        },
+      })
+
+      console.log("All Branches: ", response.data)
+      
+      return { data: response.data.branches };
+    } catch (error) {
+      
+      thunkAPI.dispatch(errorGlobal(error.response?.data?.message || 'Failed to fetch branches'));
+      console.log(error)
+      throw error;
+    }
+  }
+);
+
+
+
+
   

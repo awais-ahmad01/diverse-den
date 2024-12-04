@@ -160,7 +160,7 @@ const ListBranches = () => {
                     <TableCell align="right">{branch.contactNo}</TableCell>
                     <TableCell align="right">{branch.emailAddress}</TableCell>
                     <TableCell align="right">
-                      {branch.salesperson || "Not Assigned"}
+                      {branch?.salesperson?.name || "Not Assigned"}
                     </TableCell>
                     <TableCell align="right">
                       <div className="flex items-center justify-center gap-3">
@@ -285,7 +285,7 @@ const ListBranches = () => {
               </p>
               <p className="text-sm font-medium text-gray-900">
                 <span className="font-bold">Salesperson:</span>{" "}
-                {branch.salesperson || "Not Assigned"}
+                {branch?.salesperson?.name || "Not Assigned"}
               </p>
               <div className="mt-3 flex items-center gap-5">
                 <Link className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
@@ -308,7 +308,7 @@ const ListBranches = () => {
 
       </div>
 
-      {meta?.nextPage && (
+      {meta?.nextPage || meta?.previousPage ? 
         <nav
           aria-label="Page navigation example"
           className="w-full flex justify-center items-center my-16"
@@ -353,7 +353,8 @@ const ListBranches = () => {
             )}
           </ul>
         </nav>
-      )}
+        : null
+      }
 
       <div>
         <Dialog

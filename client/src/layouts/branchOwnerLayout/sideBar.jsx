@@ -79,7 +79,7 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
 
           <li className='mb-2'>
             <Link 
-              to="" 
+              to="salespersonsList" 
               className="flex items-center gap-3 p-2 rounded hover:bg-[#8e6c4f] transition-colors"
               onClick={() => handleSideBar()}  
             >
