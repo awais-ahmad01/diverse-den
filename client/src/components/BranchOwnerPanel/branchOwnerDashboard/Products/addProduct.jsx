@@ -14,10 +14,12 @@ import {
   Select,
   MenuItem,
   InputLabel,
+  IconButton,
   FormControl,
   FormHelperText,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { FaTrash } from "react-icons/fa";
 
 import { Link } from "react-router-dom";
 
@@ -39,6 +41,33 @@ const AddProduct = () => {
     category: yup.string().required("Category is required"),
     price: yup.number().required("Price is required"),
     sku: yup.string().required("SKU is required"),
+    variants: yup.array().of(
+      yup.object().shape({
+        size: yup.string(),
+        material: yup.string(),
+        quantity: yup.number().when(['size', 'material', 'colors'], {
+          is: (size, material, colors) => 
+            (size || material) && (!colors || colors.length === 0),
+          then: () => yup.number()
+            .required("Quantity is required when no colors are added")
+            .min(1, "Quantity must be at least 1"),
+          otherwise: () => yup.number().nullable()
+        }),
+        colors: yup.array().of(
+          yup.object().shape({
+            color: yup.string().required("Color is required"),
+            quantity: yup.number()
+              .required("Quantity is required")
+              .min(1, "Quantity must be at least 1")
+          })
+        ),
+        variantTotal: yup.number()
+      }).test('at-least-one-field', 'At least one of size, material, or color is required', 
+        function(value) {
+          return value.size || value.material || (value.colors && value.colors.length > 0);
+        })
+    ).min(1, "At least one variant is required"),
+    totalQuantity: yup.number().min(1, "Total quantity must be at least 1")
 
   });
 
@@ -50,7 +79,8 @@ const AddProduct = () => {
       price: "",
       sku: "",
       media: [],
-      options: []
+      variants: [{ size: "", material: "", colors: [], quantity: 0, variantTotal: 0 }],
+      totalQuantity: 0
     },
     resolver: yupResolver(schema),
   });
@@ -67,14 +97,75 @@ const AddProduct = () => {
 
   const { errors } = formState;
 
-  const {
-    fields: optionFields,
-    append: appendOptions,
-    remove: removeOptions,
-  } = useFieldArray({
-    name: "options",
+  const { fields: variants, append: appendVariant, remove: removeVariant } = useFieldArray({
     control,
+    name: "variants"
   });
+
+  const watchVariants = watch("variants");
+
+  // Recalculate variant and total quantity
+  const recalculateQuantities = React.useCallback(() => {
+    const currentVariants = getValues("variants");
+    
+    // Update each variant's total and quantity
+    currentVariants.forEach((variant, index) => {
+      const variantTotal = variant.colors && variant.colors.length > 0 
+        ? variant.colors.reduce((sum, color) => sum + (Number(color.quantity) || 0), 0)
+        : Number(variant.quantity) || 0;
+      
+      // Update variant total
+      setValue(`variants.${index}.variantTotal`, variantTotal);
+      
+      // If variant has colors, update its quantity field to match total
+      if (variant.colors && variant.colors.length > 0) {
+        setValue(`variants.${index}.quantity`, variantTotal);
+      }
+    });
+
+    // Calculate and update total quantity
+    const total = currentVariants.reduce((sum, variant) => 
+      sum + (variant.variantTotal || 0), 0);
+    setValue("totalQuantity", total);
+  }, [setValue, getValues]);
+
+  // Watch for changes in color quantities
+  React.useEffect(() => {
+    recalculateQuantities();
+  }, [watchVariants, recalculateQuantities]);
+
+  const handleAddVariant = () => {
+    appendVariant({ 
+      size: "", 
+      material: "", 
+      colors: [], 
+      quantity: 0, 
+      variantTotal: 0 
+    });
+  };
+
+  const handleAddColor = (variantIndex) => {
+    const currentVariant = watchVariants[variantIndex];
+    const currentColors = currentVariant.colors || [];
+    setValue(`variants.${variantIndex}.colors`, [...currentColors, { color: "", quantity: 0 }]);
+    setValue(`variants.${variantIndex}.quantity`, null); // Clear main quantity when colors are added
+  };
+
+  const handleRemoveColor = (variantIndex, colorIndex) => {
+    const currentVariant = watchVariants[variantIndex];
+    const updatedColors = currentVariant.colors.filter((_, index) => index !== colorIndex);
+    setValue(`variants.${variantIndex}.colors`, updatedColors);
+    
+    // Reset quantity field if no colors remain
+    if (updatedColors.length === 0) {
+      setValue(`variants.${variantIndex}.quantity`, null);
+      setValue(`variants.${variantIndex}.variantTotal`, 0);
+    }
+    
+    // Recalculate quantities immediately
+    recalculateQuantities();
+  };
+
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -347,181 +438,190 @@ const AddProduct = () => {
 
             {/* ///////////////   VARIANT START   //////////////// */}
 
-          <div className="variants form-control">
-            <label>Variants</label>
-            <div className="options-container">
-              {optionFields.map((option, optionIndex) => (
-                <div key={option.id}>
-                  <div>
-                    <label>Option name</label>
-                    <input
-                      type="text"
-                      className="w-full mb-3"
-                      {...register(`options.${optionIndex}.name`)}
-                    />
-                  </div>
-                  <div>
-                    <label>Option values</label>
-                    <div>
-                      <FieldArrayNested
-                        control={control}
-                        optionIndex={optionIndex}
-                        register={register}
-                        watch={watch}
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeOptions(optionIndex)}
-                    className="delete-option-btn"
-                  >
-                    Delete Option
-                  </button>
-                  <hr className="hz-line my-4" />
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() =>
-                  appendOptions({
-                    name: "",
-                    values: [{ value: "", price: "", quantity: "" }],
-                  })
-                }
-                className="add-option-btn"
-              >
-                {!optionFields.length
-                  ? "Add options like size or color"
-                  : "Add another option"}
-              </button>
-            </div>
+            <h3 className="text-md font-bold mb-3">Variants</h3>
+          {errors.variants && !Array.isArray(errors.variants) && (
+            <p className="text-red-500 text-sm mb-2">{errors.variants.message}</p>
+          )}
+          
+          {variants.map((field, index) => (
+            <div key={field.id} className="mb-6 border p-4 rounded-lg bg-gray-50 relative">
+              {variants.length > 1 && (
+                <IconButton
+                  onClick={() => removeVariant(index)}
+                  className="absolute top-2 right-2"
+                >
+                  <FaTrash />
+                </IconButton>
+              )}
 
-            <div className="group-variant">
-              <div className="variant-group-top flex items-center mt-8 gap-4 bg">
-                <input type="checkbox" className="w-4 h-4" />
-                <div className="flex justify-between flex-grow">
-                  <span className="font-semibold">Variant</span>
-                  <span className="font-semibold">Price</span>
-                  <span className="font-semibold">Available</span>
-                </div>
+              {/* Size Field */}
+              <div className="mb-4">
+                <Controller
+                  name={`variants.${index}.size`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Size"
+                      variant="outlined"
+                      error={!!errors.variants?.[index]?.size}
+                      helperText={errors.variants?.[index]?.size?.message}
+                      sx={{ width: "100%" }}
+                    />
+                  )}
+                />
               </div>
 
-              {/* Assuming you have options defined in the form state */}
-              {getValues("options").map(
-                (option, optionIndex) =>
-                  optionIndex === 0 &&
-                  option.values.map((value, valueIndex) => (
-                    <div key={`${optionIndex}-${valueIndex}`}>
-                      {value.value && (
-                        <div>
-                          <div className="variant-row flex gap-4 mt-3 pl-[10px] items-center">
-                            <div>
-                              <input type="checkbox" className="w-4 h-4" />
-                            </div>
-                            <div className="flex justify-between flex-grow">
-                              <div className="flex gap-2">
-                                <div>
-                                  <input
-                                    type="file"
-                                    className="hidden"
-                                    accept="image/*"
-                                    id="image-file"
-                                  />
-                                </div>
-                                <div>
-                                  <span className="font-semibold">
-                                    {value.value}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex gap-24">
-                                <div>
-                                  <input
-                                    type="text"
-                                    className="w-32"
-                                    {...register(
-                                      `options.${optionIndex}.values.${valueIndex}.price`
-                                    )}
-                                  />
-                                </div>
-                                <div>
-                                  <input
-                                    type="text"
-                                    className="w-24"
-                                    {...register(
-                                      `options.${optionIndex}.values.${valueIndex}.quantity`
-                                    )}
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <hr className="mt-4" />
+              {/* Material Field */}
+              <div className="mb-4">
+                <Controller
+                  name={`variants.${index}.material`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      label="Material"
+                      variant="outlined"
+                      error={!!errors.variants?.[index]?.material}
+                      helperText={errors.variants?.[index]?.material?.message}
+                      sx={{ width: "100%" }}
+                    />
+                  )}
+                />
+              </div>
 
-                          {getValues("options").map(
-                            (option, optionIndex) =>
-                              optionIndex === 1 &&
-                              option.values.map(
-                                (value, valueIndex) =>
-                                  value.value && (
-                                    <div key={valueIndex}>
-                                      <div className="variant-row flex gap-4 mt-3 ml-4 pl-[10px] items-center">
-                                        <div>
-                                          <input
-                                            type="checkbox"
-                                            className="w-4 h-4"
-                                          />
-                                        </div>
-                                        <div className="flex justify-between flex-grow">
-                                          <div className="flex gap-2">
-                                            <div>
-                                              <input
-                                                type="file"
-                                                className="hidden"
-                                                accept="image/*"
-                                                id="image-file"
-                                              />
-                                            </div>
-                                            <div>
-                                              <span className="font-semibold">
-                                                {value.value}
-                                              </span>
-                                            </div>
-                                          </div>
-                                          <div className="flex gap-24">
-                                            <div>
-                                              <input
-                                                type="text"
-                                                className="w-32"
-                                                {...register(
-                                                  `options.${optionIndex}.values.${valueIndex}.price`
-                                                )}
-                                              />
-                                            </div>
-                                            <div>
-                                              <input
-                                                type="text"
-                                                className="w-24"
-                                                {...register(
-                                                  `options.${optionIndex}.values.${valueIndex}.quantity`
-                                                )}
-                                              />
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <hr className="mt-4" />
-                                    </div>
-                                  )
-                              )
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))
+              {/* Color Fields */}
+              {watchVariants[index].colors?.map((color, colorIndex) => (
+                <div key={`${field.id}-color-${colorIndex}`} className="flex items-center gap-4 mb-2">
+                  <Controller
+                    name={`variants.${index}.colors.${colorIndex}.color`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Color"
+                        variant="outlined"
+                        error={!!errors.variants?.[index]?.colors?.[colorIndex]?.color}
+                        helperText={errors.variants?.[index]?.colors?.[colorIndex]?.color?.message}
+                        sx={{ flex: 1 }}
+                      />
+                    )}
+                  />
+                  <Controller
+                    name={`variants.${index}.colors.${colorIndex}.quantity`}
+                    control={control}
+                    render={({ field: { onChange, ...field } }) => (
+                      <TextField
+                        {...field}
+                        label="Quantity"
+                        type="number"
+                        variant="outlined"
+                        onChange={(e) => {
+                          const value = e.target.value === '' ? null : Number(e.target.value);
+                          onChange(value);
+                          recalculateQuantities();
+                        }}
+                        error={!!errors.variants?.[index]?.colors?.[colorIndex]?.quantity}
+                        helperText={errors.variants?.[index]?.colors?.[colorIndex]?.quantity?.message}
+                        sx={{ flex: 1 }}
+                      />
+                    )}
+                  />
+                  <IconButton onClick={() => handleRemoveColor(index, colorIndex)}>
+                    <FaTrash />
+                  </IconButton>
+                </div>
+              ))}
+
+              {/* Add Color Button */}
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => handleAddColor(index)}
+                sx={{ marginTop: "10px" }}
+              >
+                Add Color
+              </Button>
+
+              {/* Quantity Field for Non-Color Variants */}
+              {(!watchVariants[index].colors?.length) && (
+                <div className="mt-4">
+                  <Controller
+                    name={`variants.${index}.quantity`}
+                    control={control}
+                    render={({ field: { onChange, ...field } }) => (
+                      <TextField
+                        {...field}
+                        label="Quantity"
+                        type="number"
+                        variant="outlined"
+                        onChange={(e) => {
+                          const value = e.target.value === '' ? null : Number(e.target.value);
+                          onChange(value);
+                          recalculateQuantities();
+                        }}
+                        error={!!errors.variants?.[index]?.quantity}
+                        helperText={errors.variants?.[index]?.quantity?.message}
+                        sx={{ width: "100%" }}
+                        disabled={watchVariants[index].colors?.length > 0}
+                      />
+                    )}
+                  />
+                </div>
+              )}
+
+              {/* Variant Total Field */}
+              {watchVariants[index].colors?.length > 0 && (
+                <div className="mt-4">
+                  <Controller
+                    name={`variants.${index}.variantTotal`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Variant Total Quantity"
+                        variant="outlined"
+                        InputProps={{
+                          readOnly: true,
+                        }}
+                        sx={{ width: "100%" }}
+                      />
+                    )}
+                  />
+                </div>
               )}
             </div>
+          ))}
+
+          {/* Add Variant Button */}
+          <Button
+            variant="outlined"
+            size="medium"
+            onClick={handleAddVariant}
+            sx={{ marginBottom: "20px" }}
+          >
+            Add Variant
+          </Button>
+
+          {/* Total Quantity Field */}
+          <div className="mb-4">
+            <Controller
+              name="totalQuantity"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  label="Total Quantity"
+                  variant="outlined"
+                  InputProps={{
+                    readOnly: true,
+                  }}
+                  error={!!errors.totalQuantity}
+                  helperText={errors.totalQuantity?.message}
+                  sx={{ width: "100%" }}
+                />
+              )}
+            />
           </div>
 
           {/* ///////////////   VARIANT END   //////////////// */}
@@ -573,50 +673,6 @@ const AddProduct = () => {
     </div>
   );
 };
-
-
-const FieldArrayNested = ({ optionIndex, register, control, watch }) => {
-    const { fields, append, remove } = useFieldArray({
-      name: `options.${optionIndex}.values`,
-      control,
-    });
-  
-    const optionValues = watch(`options.${optionIndex}.values`);
-  
-    return (
-      <>
-        {fields.map((value, valueIndex) => (
-          <div key={value.id} className="relative">
-            <input
-              type="text"
-              className="w-full mb-3"
-              {...register(`options.${optionIndex}.values.${valueIndex}.value`)}
-            />
-            {valueIndex > 0 && (
-              <button
-                type="button"
-                className="absolute right-2"
-                onClick={() => remove(valueIndex)}
-              >
-                <DeleteIcon />
-              </button>
-            )}
-          </div>
-        ))}
-        <div className="flex justify-center items-center">
-          <button
-            type="button"
-            className="bg-black rounded text-white text-[13px] py-[2px] px-[6px] font-semibold"
-            onClick={() => append({ value: "", price: "", quantity: "" })}
-          >
-            Add Value
-          </button>
-        </div>
-      </>
-    );
-  };
-
-
 
 
 export default AddProduct;
