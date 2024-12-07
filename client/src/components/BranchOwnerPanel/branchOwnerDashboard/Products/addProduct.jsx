@@ -22,6 +22,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { FaTrash } from "react-icons/fa";
 
 import { Link } from "react-router-dom";
+import { addProduct } from "../../../../store/actions/products";
+
 
 const AddProduct = () => {
   const { user } = useSelector((state) => state.auth);
@@ -44,9 +46,6 @@ const AddProduct = () => {
     fetchCategories();
   }, []);
 
-  const handleCategoryChange = (event) => {
-    setSelectedCategory(event.target.value);
-  };
 
   console.log("selectd:", selectedCategory);
 
@@ -135,6 +134,7 @@ const AddProduct = () => {
     setValue,
     getValues,
     watch,
+    reset
   } = form;
 
   const { errors } = formState;
@@ -225,6 +225,15 @@ const AddProduct = () => {
 
   const onSubmit = async (data) => {
     console.log(data);
+    const business = user?.business;
+    const body = {
+      data,
+      business
+    }
+
+    dispatch(addProduct(body));
+
+    reset();
   };
 
   const [images, setImages] = useState([]);

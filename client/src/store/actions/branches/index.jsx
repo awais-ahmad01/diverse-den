@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { errorGlobal, successGlobal } from '../../reducers/notifications';
-import { resolvePath } from 'react-router-dom';
+
 
 export const getBranches = createAsyncThunk(
     'branches/getBranches',
