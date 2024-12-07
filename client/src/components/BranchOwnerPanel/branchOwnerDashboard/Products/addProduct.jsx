@@ -23,10 +23,11 @@ import { FaTrash } from "react-icons/fa";
 
 import { Link } from "react-router-dom";
 import { addProduct } from "../../../../store/actions/products";
-
+import { getAllBranches } from "../../../../store/actions/branches";
 
 const AddProduct = () => {
   const { user } = useSelector((state) => state.auth);
+  const { allBranches } = useSelector((state) => state.branches);
   const dispatch = useDispatch();
   const [Allcategories, setAllCategories] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -46,6 +47,10 @@ const AddProduct = () => {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    const business = user?.business;
+    dispatch(getAllBranches(business));
+  }, [dispatch, user?.business]);
 
   console.log("selectd:", selectedCategory);
 
@@ -62,6 +67,7 @@ const AddProduct = () => {
     description: yup.string().required("Description is required"),
     category: yup.string().required("Category is required"),
     productType: yup.string().required("Product type is required"),
+    branch: yup.string().required("Branch assignment is required"),
     price: yup.number().required("Price is required"),
     sku: yup.string().required("SKU is required"),
     variants: yup
@@ -115,6 +121,7 @@ const AddProduct = () => {
       description: "",
       category: "",
       productType: "",
+      branch: "",
       price: "",
       sku: "",
       media: [],
@@ -134,7 +141,7 @@ const AddProduct = () => {
     setValue,
     getValues,
     watch,
-    reset
+    reset,
   } = form;
 
   const { errors } = formState;
@@ -228,8 +235,8 @@ const AddProduct = () => {
     const business = user?.business;
     const body = {
       data,
-      business
-    }
+      business,
+    };
 
     dispatch(addProduct(body));
 
@@ -362,7 +369,7 @@ const AddProduct = () => {
                       value={selectedCategory}
                       onChange={(e) => {
                         const selectedValue = e.target.value;
-                        onChange(selectedValue); 
+                        onChange(selectedValue);
                         setSelectedCategory(selectedValue);
                       }}
                       error={!!errors.category}
@@ -418,6 +425,37 @@ const AddProduct = () => {
                 </FormControl>
               </div>
             )}
+
+            <div className="mb-4">
+              <FormControl sx={{ width: "100%" }}>
+                <InputLabel>Branch</InputLabel>
+                <Controller
+                  name="branch"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      {...field}
+                      label="Branch"
+                      error={!!errors.branch}
+                      MenuProps={{
+                        disableScrollLock: true,
+                      }}
+                    >
+                      {allBranches.map((branch, index) => (
+                        <MenuItem key={index} value={branch.branchCode}>
+                          {branch.branchCode}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+                {errors.branch && (
+                  <FormHelperText error={true}>
+                    {errors.branch.message}
+                  </FormHelperText>
+                )}
+              </FormControl>
+            </div>
 
             <div className="mb-4">
               <Controller

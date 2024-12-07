@@ -5,6 +5,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 import {
   TextField,
@@ -18,6 +19,7 @@ import {
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const BusinessSetup = () => {
+  const navigate = useNavigate();
   const userData = useSelector((state) => state.auth);
 
   const { _id: userId } = userData?.user;
@@ -102,6 +104,8 @@ const BusinessSetup = () => {
       );
 
       console.log("Plan added successfully:", response.data);
+
+      navigate('../branchOwnerDashboard');      
     } catch (error) {
       console.log("Error adding plan:", error);
     }
