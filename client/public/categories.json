@@ -1,0 +1,53 @@
+{
+    "Shoes": [
+      "Sneakers", 
+      "Dress Shoes", 
+      "Boots", 
+      "Sandals", 
+      "Athletic Shoes", 
+      "Casual Shoes", 
+      "Heels", 
+      "Loafers"
+    ],
+    "Clothing": [
+      "T-shirts", 
+      "Shirts", 
+      "Pants", 
+      "Jeans", 
+      "Jackets", 
+      "Sweaters", 
+      "Dresses", 
+      "Skirts", 
+      "Shorts", 
+      "Activewear", 
+      "Underwear", 
+      "Sleepwear"
+    ],
+    "DecorationPieces": [
+      "Wall Art", 
+      "Sculptures", 
+      "Vases", 
+      "Candle Holders", 
+      "Picture Frames", 
+      "Mirrors", 
+      "Figurines", 
+      "Decorative Bowls", 
+      "Tapestries", 
+      "Ornamental Objects"
+    ],
+    "Furniture": [
+      "Sofas", 
+      "Chairs", 
+      "Tables", 
+      "Beds", 
+      "Wardrobes", 
+      "Cabinets", 
+      "Shelving Units", 
+      "Ottomans", 
+      "Dining Sets", 
+      "Coffee Tables", 
+      "Desk Furniture", 
+      "Outdoor Furniture"
+    ]
+  }
+  

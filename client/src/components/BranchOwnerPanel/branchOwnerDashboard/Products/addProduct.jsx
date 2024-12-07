@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm, Controller, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
@@ -26,6 +26,29 @@ import { Link } from "react-router-dom";
 const AddProduct = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
+  const [Allcategories, setAllCategories] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/categories.json");
+        const data = await response.json();
+        console.log(data);
+        setAllCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories data:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
+  };
+
+  console.log("selectd:", selectedCategory);
 
   const theme = createTheme({
     palette: {
@@ -39,36 +62,52 @@ const AddProduct = () => {
     title: yup.string().required("Title is required"),
     description: yup.string().required("Description is required"),
     category: yup.string().required("Category is required"),
+    productType: yup.string().required("Product type is required"),
     price: yup.number().required("Price is required"),
     sku: yup.string().required("SKU is required"),
-    variants: yup.array().of(
-      yup.object().shape({
-        size: yup.string(),
-        material: yup.string(),
-        quantity: yup.number().when(['size', 'material', 'colors'], {
-          is: (size, material, colors) => 
-            (size || material) && (!colors || colors.length === 0),
-          then: () => yup.number()
-            .required("Quantity is required when no colors are added")
-            .min(1, "Quantity must be at least 1"),
-          otherwise: () => yup.number().nullable()
-        }),
-        colors: yup.array().of(
-          yup.object().shape({
-            color: yup.string().required("Color is required"),
-            quantity: yup.number()
-              .required("Quantity is required")
-              .min(1, "Quantity must be at least 1")
+    variants: yup
+      .array()
+      .of(
+        yup
+          .object()
+          .shape({
+            size: yup.string(),
+            material: yup.string(),
+            quantity: yup.number().when(["size", "material", "colors"], {
+              is: (size, material, colors) =>
+                (size || material) && (!colors || colors.length === 0),
+              then: () =>
+                yup
+                  .number()
+                  .required("Quantity is required when no colors are added")
+                  .min(1, "Quantity must be at least 1"),
+              otherwise: () => yup.number().nullable(),
+            }),
+            colors: yup.array().of(
+              yup.object().shape({
+                color: yup.string().required("Color is required"),
+                quantity: yup
+                  .number()
+                  .required("Quantity is required")
+                  .min(1, "Quantity must be at least 1"),
+              })
+            ),
+            variantTotal: yup.number(),
           })
-        ),
-        variantTotal: yup.number()
-      }).test('at-least-one-field', 'At least one of size, material, or color is required', 
-        function(value) {
-          return value.size || value.material || (value.colors && value.colors.length > 0);
-        })
-    ).min(1, "At least one variant is required"),
-    totalQuantity: yup.number().min(1, "Total quantity must be at least 1")
-
+          .test(
+            "at-least-one-field",
+            "At least one of size, material, or color is required",
+            function (value) {
+              return (
+                value.size ||
+                value.material ||
+                (value.colors && value.colors.length > 0)
+              );
+            }
+          )
+      )
+      .min(1, "At least one variant is required"),
+    totalQuantity: yup.number().min(1, "Total quantity must be at least 1"),
   });
 
   const form = useForm({
@@ -76,11 +115,14 @@ const AddProduct = () => {
       title: "",
       description: "",
       category: "",
+      productType: "",
       price: "",
       sku: "",
       media: [],
-      variants: [{ size: "", material: "", colors: [], quantity: 0, variantTotal: 0 }],
-      totalQuantity: 0
+      variants: [
+        { size: "", material: "", colors: [], quantity: 0, variantTotal: 0 },
+      ],
+      totalQuantity: 0,
     },
     resolver: yupResolver(schema),
   });
@@ -97,9 +139,13 @@ const AddProduct = () => {
 
   const { errors } = formState;
 
-  const { fields: variants, append: appendVariant, remove: removeVariant } = useFieldArray({
+  const {
+    fields: variants,
+    append: appendVariant,
+    remove: removeVariant,
+  } = useFieldArray({
     control,
-    name: "variants"
+    name: "variants",
   });
 
   const watchVariants = watch("variants");
@@ -107,16 +153,20 @@ const AddProduct = () => {
   // Recalculate variant and total quantity
   const recalculateQuantities = React.useCallback(() => {
     const currentVariants = getValues("variants");
-    
+
     // Update each variant's total and quantity
     currentVariants.forEach((variant, index) => {
-      const variantTotal = variant.colors && variant.colors.length > 0 
-        ? variant.colors.reduce((sum, color) => sum + (Number(color.quantity) || 0), 0)
-        : Number(variant.quantity) || 0;
-      
+      const variantTotal =
+        variant.colors && variant.colors.length > 0
+          ? variant.colors.reduce(
+              (sum, color) => sum + (Number(color.quantity) || 0),
+              0
+            )
+          : Number(variant.quantity) || 0;
+
       // Update variant total
       setValue(`variants.${index}.variantTotal`, variantTotal);
-      
+
       // If variant has colors, update its quantity field to match total
       if (variant.colors && variant.colors.length > 0) {
         setValue(`variants.${index}.quantity`, variantTotal);
@@ -124,8 +174,10 @@ const AddProduct = () => {
     });
 
     // Calculate and update total quantity
-    const total = currentVariants.reduce((sum, variant) => 
-      sum + (variant.variantTotal || 0), 0);
+    const total = currentVariants.reduce(
+      (sum, variant) => sum + (variant.variantTotal || 0),
+      0
+    );
     setValue("totalQuantity", total);
   }, [setValue, getValues]);
 
@@ -135,43 +187,45 @@ const AddProduct = () => {
   }, [watchVariants, recalculateQuantities]);
 
   const handleAddVariant = () => {
-    appendVariant({ 
-      size: "", 
-      material: "", 
-      colors: [], 
-      quantity: 0, 
-      variantTotal: 0 
+    appendVariant({
+      size: "",
+      material: "",
+      colors: [],
+      quantity: 0,
+      variantTotal: 0,
     });
   };
 
   const handleAddColor = (variantIndex) => {
     const currentVariant = watchVariants[variantIndex];
     const currentColors = currentVariant.colors || [];
-    setValue(`variants.${variantIndex}.colors`, [...currentColors, { color: "", quantity: 0 }]);
+    setValue(`variants.${variantIndex}.colors`, [
+      ...currentColors,
+      { color: "", quantity: 0 },
+    ]);
     setValue(`variants.${variantIndex}.quantity`, null); // Clear main quantity when colors are added
   };
 
   const handleRemoveColor = (variantIndex, colorIndex) => {
     const currentVariant = watchVariants[variantIndex];
-    const updatedColors = currentVariant.colors.filter((_, index) => index !== colorIndex);
+    const updatedColors = currentVariant.colors.filter(
+      (_, index) => index !== colorIndex
+    );
     setValue(`variants.${variantIndex}.colors`, updatedColors);
-    
+
     // Reset quantity field if no colors remain
     if (updatedColors.length === 0) {
       setValue(`variants.${variantIndex}.quantity`, null);
       setValue(`variants.${variantIndex}.variantTotal`, 0);
     }
-    
+
     // Recalculate quantities immediately
     recalculateQuantities();
   };
 
-
   const onSubmit = async (data) => {
     console.log(data);
   };
-
-  const categories = ["Men", "Women", "Kids"];
 
   const [images, setImages] = useState([]);
 
@@ -292,13 +346,22 @@ const AddProduct = () => {
                 <Controller
                   name="category"
                   control={control}
-                  render={({ field }) => (
+                  render={({ field: { onChange, ...field } }) => (
                     <Select
                       {...field}
                       label="Category"
+                      value={selectedCategory}
+                      onChange={(e) => {
+                        const selectedValue = e.target.value;
+                        onChange(selectedValue); 
+                        setSelectedCategory(selectedValue);
+                      }}
                       error={!!errors.category}
+                      MenuProps={{
+                        disableScrollLock: true,
+                      }}
                     >
-                      {categories.map((category, index) => (
+                      {Object.keys(Allcategories).map((category, index) => (
                         <MenuItem key={index} value={category}>
                           {category}
                         </MenuItem>
@@ -313,6 +376,39 @@ const AddProduct = () => {
                 )}
               </FormControl>
             </div>
+
+            {selectedCategory && (
+              <div className="mb-4">
+                <FormControl sx={{ width: "100%" }}>
+                  <InputLabel>Product Type</InputLabel>
+                  <Controller
+                    name="productType"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        label="Product Type"
+                        error={!!errors.productType}
+                        MenuProps={{
+                          disableScrollLock: true,
+                        }}
+                      >
+                        {Allcategories[selectedCategory].map((type, index) => (
+                          <MenuItem key={index} value={type}>
+                            {type}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                  {errors.productType && (
+                    <FormHelperText error={true}>
+                      {errors.productType.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </div>
+            )}
 
             <div className="mb-4">
               <Controller
@@ -434,222 +530,247 @@ const AddProduct = () => {
               </div>
             </div>
 
-
-
             {/* ///////////////   VARIANT START   //////////////// */}
 
             <h3 className="text-md font-bold mb-3">Variants</h3>
-          {errors.variants && !Array.isArray(errors.variants) && (
-            <p className="text-red-500 text-sm mb-2">{errors.variants.message}</p>
-          )}
-          
-          {variants.map((field, index) => (
-            <div key={field.id} className="mb-6 border p-4 rounded-lg bg-gray-50 relative">
-              {variants.length > 1 && (
-                <IconButton
-                  onClick={() => removeVariant(index)}
-                  className="absolute top-2 right-2"
-                >
-                  <FaTrash />
-                </IconButton>
-              )}
+            {errors.variants && !Array.isArray(errors.variants) && (
+              <p className="text-red-500 text-sm mb-2">
+                {errors.variants.message}
+              </p>
+            )}
 
-              {/* Size Field */}
-              <div className="mb-4">
-                <Controller
-                  name={`variants.${index}.size`}
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Size"
-                      variant="outlined"
-                      error={!!errors.variants?.[index]?.size}
-                      helperText={errors.variants?.[index]?.size?.message}
-                      sx={{ width: "100%" }}
-                    />
-                  )}
-                />
-              </div>
-
-              {/* Material Field */}
-              <div className="mb-4">
-                <Controller
-                  name={`variants.${index}.material`}
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      label="Material"
-                      variant="outlined"
-                      error={!!errors.variants?.[index]?.material}
-                      helperText={errors.variants?.[index]?.material?.message}
-                      sx={{ width: "100%" }}
-                    />
-                  )}
-                />
-              </div>
-
-              {/* Color Fields */}
-              {watchVariants[index].colors?.map((color, colorIndex) => (
-                <div key={`${field.id}-color-${colorIndex}`} className="flex items-center gap-4 mb-2">
-                  <Controller
-                    name={`variants.${index}.colors.${colorIndex}.color`}
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        label="Color"
-                        variant="outlined"
-                        error={!!errors.variants?.[index]?.colors?.[colorIndex]?.color}
-                        helperText={errors.variants?.[index]?.colors?.[colorIndex]?.color?.message}
-                        sx={{ flex: 1 }}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name={`variants.${index}.colors.${colorIndex}.quantity`}
-                    control={control}
-                    render={({ field: { onChange, ...field } }) => (
-                      <TextField
-                        {...field}
-                        label="Quantity"
-                        type="number"
-                        variant="outlined"
-                        onChange={(e) => {
-                          const value = e.target.value === '' ? null : Number(e.target.value);
-                          onChange(value);
-                          recalculateQuantities();
-                        }}
-                        error={!!errors.variants?.[index]?.colors?.[colorIndex]?.quantity}
-                        helperText={errors.variants?.[index]?.colors?.[colorIndex]?.quantity?.message}
-                        sx={{ flex: 1 }}
-                      />
-                    )}
-                  />
-                  <IconButton onClick={() => handleRemoveColor(index, colorIndex)}>
+            {variants.map((field, index) => (
+              <div
+                key={field.id}
+                className="mb-6 border p-4 rounded-lg bg-gray-50 relative"
+              >
+                {variants.length > 1 && (
+                  <IconButton
+                    onClick={() => removeVariant(index)}
+                    className="absolute top-2 right-2"
+                  >
                     <FaTrash />
                   </IconButton>
-                </div>
-              ))}
+                )}
 
-              {/* Add Color Button */}
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => handleAddColor(index)}
-                sx={{ marginTop: "10px" }}
-              >
-                Add Color
-              </Button>
-
-              {/* Quantity Field for Non-Color Variants */}
-              {(!watchVariants[index].colors?.length) && (
-                <div className="mt-4">
+                {/* Size Field */}
+                <div className="mb-4">
                   <Controller
-                    name={`variants.${index}.quantity`}
-                    control={control}
-                    render={({ field: { onChange, ...field } }) => (
-                      <TextField
-                        {...field}
-                        label="Quantity"
-                        type="number"
-                        variant="outlined"
-                        onChange={(e) => {
-                          const value = e.target.value === '' ? null : Number(e.target.value);
-                          onChange(value);
-                          recalculateQuantities();
-                        }}
-                        error={!!errors.variants?.[index]?.quantity}
-                        helperText={errors.variants?.[index]?.quantity?.message}
-                        sx={{ width: "100%" }}
-                        disabled={watchVariants[index].colors?.length > 0}
-                      />
-                    )}
-                  />
-                </div>
-              )}
-
-              {/* Variant Total Field */}
-              {watchVariants[index].colors?.length > 0 && (
-                <div className="mt-4">
-                  <Controller
-                    name={`variants.${index}.variantTotal`}
+                    name={`variants.${index}.size`}
                     control={control}
                     render={({ field }) => (
                       <TextField
                         {...field}
-                        label="Variant Total Quantity"
+                        label="Size"
                         variant="outlined"
-                        InputProps={{
-                          readOnly: true,
-                        }}
+                        error={!!errors.variants?.[index]?.size}
+                        helperText={errors.variants?.[index]?.size?.message}
                         sx={{ width: "100%" }}
                       />
                     )}
                   />
                 </div>
-              )}
-            </div>
-          ))}
 
-          {/* Add Variant Button */}
-          <Button
-            variant="outlined"
-            size="medium"
-            onClick={handleAddVariant}
-            sx={{ marginBottom: "20px" }}
-          >
-            Add Variant
-          </Button>
+                {/* Material Field */}
+                <div className="mb-4">
+                  <Controller
+                    name={`variants.${index}.material`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Material"
+                        variant="outlined"
+                        error={!!errors.variants?.[index]?.material}
+                        helperText={errors.variants?.[index]?.material?.message}
+                        sx={{ width: "100%" }}
+                      />
+                    )}
+                  />
+                </div>
 
-          {/* Total Quantity Field */}
-          <div className="mb-4">
-            <Controller
-              name="totalQuantity"
-              control={control}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label="Total Quantity"
+                {/* Color Fields */}
+                {watchVariants[index].colors?.map((color, colorIndex) => (
+                  <div
+                    key={`${field.id}-color-${colorIndex}`}
+                    className="flex items-center gap-4 mb-2"
+                  >
+                    <Controller
+                      name={`variants.${index}.colors.${colorIndex}.color`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Color"
+                          variant="outlined"
+                          error={
+                            !!errors.variants?.[index]?.colors?.[colorIndex]
+                              ?.color
+                          }
+                          helperText={
+                            errors.variants?.[index]?.colors?.[colorIndex]
+                              ?.color?.message
+                          }
+                          sx={{ flex: 1 }}
+                        />
+                      )}
+                    />
+                    <Controller
+                      name={`variants.${index}.colors.${colorIndex}.quantity`}
+                      control={control}
+                      render={({ field: { onChange, ...field } }) => (
+                        <TextField
+                          {...field}
+                          label="Quantity"
+                          type="number"
+                          variant="outlined"
+                          onChange={(e) => {
+                            const value =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
+                            onChange(value);
+                            recalculateQuantities();
+                          }}
+                          error={
+                            !!errors.variants?.[index]?.colors?.[colorIndex]
+                              ?.quantity
+                          }
+                          helperText={
+                            errors.variants?.[index]?.colors?.[colorIndex]
+                              ?.quantity?.message
+                          }
+                          sx={{ flex: 1 }}
+                        />
+                      )}
+                    />
+                    <IconButton
+                      onClick={() => handleRemoveColor(index, colorIndex)}
+                    >
+                      <FaTrash />
+                    </IconButton>
+                  </div>
+                ))}
+
+                {/* Add Color Button */}
+                <Button
                   variant="outlined"
-                  InputProps={{
-                    readOnly: true,
-                  }}
-                  error={!!errors.totalQuantity}
-                  helperText={errors.totalQuantity?.message}
-                  sx={{ width: "100%" }}
-                />
-              )}
-            />
-          </div>
+                  size="small"
+                  onClick={() => handleAddColor(index)}
+                  sx={{ marginTop: "10px" }}
+                >
+                  Add Color
+                </Button>
 
-          {/* ///////////////   VARIANT END   //////////////// */}
+                {/* Quantity Field for Non-Color Variants */}
+                {!watchVariants[index].colors?.length && (
+                  <div className="mt-4">
+                    <Controller
+                      name={`variants.${index}.quantity`}
+                      control={control}
+                      render={({ field: { onChange, ...field } }) => (
+                        <TextField
+                          {...field}
+                          label="Quantity"
+                          type="number"
+                          variant="outlined"
+                          onChange={(e) => {
+                            const value =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value);
+                            onChange(value);
+                            recalculateQuantities();
+                          }}
+                          error={!!errors.variants?.[index]?.quantity}
+                          helperText={
+                            errors.variants?.[index]?.quantity?.message
+                          }
+                          sx={{ width: "100%" }}
+                          disabled={watchVariants[index].colors?.length > 0}
+                        />
+                      )}
+                    />
+                  </div>
+                )}
 
-
-          {selectedImage && (
-          <div className="modal">
-            <div className="bg-slate-50 w-full px-5 py-2">
-              <span
-                onClick={closePreview}
-                className="font-semibold cursor-pointer hover:text-blue-600 "
-              >
-                Exit
-              </span>
-            </div>
-            <div className="flex justify-center items-center">
-              <div className="modal-content">
-                <img
-                  src={selectedImage}
-                  className="full-image"
-                  alt="Selected"
-                />
+                {/* Variant Total Field */}
+                {watchVariants[index].colors?.length > 0 && (
+                  <div className="mt-4">
+                    <Controller
+                      name={`variants.${index}.variantTotal`}
+                      control={control}
+                      render={({ field }) => (
+                        <TextField
+                          {...field}
+                          label="Variant Total Quantity"
+                          variant="outlined"
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                          sx={{ width: "100%" }}
+                        />
+                      )}
+                    />
+                  </div>
+                )}
               </div>
+            ))}
+
+            {/* Add Variant Button */}
+            <Button
+              variant="outlined"
+              size="medium"
+              onClick={handleAddVariant}
+              sx={{ marginBottom: "20px" }}
+            >
+              Add Variant
+            </Button>
+
+            {/* Total Quantity Field */}
+            <div className="mb-4">
+              <Controller
+                name="totalQuantity"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    label="Total Quantity"
+                    variant="outlined"
+                    InputProps={{
+                      readOnly: true,
+                    }}
+                    error={!!errors.totalQuantity}
+                    helperText={errors.totalQuantity?.message}
+                    sx={{ width: "100%" }}
+                  />
+                )}
+              />
             </div>
-          </div>
-        )}
 
+            {/* ///////////////   VARIANT END   //////////////// */}
 
+            {selectedImage && (
+              <div className="modal z-50">
+                <div className="bg-slate-50 w-full px-5 py-2">
+                  <span
+                    onClick={closePreview}
+                    className="font-semibold cursor-pointer hover:text-blue-600 "
+                  >
+                    Exit
+                  </span>
+                </div>
+                <div className="flex justify-center items-center">
+                  <div className="modal-content">
+                    <img
+                      src={selectedImage}
+                      className="full-image"
+                      alt="Selected"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="mt-6 text-center">
               <Button
@@ -673,6 +794,5 @@ const AddProduct = () => {
     </div>
   );
 };
-
 
 export default AddProduct;
