@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify';
+import CircularProgress from "@mui/material/CircularProgress";
 
 
 
@@ -22,3 +23,10 @@ export const showToast = (type,msg) => {
 
     }
 }
+
+
+export const Loader = () => (
+    <div className='text-center mt-52'>
+        <CircularProgress/>
+    </div>
+)

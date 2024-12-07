@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";  
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -23,13 +23,9 @@ import { getAllBranches } from "../../../../store/actions/branches";
 import { addSalesperson } from "../../../../store/actions/salespersons";
 
 const AddSalesperson = () => {
-
   const dispatch = useDispatch();
-
-  const navigate = useNavigate()
-
-  const {allBranches} = useSelector(state => state.branches) 
-
+  const navigate = useNavigate();
+  const { allBranches } = useSelector((state) => state.branches);
   const { user } = useSelector((state) => state.auth);
 
   const theme = createTheme({
@@ -41,13 +37,12 @@ const AddSalesperson = () => {
   });
 
   const schema = yup.object({
-    salesperson_name: yup.string().required("Saleperson name is required"),
+    salesperson_name: yup.string().required("Salesperson name is required"),
     salesperson_email: yup
       .string()
       .required("Email is required")
       .email("Email format is not valid"),
-    branch: yup.string().required("Branch assign is required"),
-    
+    branch: yup.string().required("Branch assignment is required"),
   });
 
   const form = useForm({
@@ -55,45 +50,33 @@ const AddSalesperson = () => {
       salesperson_name: "",
       salesperson_email: "",
       branch: "",
-      
     },
     resolver: yupResolver(schema),
   });
 
-  const { register, formState, handleSubmit, reset } = form;
-
+  const { control, formState, handleSubmit, reset } = form;
   const { errors } = formState;
 
   const onSubmit = (data) => {
-    
-      const body = {
-        name: data.salesperson_name,
-        email: data.salesperson_email,
-        assignBranch: data.branch,
-        business: user.business,
-      };
+    const body = {
+      name: data.salesperson_name,
+      email: data.salesperson_email,
+      assignBranch: data.branch,
+      business: user.business,
+    };
 
-      console.log(body);
+    console.log(body);
+    dispatch(addSalesperson(body));
 
-      dispatch(addSalesperson(body))
-
-      
-      navigate('../salespersonsList')
-      
-      
+    reset();
   };
 
-
-  useEffect(()=>{
-
+  useEffect(() => {
     const business = user?.business;
+    dispatch(getAllBranches(business));
 
-    dispatch(getAllBranches(business))
-
-  }, [])
-
-
-
+    
+  }, [dispatch, user?.business]);
 
   return (
     <div className="bg-gray-50 flex flex-col p-5">
@@ -111,55 +94,55 @@ const AddSalesperson = () => {
         >
           <ThemeProvider theme={theme}>
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="salesperson_name"
-                label="salesperson name"
-                error={!!errors.salesperson_name}
-                helperText={errors.salesperson_name?.message}
-                {...register("salesperson_name")}
-                sx={{ width: "100%" }}
+              <Controller
+                name="salesperson_name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    variant="outlined"
+                    label="Salesperson Name"
+                    error={!!errors.salesperson_name}
+                    helperText={errors.salesperson_name?.message}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="salesperson_email"
-                label="salesperson email"
-                error={!!errors.salesperson_email}
-                helperText={errors.salesperson_email?.message}
-                {...register("salesperson_email")}
-                sx={{ width: "100%" }}
+              <Controller
+                name="salesperson_email"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    variant="outlined"
+                    label="Salesperson Email"
+                    error={!!errors.salesperson_email}
+                    helperText={errors.salesperson_email?.message}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
-
-
-
             <div className="mb-4">
-              <FormControl
-                sx={{
-                  width: "100%",
-                }}
-              >
+              <FormControl sx={{ width: "100%" }}>
                 <InputLabel>Branch</InputLabel>
-                <Select
+                <Controller
                   name="branch"
-                  label="Branch"
-                  defaultValue=""
-                  {...register("branch")}
-                  error={errors.branch ? true : false}
-                  MenuProps={{
-                    disableScrollLock: true,
-                  }}
-                >
-                  {allBranches.map((branch, index) => (
-                    <MenuItem key={index} value={branch.branchCode}>
-                      {branch.branchCode}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  control={control}
+                  render={({ field }) => (
+                    <Select {...field} label="Branch" error={!!errors.branch}>
+                      {allBranches.map((branch, index) => (
+                        <MenuItem key={index} value={branch.branchCode}>
+                          {branch.branchCode}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
                 {errors.branch && (
                   <FormHelperText error={true}>
                     {errors.branch.message}
@@ -168,7 +151,6 @@ const AddSalesperson = () => {
               </FormControl>
             </div>
 
-            
             <div className="mt-6 text-center">
               <Button
                 variant="contained"

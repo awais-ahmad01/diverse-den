@@ -104,12 +104,20 @@ export const getBranches = createAsyncThunk(
 
 
         const body = {
-          data,
-          business
-        }
+          branchCode: data.branch_code,
+          name: data.branch_name,
+          city: data.branch_city,
+          address: data.branch_address,
+          contactNo: data.branch_contact,
+          emailAddress: data.branch_email,
+          business: business,
+        };
+  
+
+        console.log("Bodyyyy!!:", body)
 
   
-        const response = await axios.post('http://localhost:3000/', body, {
+        const response = await axios.post('http://localhost:3000/updateBranch', body, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

@@ -142,7 +142,7 @@ const SubscriptionPlans = () => {
                 </h2>
                 <h1 className="font-semibold text-3xl mb-4 text-[#603F26]">
                   {plan.price}
-                  <span className="font-medium text-[15px] ml-1">PKR/month</span>
+                  <span className="font-medium text-[15px] ml-1">$/month</span>
                 </h1>
                 <StripeCheckout
                   stripeKey="pk_test_51QOJ4oDZzPFomXhEJc2PFEnX4MqUEEzMkA8gwhbgA7I7GzXobg0QAwn06yuHn2Gb1ofTkwLHiGPI7N8XrxVMi0xt00zvcbJDcy"

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"; // Import Controller from react-hook-form
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
@@ -8,8 +8,7 @@ import axios from "axios";
 import { FaArrowLeft } from "react-icons/fa";
 import { TextField, Button, ThemeProvider, createTheme } from "@mui/material";
 import { Link } from "react-router-dom";
-
-
+import { errorGlobal, successGlobal } from "../../../../store/reducers/notifications";
 
 const AddBranches = () => {
   const { user } = useSelector((state) => state.auth);
@@ -48,10 +47,8 @@ const AddBranches = () => {
     resolver: yupResolver(schema),
   });
 
-  const { register, formState, handleSubmit, reset } = form;
+  const { control, formState, handleSubmit, reset } = form;
   const { errors } = formState;
-
-
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -93,7 +90,6 @@ const AddBranches = () => {
     }
   };
 
-  
   return (
     <div className="bg-gray-50 flex flex-col p-5">
       <div className="mb-6 flex items-center space-x-3 ml-2 md:ml-8 lg:ml-12">
@@ -109,84 +105,121 @@ const AddBranches = () => {
           className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-lg"
         >
           <ThemeProvider theme={theme}>
+            {/* Controller for branch_name */}
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_name"
-                label="Branch name"
-                error={!!errors.branch_name}
-                helperText={errors.branch_name?.message}
-                {...register("branch_name")}
-                
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_name"
+                    label="Branch name"
+                    error={!!errors.branch_name}
+                    helperText={errors.branch_name?.message}
+                    {...field} // Spread the field props from Controller
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
+            {/* Controller for branch_code */}
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_code"
-                label="Branch Code"
-                error={!!errors.branch_code}
-                helperText={errors.branch_code?.message}
-                {...register("branch_code")}
-                
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_code"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_code"
+                    label="Branch Code"
+                    error={!!errors.branch_code}
+                    helperText={errors.branch_code?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
+            {/* Controller for branch_email */}
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_email"
-                label="Branch Email"
-                error={!!errors.branch_email}
-                helperText={errors.branch_email?.message}
-                {...register("branch_email")}
-                
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_email"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_email"
+                    label="Branch Email"
+                    error={!!errors.branch_email}
+                    helperText={errors.branch_email?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
+            {/* Controller for branch_city */}
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_city"
-                label="Branch City"
-                error={!!errors.branch_city}
-                helperText={errors.branch_city?.message}
-                {...register("branch_city")}
-                
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_city"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_city"
+                    label="Branch City"
+                    error={!!errors.branch_city}
+                    helperText={errors.branch_city?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
+            {/* Controller for branch_address */}
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_address"
-                label="Branch Address"
-                error={!!errors.branch_address}
-                helperText={errors.branch_address?.message}
-                {...register("branch_address")}
-                
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_address"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_address"
+                    label="Branch Address"
+                    error={!!errors.branch_address}
+                    helperText={errors.branch_address?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
+            {/* Controller for branch_contact */}
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_contact"
-                label="Branch Contact No."
-                error={!!errors.branch_contact}
-                helperText={errors.branch_contact?.message}
-                {...register("branch_contact")}
-                
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_contact"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_contact"
+                    label="Branch Contact No."
+                    error={!!errors.branch_contact}
+                    helperText={errors.branch_contact?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
+            {/* Submit Button */}
             <div className="mt-6 text-center">
               <Button
                 variant="contained"

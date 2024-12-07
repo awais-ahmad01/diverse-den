@@ -1,101 +1,108 @@
-import React from "react";
-import { useForm} from "react-hook-form";
+import React, { useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";  // Import Controller here
+import { useParams, Link, useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { updateBranch } from "../../../../store/actions/branches";
-import { Link } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
-
-import {
-    TextField,
-    Button,
-    
-  } from "@mui/material";
-
+import { TextField, Button } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import axios from "axios";
 
 
 const UpdateBranch = () => {
-
   const { user } = useSelector((state) => state.auth);
+  const { id } = useParams();
 
-  const dispatch = useDispatch;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  const theme = createTheme({
+    palette: {
+      primary: {
+        main: "#603F26",
+      },
+    },
+  });
 
-    const theme = createTheme({
-        palette: {
-          primary: {
-            main: "#603F26",
+  const schema = yup.object({
+    branch_name: yup.string().required("Branch name is required"),
+    branch_code: yup.string().required("Branch code is required"),
+    branch_email: yup
+      .string()
+      .required("Email is required")
+      .email("Email format is not valid"),
+    branch_city: yup.string().required("Branch city is required"),
+    branch_address: yup.string().required("Branch address is required"),
+    branch_contact: yup.string().required("Branch contact is required"),
+  });
+
+  const form = useForm({
+    defaultValues: {
+      branch_name: "",  // Initialize as empty string
+      branch_code: "",  // Initialize as empty string
+      branch_email: "", // Initialize as empty string
+      branch_address: "", // Initialize as empty string
+      branch_city: "", // Initialize as empty string
+      branch_contact: "", // Initialize as empty string
+    },
+    resolver: yupResolver(schema),
+  });
+
+  const { register, setValue, handleSubmit, formState, reset, control } = form;
+  const { errors } = formState;
+
+  useEffect(() => {
+    const fetchBranch = async () => {
+      try {
+        console.log("Fetching branch...");
+  
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found");
+          return;
+        }
+  
+        const response = await axios.get('http://localhost:3000/getBranchById', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
           },
-        },
-      });
-    
-      const schema = yup.object({
-        branch_name: yup.string().required("Branch name is required"),
-        branch_code: yup.string().required("Branch code is required"),
-        branch_email: yup
-          .string()
-          .required("Email is required")
-          .email("Email format is not valid"),
-        branch_city: yup.string().required("Branch city is required"),
-        branch_address: yup.string().required("Branch address is required"),
-        branch_contact: yup.string().required("Branch contact is required"),
-      });
-    
-      const form = useForm({
-        defaultValues: {
-          branch_name: "",
-          branch_code: "",
-          branch_email: "",
-          branch_address: "",
-          branch_city: "",
-          branch_contact: "",
-        },
-    
-        resolver: yupResolver(schema),
-      });
+          params: {
+            branchId: id,
+          },
+        });
+  
+        const branchData = response.data.branches[0];
+  
+        console.log("Branch Data: ", branchData);
+  
+        // Ensure the fields are reset with values from the fetched data
+        reset({
+          branch_name: branchData.name || "",
+          branch_code: branchData.branchCode || "",
+          branch_email: branchData.emailAddress || "",
+          branch_city: branchData.city || "",
+          branch_address: branchData.address || "",
+          branch_contact: branchData.contactNo || "",
+        });
+  
+      } catch (error) {
+        console.error("Error fetching branch:", error);
+      }
+    };
+  
+    fetchBranch();
+  }, [id, reset]);
 
+  const onSubmit = async (data) => {
+    const business = user?.business;
+    dispatch(updateBranch({ business, data }));
 
-      const { register, setValue, handleSubmit, formState } = form;
-      const { errors } = formState;
-
-
-
-      // useEffect(() => {
-      //   const fetchBranchDetails = async () => {
-      //     try {
-      //       const token = localStorage.getItem("token");
-      //       const response = await axios.get(`http://localhost:3000/branch/${branchId}`, {
-      //         headers: {
-      //           Authorization: `Bearer ${token}`,
-      //         },
-      //       });
+    navigate('../branchesList')
     
-      //       const branchData = response.data;
-            
-      //       setValue("branch_name", branchData.name);
-      //       setValue("branch_code", branchData.branchCode);
-      //       setValue("branch_email", branchData.emailAddress);
-      //       setValue("branch_city", branchData.city);
-      //       setValue("branch_address", branchData.address);
-      //       setValue("branch_contact", branchData.contactNo);
-      //     } catch (error) {
-      //       console.error("Error fetching branch details:", error);
-      //     }
-      //   };
-    
-      //   fetchBranchDetails();
-      // }, [branchId, setValue]);
-    
-      const onSubmit = async (data) => {
-        const business = user?.business;
-        dispatch(updateBranch({business, data}))
-      };
-    
-
-
+  };
 
   return (
     <div className="bg-gray-50 flex flex-col p-5">
@@ -113,74 +120,110 @@ const UpdateBranch = () => {
         >
           <ThemeProvider theme={theme}>
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_name"
-                label="Branch name"
-                error={!!errors.branch_name}
-                helperText={errors.branch_name?.message}
-                {...register("branch_name")}
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_name"
+                    label="Branch name"
+                    error={!!errors.branch_name}
+                    helperText={errors.branch_name?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_code"
-                label="Branch Code"
-                error={!!errors.branch_code}
-                helperText={errors.branch_code?.message}
-                {...register("branch_code")}
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_code"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_code"
+                    label="Branch Code"
+                    error={!!errors.branch_code}
+                    helperText={errors.branch_code?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_email"
-                label="Branch Email"
-                error={!!errors.branch_email}
-                helperText={errors.branch_email?.message}
-                {...register("branch_email")}
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_email"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_email"
+                    label="Branch Email"
+                    error={!!errors.branch_email}
+                    helperText={errors.branch_email?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_city"
-                label="Branch City"
-                error={!!errors.branch_city}
-                helperText={errors.branch_city?.message}
-                {...register("branch_city")}
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_city"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_city"
+                    label="Branch City"
+                    error={!!errors.branch_city}
+                    helperText={errors.branch_city?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_address"
-                label="Branch Address"
-                error={!!errors.branch_address}
-                helperText={errors.branch_address?.message}
-                {...register("branch_address")}
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_address"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_address"
+                    label="Branch Address"
+                    error={!!errors.branch_address}
+                    helperText={errors.branch_address?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
             <div className="mb-4">
-              <TextField
-                variant="outlined"
-                id="branch_contact"
-                label="Branch Contact No."
-                error={!!errors.branch_contact}
-                helperText={errors.branch_contact?.message}
-                {...register("branch_contact")}
-                sx={{ width: "100%" }}
+              <Controller
+                name="branch_contact"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    variant="outlined"
+                    id="branch_contact"
+                    label="Branch Contact No."
+                    error={!!errors.branch_contact}
+                    helperText={errors.branch_contact?.message}
+                    {...field}
+                    sx={{ width: "100%" }}
+                  />
+                )}
               />
             </div>
 
@@ -204,7 +247,7 @@ const UpdateBranch = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default UpdateBranch
+export default UpdateBranch;

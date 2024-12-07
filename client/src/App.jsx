@@ -29,25 +29,35 @@ import ListSalespersons from "./components/BranchOwnerPanel/branchOwnerDashboard
 import AddSalesperson from "./components/BranchOwnerPanel/branchOwnerDashboard/salesperson/addSalesperson";
 import UpdateSalesperson from "./components/BranchOwnerPanel/branchOwnerDashboard/salesperson/updateSalesperson";
 
+import { getAllBranches } from "./store/actions/branches";
+
+import { Loader } from "./tools";
+import ListProducts from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/listProducts";
+import AddProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/addProduct";
+
 function App() {
   const dispatch = useDispatch();
 
-  const { isloading, isauthenticated } = useSelector((state) => state.auth);
+  const { isloading, isauthenticated, user } = useSelector((state) => state.auth);
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     console.log("Token Verification....");
-    dispatch(isAuth()).finally(() => {
-      setAuthChecked(true);
-    });
+    dispatch(isAuth())
+      .finally(() => {
+        setAuthChecked(true);
+      });
   }, [dispatch]);
+  
+  useEffect(() => {
+    if (user?.business) {
+      console.log("Fetching branches for business:", user.business);
+      dispatch(getAllBranches(user.business));
+    }
+  }, [user, dispatch]);
 
   if (!authChecked || isloading) {
-    return (
-      <div className="text-center mt-28">
-        <CircularProgress />
-      </div>
-    );
+    return <Loader/>
   }
 
   return (
@@ -87,7 +97,7 @@ function App() {
 
               <Route path="addBranch" element={<AddBranches />} />
 
-              <Route path="updatebranch" element={<UpdateBranch />} />
+              <Route path="updatebranch/:id" element={<UpdateBranch />} />
 
               <Route path="addSalesperson" element={<AddSalesperson />} />
 
@@ -100,6 +110,9 @@ function App() {
                   element={<UpdateSalesperson />}
                 /> */}
               </Route>
+
+              <Route path="productsList" element={<ListProducts />} />
+              <Route path="addProduct" element={<AddProduct />} />
             </Route>
           </Route>
 
@@ -109,12 +122,7 @@ function App() {
 
           <Route path="addsubscription" element={<AddSubscription />} />
 
-          
-          {/* <Route path="branchesList" element={<ListBranches />} /> */}
-
-          {/* <Route path="sideBar" element={<SideBar />} />
-
-          <Route path="layout" element={<BranchOwnerLayout />} /> */}
+      
         </Routes>
       </BrowserRouter>
     </>

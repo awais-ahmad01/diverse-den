@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import { getSalespersons, removeSalesperson } from "../../../../store/actions/salespersons";
 
@@ -23,13 +23,17 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { CircularProgress } from "@mui/material";
+
+
+import { Loader } from "../../../../tools";
 
 const ListSalespersons = () => {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
 
-  const { salespersons, meta } = useSelector((state) => state.salespersons);
+  const { salespersons, meta, isloading } = useSelector((state) => state.salespersons);
 
   const totalSalespersons = meta?.totalItems || 0;
 
@@ -79,6 +83,12 @@ const ListSalespersons = () => {
     const business = user?.business;
     dispatch(getSalespersons({ business }));
   }, []);
+
+
+  if(isloading){
+    return <Loader/>
+  }
+
 
   return (
     <div className="relative bg-gray-50 flex flex-col pt-5">

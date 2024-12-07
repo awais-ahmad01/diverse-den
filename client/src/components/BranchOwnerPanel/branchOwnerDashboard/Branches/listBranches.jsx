@@ -23,13 +23,20 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import CircularProgress from "@mui/material/CircularProgress";
+
+import { getAllBranches } from "../../../../store/actions/branches";
+import { Loader } from "../../../../tools";
+
+
+
 
 const ListBranches = () => {
   const dispatch = useDispatch();
 
   const { user } = useSelector((state) => state.auth);
 
-  const { branches, meta } = useSelector((state) => state.branches);
+  const { branches, meta, isloading } = useSelector((state) => state.branches);
 
   const totalBranches = meta?.totalItems || 0;
 
@@ -79,7 +86,22 @@ const ListBranches = () => {
     console.log("getting.....");
     const business = user?.business;
     dispatch(getBranches({ business }));
+
   }, []);
+
+
+
+  if(isloading){
+
+    return <Loader/>
+
+    // return (
+    //   <div className="text-center mt-28">
+    //     <CircularProgress />
+    //   </div>
+    // );
+  }
+
 
   return (
     <div className="relative bg-gray-50 flex flex-col pt-5">
@@ -122,25 +144,25 @@ const ListBranches = () => {
               <TableHead sx={{ backgroundColor: "#603F26" }}>
                 <TableRow>
                   <TableCell sx={{ color: "white", fontSize: '16px', fontWeight: 'bold' }}>Code</TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
+                  <TableCell align="left" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
                     Name
                   </TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
+                  <TableCell align="left" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
                     City
                   </TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
+                  <TableCell align="left" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
                     Address
                   </TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
+                  <TableCell align="left" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
                     Contact
                   </TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
+                  <TableCell align="left" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
                     Email
                   </TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
+                  <TableCell align="left" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
                     Salesperson
                   </TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
+                  <TableCell align="left" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
                     Action
                   </TableCell>
                 </TableRow>
@@ -154,15 +176,15 @@ const ListBranches = () => {
                     <TableCell component="th" scope="row">
                       {branch.branchCode}
                     </TableCell>
-                    <TableCell align="right">{branch.name}</TableCell>
-                    <TableCell align="right">{branch.city}</TableCell>
-                    <TableCell align="right">{branch.address}</TableCell>
-                    <TableCell align="right">{branch.contactNo}</TableCell>
-                    <TableCell align="right">{branch.emailAddress}</TableCell>
-                    <TableCell align="right">
+                    <TableCell align="left">{branch.name}</TableCell>
+                    <TableCell align="left">{branch.city}</TableCell>
+                    <TableCell align="left">{branch.address}</TableCell>
+                    <TableCell align="left">{branch.contactNo}</TableCell>
+                    <TableCell align="left">{branch.emailAddress}</TableCell>
+                    <TableCell align="left">
                       {branch?.salesperson?.name || "Not Assigned"}
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="left">
                       <div className="flex items-center justify-center gap-3">
                         <Link to={`../viewbranch`}>
                           <GrFormView
@@ -170,7 +192,7 @@ const ListBranches = () => {
                             style={{ color: "green" }}
                           />
                         </Link>
-                        <Link to={`../updatebranch`}>
+                        <Link to={`../updatebranch/${branch._id}`}>
                           <MdEdit
                             className="text-[16px]"
                             style={{ color: "blue" }}
