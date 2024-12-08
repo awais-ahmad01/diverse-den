@@ -3,7 +3,10 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 
-import { getSalespersons, removeSalesperson } from "../../../../store/actions/salespersons";
+import {
+  getSalespersons,
+  removeSalesperson,
+} from "../../../../store/actions/salespersons";
 
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -25,7 +28,6 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { CircularProgress } from "@mui/material";
 
-
 import { Loader } from "../../../../tools";
 
 const ListSalespersons = () => {
@@ -33,10 +35,11 @@ const ListSalespersons = () => {
 
   const { user } = useSelector((state) => state.auth);
 
-  const { salespersons, meta, isloading } = useSelector((state) => state.salespersons);
+  const { salespersons, meta, isloading } = useSelector(
+    (state) => state.salespersons
+  );
 
   const totalSalespersons = meta?.totalItems || 0;
-
 
   const handleNextPage = (page) => {
     const business = user?.business;
@@ -70,10 +73,11 @@ const ListSalespersons = () => {
   const handleDelete = () => {
     const business = user?.business;
     console.log("dlete:code:", toRemove);
-    dispatch(removeSalesperson({toRemove, business}))
+    dispatch(removeSalesperson({ toRemove, business }))
       .unwrap()
       .finally(() => {
         setOpen(false);
+
         setToRemove(null);
       });
   };
@@ -84,11 +88,9 @@ const ListSalespersons = () => {
     dispatch(getSalespersons({ business }));
   }, []);
 
-
-  if(isloading){
-    return <Loader/>
+  if (isloading) {
+    return <Loader />;
   }
-
 
   return (
     <div className="relative bg-gray-50 flex flex-col pt-5">
@@ -125,97 +127,137 @@ const ListSalespersons = () => {
       </div>
 
       <div className="w-full px-4 md:px-8 lg:px-12 mt-10 flex-grow">
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead sx={{ backgroundColor: "#603F26" }}>
-                <TableRow>
-                  <TableCell sx={{ color: "white", fontSize: '16px', fontWeight: 'bold' }}>Name</TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
-                    Email ID
-                  </TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
-                    Branch
-                  </TableCell>
-                  <TableCell align="center" sx={{ color: "white" , fontSize: '16px', fontWeight: 'bold'}}>
-                    Action
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {salespersons.map((salesperson, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                  >
-                    <TableCell component="th" scope="row">
-                      {salesperson.name}
-                    </TableCell>
-                    <TableCell align="center">{salesperson.email}</TableCell>
-                    <TableCell align="center">{salesperson.assignBranch}</TableCell>
-                    <TableCell align="center">
-                      <div className="flex items-center justify-center gap-6">
-                        <Link to={``}>
-                          <GrFormView
-                            className="text-[20px]"
-                            style={{ color: "green" }}
-                          />
-                        </Link>
-                        <Link
-                          onClick={() => handleClickOpen(salesperson._id)}
-                        >
-                          <FaTrash
-                            className="text-[13px]"
-                            style={{ color: "red" }}
-                          />
-                        </Link>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </div>
-
-       
-
-        {/* Card View for Small Screens */}
-        <div className="block xl:hidden">
-          {salespersons.map((salesperson, index) => (
-            <div
-              key={index}
-              className="mb-4 bg-white p-4 rounded-lg shadow-md border border-gray-300"
-            >
-              <p className="text-sm font-medium text-gray-900">
-                <span className="font-bold">Name:</span> {salesperson.name}
-              </p>
-              <p className="text-sm font-medium text-gray-900">
-                <span className="font-bold">Email:</span> {salesperson.email}
-              </p>
-              <p className="text-sm font-medium text-gray-900">
-                <span className="font-bold">Branch:</span> {salesperson.assignBranch}
-              </p>
-              <div className="mt-3 flex items-center gap-5">
-                <Link className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
-                  View
-                </Link>
-                <Link
-                  onClick={() => handleClickOpen()}
-                  className="text-red-600 font-semibold hover:underline hover:text-red-800 transition duration-200"
-                >
-                  Delete
-                </Link>
-              </div>
+        {!salespersons || salespersons.length === 0 ? (
+          <div className="text-3xl font-bold flex justify-center">No Salesperson found</div>
+        ) : (
+          <>
+            <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
+              <TableContainer component={Paper}>
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                  <TableHead sx={{ backgroundColor: "#603F26" }}>
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          color: "white",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Name
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          color: "white",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Email ID
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          color: "white",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Branch
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          color: "white",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Action
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {salespersons.map((salesperson, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          "&:last-child td, &:last-child th": { border: 0 },
+                        }}
+                      >
+                        <TableCell component="th" scope="row">
+                          {salesperson.name}
+                        </TableCell>
+                        <TableCell align="center">
+                          {salesperson.email}
+                        </TableCell>
+                        <TableCell align="center">
+                          {salesperson.assignBranch}
+                        </TableCell>
+                        <TableCell align="center">
+                          <div className="flex items-center justify-center gap-6">
+                            <Link to={``}>
+                              <GrFormView
+                                className="text-[20px]"
+                                style={{ color: "green" }}
+                              />
+                            </Link>
+                            <Link
+                              onClick={() => handleClickOpen(salesperson._id)}
+                            >
+                              <FaTrash
+                                className="text-[13px]"
+                                style={{ color: "red" }}
+                              />
+                            </Link>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </div>
-          ))}
-        </div>
 
+
+            {/* Mobile view */}
+
+            <div className="block xl:hidden">
+              {salespersons.map((salesperson, index) => (
+                <div
+                  key={index}
+                  className="mb-4 bg-white p-4 rounded-lg shadow-md border border-gray-300"
+                >
+                  <p className="text-sm font-medium text-gray-900">
+                    <span className="font-bold">Name:</span> {salesperson.name}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900">
+                    <span className="font-bold">Email:</span>{" "}
+                    {salesperson.email}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900">
+                    <span className="font-bold">Branch:</span>{" "}
+                    {salesperson.assignBranch}
+                  </p>
+                  <div className="mt-3 flex items-center gap-5">
+                    <Link className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
+                      View
+                    </Link>
+                    <Link
+                      onClick={() => handleClickOpen(salesperson._id)}
+                      className="text-red-600 font-semibold hover:underline hover:text-red-800 transition duration-200"
+                    >
+                      Delete
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
-
-
-      {meta?.nextPage || meta?.previousPage ? 
+      {meta?.nextPage || meta?.previousPage ? (
         <nav
           aria-label="Page navigation example"
           className="w-full flex justify-center items-center my-16"
@@ -260,8 +302,7 @@ const ListSalespersons = () => {
             )}
           </ul>
         </nav>
-        : null
-      }
+      ) : null}
 
       <div>
         <Dialog

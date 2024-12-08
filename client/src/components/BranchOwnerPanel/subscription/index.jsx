@@ -5,6 +5,8 @@ import StripeCheckout from "react-stripe-checkout";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../../../tools";
+
 
 
 
@@ -111,6 +113,7 @@ const SubscriptionPlans = () => {
       )
       .then((response) => {
         console.log(response.data)
+        showToast("SUCCESS", 'Plan added successfully.')
         navigate('../business_setup')
       })
       .catch((error) => {

@@ -37,6 +37,7 @@ export const salespersonSlice = createSlice({
         })
         .addCase(getSalespersons.rejected, (state, action)=>{
             state.isloading = false
+            state.salespersons = [];
         })
     }
 })

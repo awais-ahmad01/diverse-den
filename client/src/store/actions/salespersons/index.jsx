@@ -82,6 +82,7 @@ export const addSalesperson = createAsyncThunk(
         console.log(error)
         throw error;
       }
+      
     }
   );
 

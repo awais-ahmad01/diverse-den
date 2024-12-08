@@ -138,7 +138,11 @@ const ListBranches = () => {
       </div>
 
       <div className="w-full px-4 md:px-8 lg:px-12 mt-10 flex-grow">
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
+        {!branches || branches.length === 0 ?
+          <div className="text-3xl font-bold flex justify-center">No Branches found</div>
+        : 
+          <>
+            <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead sx={{ backgroundColor: "#603F26" }}>
@@ -215,70 +219,7 @@ const ListBranches = () => {
           </TableContainer>
         </div>
 
-        {/* Table for Medium and Larger Screens */}
-        {/* <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
-          <table className="w-full text-sm text-left rtl:text-right font-medium">
-            <thead className="text-sm text-white uppercase font-bold bg-[#603F26]">
-              <tr>
-                <th scope="col" className="px-6 py-3">
-                  Code
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Name
-                </th>
-                <th scope="col" className="px-6 py-3 hidden md:table-cell">
-                  City
-                </th>
-                <th scope="col" className="px-6 py-3 hidden lg:table-cell">
-                  Address
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Contact
-                </th>
-                <th scope="col" className="px-6 py-3 hidden xl:table-cell">
-                  Email
-                </th>
-                <th scope="col" className="px-6 py-3 hidden lg:table-cell">
-                  Salesperson
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {branches.map((branch, index) => (
-                <tr
-                  key={index}
-                  className="bg-white border-b border-gray-700 text-black hover:bg-gray-300"
-                >
-                  <td className="px-6 py-3">{branch.branchCode}</td>
-                  <td className="px-6 py-3">{branch.name}</td>
-                  <td className="px-6 py-3 ">{branch.city}</td>
-                  <td className="px-6 py-3 ">{branch.address}</td>
-                  <td className="px-6 py-3">{branch.contactNo}</td>
-                  <td className="px-6 py-3 ">{branch.emailAddress}</td>
-                  <td className="px-6 py-3 ">
-                    {branch.salesperson || "Not Assigned"}
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <Link>
-                        <GrFormView className="text-[18px]" />
-                      </Link>
-                      <Link to='../updatebranch'>
-                        <MdEdit className="text-[16px]" />
-                      </Link>
-                      <Link onClick={() => handleClickOpen(branch.branchCode)}>
-                        <FaTrash className="text-[13px]" />
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div> */}
+      
 
         {/* Card View for Small Screens */}
         <div className="block xl:hidden">
@@ -327,6 +268,11 @@ const ListBranches = () => {
             </div>
           ))}
         </div>
+          
+          </>
+        
+
+        }
 
       </div>
 

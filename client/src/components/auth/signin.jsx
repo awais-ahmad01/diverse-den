@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import {useState } from "react";
 import { useDispatch } from "react-redux";
+import { showToast } from "../../tools";
 
 
 import * as yup from "yup";
@@ -74,7 +75,14 @@ const Signin = () => {
   const { errors } = formState;
 
   const onSubmit = (data) => {
-    dispatch(signInUser(data));
+    dispatch(signInUser(data))
+    .unwrap()
+    .then(()=>{
+      showToast("SUCCESS", "Welcome!!")
+    })
+    .catch((error)=>{
+      showToast("ERROR", error.response?.data?.message || "Login Failed");
+    })
   };
 
   

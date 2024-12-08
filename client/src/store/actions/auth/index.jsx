@@ -44,12 +44,12 @@ export const signInUser = createAsyncThunk(
 
             console.log(response.data)
 
-            dispatch(successGlobal('Welcome !!'))
+            // dispatch(successGlobal('Welcome !!'))
 
             return {data:response.data.user, auth:true}
         }
         catch(error){
-            dispatch(errorGlobal(error.response.data.message))
+            // dispatch(errorGlobal(error.response.data.message))
             throw error;
         }
     }

@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../../../tools";
 
 import {
   TextField,
@@ -103,15 +104,16 @@ const BusinessSetup = () => {
         }
       );
 
-      console.log("Plan added successfully:", response.data);
+      console.log("Business Information added successfully:", response.data);
 
+      showToast("SUCCESS", "Business Information added successfully!! Welcome here!!!!")
       navigate('../branchOwnerDashboard');      
     } catch (error) {
+      showToast("ERROR", error.response.data?.message || "Error adding plan")
       console.log("Error adding plan:", error);
     }
   };
 
-  // console.log(bankNames)
 
   useEffect(() => {
     const fetchBanks = async () => {

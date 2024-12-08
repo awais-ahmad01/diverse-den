@@ -32,25 +32,10 @@ const AddProduct = () => {
   const [Allcategories, setAllCategories] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("/categories.json");
-        const data = await response.json();
-        console.log(data);
-        setAllCategories(data);
-      } catch (error) {
-        console.error("Error fetching categories data:", error);
-      }
-    };
+  const [images, setImages] = useState([]);
+  const [checked, setChecked] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
 
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    const business = user?.business;
-    dispatch(getAllBranches(business));
-  }, [dispatch, user?.business]);
 
   console.log("selectd:", selectedCategory);
 
@@ -230,24 +215,9 @@ const AddProduct = () => {
     recalculateQuantities();
   };
 
-  const onSubmit = async (data) => {
-    console.log(data);
-    const business = user?.business;
-    const body = {
-      data,
-      business,
-    };
+  
 
-    dispatch(addProduct(body));
 
-    reset();
-  };
-
-  const [images, setImages] = useState([]);
-
-  const [checked, setChecked] = useState([]);
-
-  const [selectedImage, setSelectedImage] = useState(null);
 
   const clickMediaFile = () => {
     document.getElementById("input-file").click();
@@ -295,6 +265,51 @@ const AddProduct = () => {
   const closePreview = () => {
     setSelectedImage(null);
   };
+
+
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/categories.json");
+        const data = await response.json();
+        console.log(data);
+        setAllCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories data:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const business = user?.business;
+    dispatch(getAllBranches(business));
+  }, [dispatch, user?.business]);
+
+
+
+  const onSubmit = async (data) => {
+    console.log(data);
+    const business = user?.business;
+    const body = {
+      data,
+      business,
+    };
+
+    dispatch(addProduct(body))
+    .unwrap()
+    .then(()=>{
+      reset();
+      setImages([]);
+      setChecked([]);
+      setSelectedCategory('');
+      setSelectedImage(null);
+    })    
+  };
+
+
 
   return (
     <div className="bg-gray-50 flex flex-col p-5">
@@ -366,7 +381,7 @@ const AddProduct = () => {
                     <Select
                       {...field}
                       label="Category"
-                      value={selectedCategory}
+                      value={selectedCategory || ''}
                       onChange={(e) => {
                         const selectedValue = e.target.value;
                         onChange(selectedValue);
@@ -601,7 +616,7 @@ const AddProduct = () => {
                 )}
 
                 {/* Size Field */}
-                <div className="mb-4">
+                <div className="mb-4 mt-2">
                   <Controller
                     name={`variants.${index}.size`}
                     control={control}

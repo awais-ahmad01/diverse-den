@@ -18,11 +18,23 @@ export const addProduct = createAsyncThunk(
           return;
         }
 
+
+        const formdata = new FormData();
+
+        formdata.append('data', JSON.stringify(body.data));
+        formdata.append('business', body.business);
+
+        if(body.data.media){
+          body.data.media.forEach((file) => {
+            formdata.append('media', file);
+          });
+        }
+
   
-        const response = await axios.post('http://localhost:3000/branchOwner/', body, {
+        const response = await axios.post('http://localhost:3000/branchOwner/', formdata, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            
           },
          
         })                     

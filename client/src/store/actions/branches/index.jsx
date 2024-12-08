@@ -233,7 +233,6 @@ export const getAllBranches = createAsyncThunk(
       return { data: response.data.branches };
     } catch (error) {
       
-      thunkAPI.dispatch(errorGlobal(error.response?.data?.message || 'Failed to fetch branches'));
       console.log(error)
       throw error;
     }

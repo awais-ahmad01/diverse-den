@@ -26,6 +26,7 @@ export const branchesSlice = createSlice({
       })
       .addCase(getBranches.rejected, (state) => {
         state.isloading = false;
+        state.branches = [];
       })
 
       //get All branches
@@ -39,6 +40,7 @@ export const branchesSlice = createSlice({
       })
       .addCase(getAllBranches.rejected, (state) => {
         state.isloading = false;
+        
       })
 
       
