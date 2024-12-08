@@ -35,6 +35,8 @@ import { Loader } from "./tools";
 import ListProducts from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/listProducts";
 import AddProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/addProduct";
 
+import HomePage from "./components/CustomerPanel/HomePage";
+
 function App() {
   const dispatch = useDispatch();
 
@@ -118,7 +120,21 @@ function App() {
 
           <Route path="/riderPanel" element={<RiderPanel />} />
 
-          <Route path="/customerPanel" element={<CustomerPanel />} />
+
+
+
+          {/* Cutomer  */}
+
+          <Route path="/" element={<CustomerPanel />}>
+            <Route path="/" element={<HomePage />} />
+                  
+          </Route>
+          
+            
+          
+          
+          
+          
 
           <Route path="addsubscription" element={<AddSubscription />} />
 

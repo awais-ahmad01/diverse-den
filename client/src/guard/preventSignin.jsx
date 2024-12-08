@@ -30,7 +30,7 @@ const PreventSignin = (props) => {
             }
 
             if(userRole === 'Customer'){
-                return <Navigate to='/customerPanel' state={{from:location}} replace/>
+                return <Navigate to='/' state={{from:location}} replace/>
             }
 
             

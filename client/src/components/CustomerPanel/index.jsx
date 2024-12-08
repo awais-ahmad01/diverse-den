@@ -1,9 +1,11 @@
 import React from 'react'
+import { Outlet } from 'react-router-dom'
+
 
 const CustomerPanel = () => {
   return (
     <div>
-      Customer Panel
+      <Outlet/>
     </div>
   )
 }

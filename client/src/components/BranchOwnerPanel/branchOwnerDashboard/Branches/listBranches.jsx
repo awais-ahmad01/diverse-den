@@ -44,6 +44,7 @@ const ListBranches = () => {
 
   const handleNextPage = (page) => {
     const business = user?.business;
+    
     if (business && page) {
       console.log("Next Page:", page);
       dispatch(getBranches({ business, pageNo: page }));

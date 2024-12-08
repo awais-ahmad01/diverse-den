@@ -15,6 +15,7 @@ export const branchesSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
+    
     //get Pagination Branches
       .addCase(getBranches.pending, (state) => {
         state.isloading = true;
