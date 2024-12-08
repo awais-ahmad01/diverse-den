@@ -17,6 +17,7 @@ import {
   IconButton,
   FormControl,
   FormHelperText,
+  selectClasses,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { FaTrash } from "react-icons/fa";
@@ -31,13 +32,14 @@ const AddProduct = () => {
   const dispatch = useDispatch();
   const [Allcategories, setAllCategories] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSubCategory, setSelectedSubCategory] = useState("");
+
+  console.log("selectd:", selectedCategory);
+  console.log("selectdSub:", selectedSubCategory);
 
   const [images, setImages] = useState([]);
   const [checked, setChecked] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
-
-
-  console.log("selectd:", selectedCategory);
 
   const theme = createTheme({
     palette: {
@@ -51,10 +53,16 @@ const AddProduct = () => {
     title: yup.string().required("Title is required"),
     description: yup.string().required("Description is required"),
     category: yup.string().required("Category is required"),
+    subCategory: yup.string().when(['category'], {
+      is: (category) => category === "Clothing" || category === "Shoes",
+      then: (schema) => schema.required("SubCategory is required for Clothing and Shoes"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
     productType: yup.string().required("Product type is required"),
     branch: yup.string().required("Branch assignment is required"),
     price: yup.number().required("Price is required"),
     sku: yup.string().required("SKU is required"),
+    media: yup.mixed().required("At least one image is required"),
     variants: yup
       .array()
       .of(
@@ -63,15 +71,14 @@ const AddProduct = () => {
           .shape({
             size: yup.string(),
             material: yup.string(),
-            quantity: yup.number().when(["size", "material", "colors"], {
+            quantity: yup.number().when(['size', 'material', 'colors'], {
               is: (size, material, colors) =>
                 (size || material) && (!colors || colors.length === 0),
-              then: () =>
-                yup
-                  .number()
+              then: (schema) =>
+                schema
                   .required("Quantity is required when no colors are added")
                   .min(1, "Quantity must be at least 1"),
-              otherwise: () => yup.number().nullable(),
+              otherwise: (schema) => schema.nullable(),
             }),
             colors: yup.array().of(
               yup.object().shape({
@@ -105,6 +112,7 @@ const AddProduct = () => {
       title: "",
       description: "",
       category: "",
+      subCategory: "",
       productType: "",
       branch: "",
       price: "",
@@ -215,10 +223,6 @@ const AddProduct = () => {
     recalculateQuantities();
   };
 
-  
-
-
-
   const clickMediaFile = () => {
     document.getElementById("input-file").click();
   };
@@ -266,8 +270,6 @@ const AddProduct = () => {
     setSelectedImage(null);
   };
 
-
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -288,8 +290,6 @@ const AddProduct = () => {
     dispatch(getAllBranches(business));
   }, [dispatch, user?.business]);
 
-
-
   const onSubmit = async (data) => {
     console.log(data);
     const business = user?.business;
@@ -299,17 +299,15 @@ const AddProduct = () => {
     };
 
     dispatch(addProduct(body))
-    .unwrap()
-    .then(()=>{
-      reset();
-      setImages([]);
-      setChecked([]);
-      setSelectedCategory('');
-      setSelectedImage(null);
-    })    
+      .unwrap()
+      .then(() => {
+        reset();
+        setImages([]);
+        setChecked([]);
+        setSelectedCategory("");
+        setSelectedImage(null);
+      });
   };
-
-
 
   return (
     <div className="bg-gray-50 flex flex-col p-5">
@@ -381,11 +379,14 @@ const AddProduct = () => {
                     <Select
                       {...field}
                       label="Category"
-                      value={selectedCategory || ''}
+                      value={selectedCategory || ""}
                       onChange={(e) => {
                         const selectedValue = e.target.value;
                         onChange(selectedValue);
                         setSelectedCategory(selectedValue);
+                        setValue('subCategory', '');
+                        setValue('productType', '');
+                        setSelectedSubCategory('');
                       }}
                       error={!!errors.category}
                       MenuProps={{
@@ -408,7 +409,86 @@ const AddProduct = () => {
               </FormControl>
             </div>
 
-            {selectedCategory && (
+            {(selectedCategory === "Clothing" ||
+              selectedCategory === "Shoes") && (
+              <div className="mb-4">
+                <FormControl sx={{ width: "100%" }}>
+                  <InputLabel>SubCategory</InputLabel>
+                  <Controller
+                    name="subCategory"
+                    control={control}
+                    render={({ field: { onChange, ...field } }) => (
+                      <Select
+                        {...field}
+                        label="SubCategory"
+                        value={selectedSubCategory || ""}
+                        onChange={(e) => {
+                          const selectedValue = e.target.value;
+                          onChange(selectedValue);
+                          setSelectedSubCategory(selectedValue);
+                          setValue('productType', '');
+                        }}
+                        error={!!errors.subCategory}
+                        MenuProps={{
+                          disableScrollLock: true,
+                        }}
+                      >
+                        {Object.keys(Allcategories[selectedCategory]).map(
+                          (category, index) => (
+                            <MenuItem key={index} value={category}>
+                              {category}
+                            </MenuItem>
+                          )
+                        )}
+                      </Select>
+                    )}
+                  />
+                  {errors.subCategory && (
+                    <FormHelperText error={true}>
+                      {errors.subCategory.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </div>
+            )}
+
+            {(selectedSubCategory === "Men" ||
+              selectedSubCategory === "Women" || 
+              selectedSubCategory === "Kids" ) && (
+              <div className="mb-4">
+                <FormControl sx={{ width: "100%" }}>
+                  <InputLabel>Product Type</InputLabel>
+                  <Controller
+                    name="productType"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        {...field}
+                        label="Product Type"
+                        error={!!errors.productType}
+                        MenuProps={{
+                          disableScrollLock: true,
+                        }}
+                      >
+                        {Allcategories[selectedCategory][selectedSubCategory].map((type, index) => (
+                          <MenuItem key={index} value={type}>
+                            {type}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    )}
+                  />
+                  {errors.productType && (
+                    <FormHelperText error={true}>
+                      {errors.productType.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </div>
+            )}
+
+            {(selectedCategory === "DecorationPieces" ||
+              selectedCategory === "Furniture") && (
               <div className="mb-4">
                 <FormControl sx={{ width: "100%" }}>
                   <InputLabel>Product Type</InputLabel>
@@ -589,6 +669,11 @@ const AddProduct = () => {
                     multiple
                   />
                 </div>
+                {errors.media && (
+                    <FormHelperText error={true}>
+                      {errors.media?.message}
+                    </FormHelperText>
+                  )}
               </div>
             </div>
 

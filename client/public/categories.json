@@ -1,53 +1,96 @@
 {
-    "Shoes": [
-      "Sneakers", 
-      "Dress Shoes", 
-      "Boots", 
-      "Sandals", 
-      "Athletic Shoes", 
-      "Casual Shoes", 
-      "Heels", 
-      "Loafers"
+  "Shoes": {
+    "Men": [
+      "Sneakers",
+      "Dress Shoes",
+      "Boots",
+      "Casual Shoes",
+      "Loafers",
+      "Sandals",
+      "Athletic Shoes"
+      
     ],
-    "Clothing": [
-      "T-shirts", 
-      "Shirts", 
-      "Pants", 
-      "Jeans", 
-      "Jackets", 
-      "Sweaters", 
-      "Dresses", 
-      "Skirts", 
-      "Shorts", 
-      "Activewear", 
-      "Underwear", 
+    "Women": [
+      "Heels",
+      "Sandals",
+      "Sneakers",
+      "Casual Shoes",
+      "Boots",
+      "Flats",
+      "Athletic Shoes"
+    ],
+    "Kids": [
+      "Sneakers",
+      "Sandals",
+      "Boots",
+      "Athletic Shoes",
+      "School Shoes"
+    ]
+  },
+  "Clothing": {
+    "Men": [
+      "T-shirts",
+      "Shirts",
+      "Pants",
+      "Jeans",
+      "Jackets",
+      "Sweaters",
+      "Shorts",
+      "Activewear",
+      "Underwear",
       "Sleepwear"
     ],
-    "DecorationPieces": [
-      "Wall Art", 
-      "Sculptures", 
-      "Vases", 
-      "Candle Holders", 
-      "Picture Frames", 
-      "Mirrors", 
-      "Figurines", 
-      "Decorative Bowls", 
-      "Tapestries", 
-      "Ornamental Objects"
+    "Women": [
+      "T-shirts",
+      "Shirts",
+      "Pants",
+      "Jeans",
+      "Jackets",
+      "Sweaters",
+      "Dresses",
+      "Skirts",
+      "Shorts",
+      "Activewear",
+      "Underwear",
+      "Sleepwear"
     ],
-    "Furniture": [
-      "Sofas", 
-      "Chairs", 
-      "Tables", 
-      "Beds", 
-      "Wardrobes", 
-      "Cabinets", 
-      "Shelving Units", 
-      "Ottomans", 
-      "Dining Sets", 
-      "Coffee Tables", 
-      "Desk Furniture", 
-      "Outdoor Furniture"
+    "Kids": [
+      "T-shirts",
+      "Shirts",
+      "Pants",
+      "Jeans",
+      "Jackets",
+      "Sweaters",
+      "Dresses",
+      "Shorts",
+      "Activewear",
+      "Sleepwear"
     ]
-  }
-  
+  },
+  "DecorationPieces": [
+    "Wall Art",
+    "Sculptures",
+    "Vases",
+    "Candle Holders",
+    "Picture Frames",
+    "Mirrors",
+    "Figurines",
+    "Decorative Bowls",
+    "Tapestries",
+    "Ornamental Objects"
+  ],
+  "Furniture": [
+    "Sofas",
+    "Chairs",
+    "Tables",
+    "Beds",
+    "Wardrobes",
+    "Cabinets",
+    "Shelving Units",
+    "Ottomans",
+    "Dining Sets",
+    "Coffee Tables",
+    "Desk Furniture",
+    "Outdoor Furniture"
+  ]
+}
