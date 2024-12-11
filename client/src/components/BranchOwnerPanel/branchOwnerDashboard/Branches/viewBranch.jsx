@@ -1,5 +1,7 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
+
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
@@ -25,79 +27,37 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 
+import { getBranchProducts } from "../../../../store/actions/products";
 import { Loader } from "../../../../tools";
-import { getProducts, removeProduct } from "../../../../store/actions/products";
 
-const ListProducts = () => {
-    const dispatch = useDispatch();
+const ViewBranch = () => {
+  const dispatch = useDispatch();
 
-    const { user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
 
-    const { products, meta, isloading } = useSelector((state) => state.products);
+  const { branchProducts, branchMeta } = useSelector((state) => state.products);
 
-    console.log("Products: ", products)
+  const totalProducts = branchMeta?.totalItems || 0;
 
-    const totalProducts = meta?.totalItems || 0;
-
-  //   console.log("id:", user.business);
-
-    const handleNextPage = (page) => {
-      const business = user?.business;
-      if (business && page) {
-        console.log("Next Page:", page);
-        dispatch(getProducts({ business, pageNo: page }));
-      }
-    };
-
-    const handlePrevPage = (page) => {
-      const business = user?.business;
-      if (business && page) {
-        console.log("Previous Page:", page);
-        dispatch(getProducts({ business, pageNo: page }));
-      }
-    };
-
-    const [open, setOpen] = useState(false);
-    const [toRemove, setToRemove] = useState(null);
-
-    const handleClickOpen = (productId) => {
-      console.log("Open:code:", productId);
-      setToRemove(productId);
-      setOpen(true);
-    };
-
-    const handleClose = () => {
-      setOpen(false);
-    };
-
-    const handleDelete = () => {
-      const business = user?.business;
-    console.log("dlete:code:", toRemove);
-     dispatch(removeProduct({toRemove, business}))
-        .unwrap()
-        .finally(() => {
-          setOpen(false);
-          setToRemove(null);
-        }); 
-    };
-
-    useEffect(() => {
-      console.log("getting products.....");
-      const business = user?.business;
-      dispatch(getProducts({ business }));
-
-    }, []);
-
-    if(isloading){
-      return <Loader/>
-    }
+  const { id, name } = useParams();
 
 
+
+
+  console.log("ID:", id);
+  console.log("name:", name);
+
+  useEffect(() => {
+    dispatch(getBranchProducts({ branchId: id }));
+  }, []);
 
   return (
     <div className="relative bg-gray-50 flex flex-col pt-5">
-      <div className="mb-4 pl-4 md:pl-8 lg:pl-12">
-        <h1 className="text-[#603F26] font-bold text-2xl">Products</h1>
+      <div className="mb-6 flex items-center space-x-3 ml-2 md:ml-8 lg:ml-12">
+        <Link to="../branchesList">
+          <FaArrowLeft className="text-[#603F26] text-xl cursor-pointer" />
+        </Link>
+        <h1 className="font-bold text-2xl text-[#603F26]">{name}</h1>
       </div>
 
       <div className="w-full flex justify-between items-center px-4 md:px-8 lg:px-12">
@@ -105,32 +65,13 @@ const ListProducts = () => {
           <span className="font-semibold text-2xl">
             {totalProducts < 10 ? 0 : null}
             {totalProducts}
-            
           </span>
           <h3 className="text-[14px] font-medium">Total Products</h3>
-        </div>
-        <div className="">
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            component={Link}
-            to="../addProduct"
-            sx={{
-              textTransform: "none",
-              width: "120px",
-              fontSize: "16px",
-              fontWeight: "semi-bold",
-              backgroundColor: "#603F26",
-            }}
-          >
-            Add Product
-          </Button>
         </div>
       </div>
 
       <div className="w-full px-4 md:px-8 lg:px-12 mt-10 flex-grow">
-        {!products || products.length === 0 ? (
+        {!branchProducts || branchProducts.length === 0 ? (
           <div className="text-3xl font-bold flex justify-center">
             No Products found
           </div>
@@ -191,8 +132,6 @@ const ListProducts = () => {
                         Quantity
                       </TableCell>
 
-
-
                       <TableCell
                         align="center"
                         sx={{
@@ -206,9 +145,8 @@ const ListProducts = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-
-                      {products.map((product, index)=>(
-                        <TableRow
+                    {branchProducts.map((product, index) => (
+                      <TableRow
                         key={index}
                         sx={{
                           "&:last-child td, &:last-child th": { border: 0 },
@@ -221,24 +159,22 @@ const ListProducts = () => {
                         <TableCell align="left">{product.category}</TableCell>
                         <TableCell align="left">{product.price}</TableCell>
                         <TableCell align="left">12</TableCell>
-                      
+
                         <TableCell align="left">
                           <div className="flex items-center justify-center gap-3">
-                            <Link to={`../viewProduct/${product._id}/${product.title}`}>
+                            <Link to={``}>
                               <GrFormView
                                 className="text-[18px]"
                                 style={{ color: "green" }}
                               />
                             </Link>
-                            <Link to={`../updateProduct/${product._id}`}>
+                            <Link to={``}>
                               <MdEdit
                                 className="text-[16px]"
                                 style={{ color: "blue" }}
                               />
                             </Link>
-                            <Link
-                              onClick={() => handleClickOpen(product._id)}
-                            >
+                            <Link onClick={() => handleClickOpen()}>
                               <FaTrash
                                 className="text-[13px]"
                                 style={{ color: "red" }}
@@ -247,53 +183,55 @@ const ListProducts = () => {
                           </div>
                         </TableCell>
                       </TableRow>
-                      ))
-
-                      }
-                    
+                    ))}
                   </TableBody>
                 </Table>
               </TableContainer>
             </div>
 
             {/* Card View for Small Screens */}
-            <div className="block xl:hidden">
-              {products.map((product, index) => (
+            {/* <div className="block xl:hidden">
+              {branches.map((branch, index) => (
                 <div
                   key={index}
                   className="mb-4 bg-white p-4 rounded-lg shadow-md border border-gray-300"
                 >
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Product:</span> {product.title}
+                    <span className="font-bold">Code:</span> {branch.branchCode}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Branch:</span> {product.branch}
+                    <span className="font-bold">Name:</span> {branch.name}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Category:</span> {product.category}
+                    <span className="font-bold">City:</span> {branch.city}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Price:</span> {product.price}
+                    <span className="font-bold">Address:</span> {branch.address}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Quantity:</span>12
+                    <span className="font-bold">Contact:</span>{" "}
+                    {branch.contactNo}
                   </p>
-
-                 
+                  <p className="text-sm font-medium text-gray-900">
+                    <span className="font-bold">Email:</span>{" "}
+                    {branch.emailAddress}
+                  </p>
+                  <p className="text-sm font-medium text-gray-900">
+                    <span className="font-bold">Salesperson:</span>{" "}
+                    {branch?.salesperson?.name || "Not Assigned"}
+                  </p>
                   <div className="mt-3 flex items-center gap-5">
-                    <Link 
-                      to={`../viewProduct/${product._id}/${product.title}`}
-                      className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
+                    <Link className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
                       View
                     </Link>
                     <Link
-                      to={`../updateProduct/${product._id}`}
+                      to="../updatebranch"
                       className="text-green-600 font-semibold hover:underline hover:text-green-800 transition duration-200"
                     >
                       Update
                     </Link>
                     <Link
-                      onClick={() => handleClickOpen(product._id)}
+                      onClick={() => handleClickOpen(branch.branchCode)}
                       className="text-red-600 font-semibold hover:underline hover:text-red-800 transition duration-200"
                     >
                       Delete
@@ -301,16 +239,12 @@ const ListProducts = () => {
                   </div>
                 </div>
               ))}
-            </div>
-
-
+            </div> */}
           </>
-        )} 
-
-
+        )}
       </div>
 
-      {meta?.nextPage || meta?.previousPage ? 
+      {/* {meta?.nextPage || meta?.previousPage ? 
         <nav
           aria-label="Page navigation example"
           className="w-full flex justify-center items-center my-16"
@@ -381,9 +315,9 @@ const ListProducts = () => {
           </DialogActions>
         </Dialog>
       </div>
-
+ */}
     </div>
   );
 };
 
-export default ListProducts;
+export default ViewBranch;

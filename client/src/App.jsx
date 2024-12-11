@@ -36,6 +36,9 @@ import ListProducts from "./components/BranchOwnerPanel/branchOwnerDashboard/Pro
 import AddProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/addProduct";
 
 import HomePage from "./components/CustomerPanel/HomePage";
+import ViewBranch from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/viewBranch";
+import ViewProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/viewProduct";
+import UpdateProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/updateProduct";
 
 function App() {
   const dispatch = useDispatch();
@@ -101,6 +104,10 @@ function App() {
 
               <Route path="updatebranch/:id" element={<UpdateBranch />} />
 
+              <Route path="viewbranch/:id/:name" element={<ViewBranch/>} />
+
+
+
               <Route path="addSalesperson" element={<AddSalesperson />} />
 
               <Route path="salespersonsList" element={<ListSalespersons />}>
@@ -115,6 +122,8 @@ function App() {
 
               <Route path="productsList" element={<ListProducts />} />
               <Route path="addProduct" element={<AddProduct />} />
+              <Route path="viewProduct/:productId/:productTitle" element={<ViewProduct />} />
+              <Route path="updateProduct/:productId" element={<UpdateProduct />} />
             </Route>
           </Route>
 

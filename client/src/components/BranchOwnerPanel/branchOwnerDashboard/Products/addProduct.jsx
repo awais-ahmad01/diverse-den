@@ -298,6 +298,7 @@ const AddProduct = () => {
       business,
     };
 
+    
     dispatch(addProduct(body))
       .unwrap()
       .then(() => {
@@ -305,6 +306,7 @@ const AddProduct = () => {
         setImages([]);
         setChecked([]);
         setSelectedCategory("");
+        setSelectedSubCategory("");
         setSelectedImage(null);
       });
   };

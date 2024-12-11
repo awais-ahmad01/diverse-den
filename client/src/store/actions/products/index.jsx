@@ -31,7 +31,7 @@ export const addProduct = createAsyncThunk(
         }
 
   
-        const response = await axios.post('http://localhost:3000/branchOwner/', formdata, {
+        const response = await axios.post('http://localhost:3000/branchOwner/addProduct', formdata, {
           headers: {
             Authorization: `Bearer ${token}`,
             
@@ -71,7 +71,7 @@ export const addProduct = createAsyncThunk(
           return;
         }
   
-        const response = await axios.get('http://localhost:3000/', {
+        const response = await axios.get('http://localhost:3000/branchOwner/viewBusinessProductsById', {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -83,14 +83,98 @@ export const addProduct = createAsyncThunk(
           },
         })
   
-        console.log("Products:", response.data);
+        console.log("Products data:", response.data);
+  
+        console.log(response.data.meta)
+        
+        return { data: response.data.businessProducts, metaData: response.data.meta};
+      } catch (error) {
+        
+        thunkAPI.dispatch(errorGlobal(error.response?.data?.message || 'Failed to fetch products'));
+        console.log(error)
+        throw error;
+      }
+    }
+  );
+
+
+  export const getBranchProducts = createAsyncThunk(
+    'products/getBranchProducts',
+    async ({branchId, pageNo=1, limit=7}, thunkAPI) => {
+      try {
+        console.log("Get Branch Products.....");
+        console.log('br Id:', branchId)
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+          thunkAPI.dispatch(errorGlobal('No token found'));
+          return;
+        }
+  
+        const response = await axios.get('http://localhost:3000/branchOwner/viewBranchProductsById', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          params: {
+            branchId,
+            pageNo,
+            limit
+          },
+        })
+  
+        console.log("bracnh Products data:", response.data);
   
         console.log(response.data.meta)
         
         return { data: response.data.products, metaData: response.data.meta};
       } catch (error) {
         
-        thunkAPI.dispatch(errorGlobal(error.response?.data?.message || 'Failed to fetch products'));
+        thunkAPI.dispatch(errorGlobal(error.response?.data?.message || 'Failed to fetch Branch products'));
+        console.log(error)
+        throw error;
+      }
+    }
+  );
+
+
+
+
+  export const getProductByID = createAsyncThunk(
+    'products/getProductById',
+    async (productId, thunkAPI) => {
+      try {
+        console.log("Get Product by Id.....");
+        console.log('br Id:', productId)
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+          thunkAPI.dispatch(errorGlobal('No token found'));
+          return;
+        }
+  
+        const response = await axios.get('http://localhost:3000/branchOwner/getProductById', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          params: {
+            productId
+          },
+        })
+  
+        console.log("Product by Id data:", response.data);
+  
+        
+        
+        return { data: response.data.product};
+      } catch (error) {
+        
+        thunkAPI.dispatch(errorGlobal(error.response?.data?.message || 'Failed to fetch product'));
         console.log(error)
         throw error;
       }
@@ -109,7 +193,7 @@ export const addProduct = createAsyncThunk(
         console.log("Delete Product.....");
   
         console.log("toremove:", toRemove)
-        console.log('business:', business)
+       
   
   
         const token = localStorage.getItem("token");
@@ -120,19 +204,18 @@ export const addProduct = createAsyncThunk(
           return;
         }
   
-  
-        const body = {
-          branchCode:toRemove,
-          business
+        const body ={
+          productId:toRemove
         }
+        
   
-        console.log('Body:', body)
+     
   
-        const response = await axios.post('http://localhost:3000/', body,  {
+        const response = await axios.post('http://localhost:3000/branchOwner/deleteProductById', body, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
-          },
+          }
         })
   
         dispatch(successGlobal('Product deteled Successfully!!'))
@@ -152,8 +235,53 @@ export const addProduct = createAsyncThunk(
         
         dispatch(errorGlobal(error.response?.data?.message || 'Failed to delete product'));
         console.log(error.response.data.message)
-        // throw error;
+        throw error;
       }    
   
     }
   )
+
+
+
+  export const updateProduct = createAsyncThunk(
+    'products/updateProduct',
+    async (productId, thunkAPI) => {
+      try {
+        console.log("update product.....");
+        // console.log('br Id:', productId)
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+          thunkAPI.dispatch(errorGlobal('No token found'));
+          return;
+        }
+  
+        const response = await axios.post('http://localhost:3000/branchOwner/', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          params: {
+            productId
+          },
+        })
+  
+        console.log("updated Product:", response.data);
+  
+        thunkAPI.dispatch(successGlobal('Product updated successfully'));
+        
+        return true;
+      } catch (error) {
+        
+        thunkAPI.dispatch(errorGlobal(error.response?.data?.message || 'Failed to update product'));
+        console.log(error)
+        throw error;
+      }
+    }
+  );
+
+
+
+

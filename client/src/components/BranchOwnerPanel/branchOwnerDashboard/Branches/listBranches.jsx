@@ -191,7 +191,7 @@ const ListBranches = () => {
                     </TableCell>
                     <TableCell align="left">
                       <div className="flex items-center justify-center gap-3">
-                        <Link to={`../viewbranch`}>
+                        <Link to={`../viewbranch/${branch._id}/${branch.name}`}>
                           <GrFormView
                             className="text-[18px]"
                             style={{ color: "green" }}

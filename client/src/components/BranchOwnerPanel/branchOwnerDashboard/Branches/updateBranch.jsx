@@ -40,12 +40,12 @@ const UpdateBranch = () => {
 
   const form = useForm({
     defaultValues: {
-      branch_name: "",  // Initialize as empty string
-      branch_code: "",  // Initialize as empty string
-      branch_email: "", // Initialize as empty string
-      branch_address: "", // Initialize as empty string
-      branch_city: "", // Initialize as empty string
-      branch_contact: "", // Initialize as empty string
+      branch_name: "",  
+      branch_code: "",  
+      branch_email: "", 
+      branch_address: "", 
+      branch_city: "", 
+      branch_contact: "", 
     },
     resolver: yupResolver(schema),
   });
