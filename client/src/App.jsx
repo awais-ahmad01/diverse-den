@@ -39,6 +39,9 @@ import HomePage from "./components/CustomerPanel/HomePage";
 import ViewBranch from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/viewBranch";
 import ViewProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/viewProduct";
 import UpdateProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Products/updateProduct";
+import ProductDetails from "./components/CustomerPanel/productDetails.jsx";
+
+import CategoryPage from "./components/CustomerPanel/categories/categoryPage.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -136,13 +139,15 @@ function App() {
 
           <Route path="/" element={<CustomerPanel />}>
             <Route path="/" element={<HomePage />} />
+
+            <Route path="/category/:slug" element={<CategoryPage />} />
                   
           </Route>
           
             
           
           
-          
+          <Route path="/product-details" element={<ProductDetails />} />
           
 
           <Route path="addsubscription" element={<AddSubscription />} />

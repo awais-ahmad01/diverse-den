@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+.slick-slide > div {
+    margin: 0 10px;
+}
+
+
+.slick-slider {
+    background: transparent !important; /* Ensures the slider inherits the page's background */
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Ensure the slide container doesn't introduce a background */
+  .slick-list {
+    background: inherit !important; /* Matches the parent container */
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Optional: Remove default slide spacing (if necessary) */
+  .slick-slide {
+    background: transparent !important; /* Slide backgrounds */
+    padding: 0; /* Adjust spacing between slides */
+  }
