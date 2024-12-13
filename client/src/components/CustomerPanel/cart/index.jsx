@@ -11,6 +11,7 @@ import {
   Alert 
 } from '@mui/material';
 
+
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +38,7 @@ const Cart = () => {
     try {
       await axios.patch(`/api/cart/${itemId}`, { quantity: newQuantity });
       
-      // Optimistic update
+     
       setCartItems(prevItems => 
         prevItems.map(item => 
           item.id === itemId ? { ...item, quantity: newQuantity } : item
@@ -47,7 +48,7 @@ const Cart = () => {
       setSuccessMessage('Cart updated successfully');
     } catch (err) {
       setError('Failed to update cart');
-      // Revert the change if API call fails
+     
       fetchCartItems();
     }
   };
@@ -56,7 +57,7 @@ const Cart = () => {
     try {
       await axios.delete(`/api/cart/${itemId}`);
       
-      // Optimistic update
+   
       setCartItems(prevItems => 
         prevItems.filter(item => item.id !== itemId)
       );
@@ -78,7 +79,7 @@ const Cart = () => {
         total: calculateSubtotal()
       });
       
-      // Redirect to payment or confirmation page
+     
       window.location.href = response.data.redirectUrl;
     } catch (err) {
       setError('Checkout failed. Please try again.');
@@ -111,7 +112,7 @@ const Cart = () => {
         </div>
       ) : (
         <div className="grid md:grid-cols-3 gap-8">
-          {/* Cart Items */}
+        
           <div className="md:col-span-2">
             {cartItems.map((item) => (
               <div 
@@ -156,7 +157,7 @@ const Cart = () => {
             ))}
           </div>
 
-          {/* Order Summary */}
+      
           <div className="border p-6 rounded-lg h-fit">
             <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
             <div className="space-y-2 mb-4">
@@ -184,7 +185,6 @@ const Cart = () => {
         </div>
       )}
 
-      {/* Success and Error Handling */}
       <Snackbar 
         open={!!successMessage} 
         autoHideDuration={6000} 

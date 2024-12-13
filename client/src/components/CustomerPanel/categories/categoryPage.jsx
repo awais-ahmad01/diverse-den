@@ -1,5 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 const products = [
   {
@@ -88,11 +89,21 @@ const products = [
   },
 ];
 
+
+
+
+
 const CategoryPage = () => {
   const { slug } = useParams();
 
+
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
-    <div>
+    <div className="pt-5 px-10 pb-16">
       <h1 className="text-center font-bold text-3xl my-10">{slug.toUpperCase()}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
         {products.map((product) => (

@@ -245,7 +245,7 @@ export const addProduct = createAsyncThunk(
 
   export const updateProduct = createAsyncThunk(
     'products/updateProduct',
-    async (productId, thunkAPI) => {
+    async (body, thunkAPI) => {
       try {
         console.log("update product.....");
         // console.log('br Id:', productId)
@@ -258,14 +258,12 @@ export const addProduct = createAsyncThunk(
           return;
         }
   
-        const response = await axios.post('http://localhost:3000/branchOwner/', {
+        const response = await axios.post('http://localhost:3000/branchOwner/updateProductById', body, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
-          params: {
-            productId
-          },
+          
         })
   
         console.log("updated Product:", response.data);
@@ -281,6 +279,7 @@ export const addProduct = createAsyncThunk(
       }
     }
   );
+  
 
 
 

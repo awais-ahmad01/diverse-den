@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Header from './header';
-import NavigationBar from './navigationBar';
+import Header from '../../../layouts/customerLayout/header';
+import NavigationBar from '../../../layouts/customerLayout/navigationBar';
 import HeroSection from './hero-section';
 import MainContent from './mainContent';
-import Footer from './footer';
+import Footer from '../../../layouts/customerLayout/footer';
 
 
 const HomePage = () => {
@@ -11,17 +11,13 @@ const HomePage = () => {
 
   return (
     <div className=''>
-      <Header/>
-      <NavigationBar/>
 
 
-
-      <div className='mt-[60px] md:mt-[120px]'> 
+      <div > 
           <HeroSection/>
 
           <MainContent/>
 
-          <Footer/>
 
       </div>
     </div>

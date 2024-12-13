@@ -42,7 +42,7 @@ function TabPanel(props) {
   );
 }
 
-const ViewProduct = () => {
+const ViewBranchProduct = () => {
   const { productId } = useParams();
   const dispatch = useDispatch();
   const { productById, isLoading } = useSelector((state) => state.products);
@@ -65,7 +65,6 @@ const ViewProduct = () => {
   };
 
   useEffect(() => {
-    
     if (productId) {
       dispatch(getProductByID(productId));
     }
@@ -470,4 +469,4 @@ const ViewProduct = () => {
   );
 };
 
-export default ViewProduct;
+export default ViewBranchProduct;

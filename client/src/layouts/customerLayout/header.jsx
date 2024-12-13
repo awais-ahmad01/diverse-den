@@ -178,7 +178,9 @@ const Header = () => {
           <MenuIcon onClick={() => toggleDrawer()} sx={{ fontSize: 25 }} />
         </div>
 
-        <h2 className="text-xl md:text-3xl font-bold">Diverse Den</h2>
+        <Link to='/'>
+          <h2 className="text-xl md:text-3xl font-bold">Diverse Den</h2>
+        </Link>
 
         <div className="hidden md:block md:w-[400px] lg:w-[700px] mx-auto">
           <SearchForm isDialog={false} />
@@ -313,7 +315,7 @@ const Header = () => {
             sx: {
               backgroundColor: "#603F26",
               color: "white",
-              paddingTop:'30px'
+              paddingTop: "30px",
             },
           }}
         >
@@ -326,7 +328,11 @@ const Header = () => {
               <ListItem>
                 <SimpleTreeView>
                   {/* Clothing */}
-                  <TreeItem itemId="clothing" label="CLOTHING" sx={{marginBottom:'6px'}}>
+                  <TreeItem
+                    itemId="clothing"
+                    label="CLOTHING"
+                    sx={{ marginBottom: "6px" }}
+                  >
                     <TreeItem itemId="men-clothes" label="MEN">
                       <ListItemButton
                         sx={{
@@ -477,7 +483,11 @@ const Header = () => {
 
                   {/* SHOES */}
 
-                  <TreeItem itemId="shoes" label="SHOES" sx={{marginBottom:'6px'}}>
+                  <TreeItem
+                    itemId="shoes"
+                    label="SHOES"
+                    sx={{ marginBottom: "6px" }}
+                  >
                     <TreeItem itemId="men-shoes" label="MEN">
                       <ListItemButton
                         sx={{
@@ -591,7 +601,6 @@ const Header = () => {
                       </ListItemButton>
                     </TreeItem>
 
-
                     {/* Kids */}
                     <TreeItem itemId="kids-shoes" label="Kids">
                       <ListItemButton
@@ -629,88 +638,90 @@ const Header = () => {
                     </TreeItem>
                   </TreeItem>
 
-
-
                   {/* FURNITURE */}
-                  
-                  <TreeItem itemId="furniture" label="FURNITURE" sx={{marginBottom:'6px'}}>
-                      <ListItemButton
-                        sx={{
-                          "&:hover": {
-                            backgroundColor: "#4d332",
-                            color: "#ffedcf",
-                          },
-                        }}
-                      >
-                        <ListItemText primary="Jackets" />
-                      </ListItemButton>
 
-                      <ListItemButton
-                        sx={{
-                          "&:hover": {
-                            backgroundColor: "#4d332",
-                            color: "#ffedcf",
-                          },
-                        }}
-                      >
-                        <ListItemText primary="Jackets" />
-                      </ListItemButton>
+                  <TreeItem
+                    itemId="furniture"
+                    label="FURNITURE"
+                    sx={{ marginBottom: "6px" }}
+                  >
+                    <ListItemButton
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "#4d332",
+                          color: "#ffedcf",
+                        },
+                      }}
+                    >
+                      <ListItemText primary="Jackets" />
+                    </ListItemButton>
 
-                      <ListItemButton
-                        sx={{
-                          "&:hover": {
-                            backgroundColor: "#4d332",
-                            color: "#ffedcf",
-                          },
-                        }}
-                      >
-                        <ListItemText primary="Jackets" />
-                      </ListItemButton>
-                    </TreeItem>
+                    <ListItemButton
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "#4d332",
+                          color: "#ffedcf",
+                        },
+                      }}
+                    >
+                      <ListItemText primary="Jackets" />
+                    </ListItemButton>
 
-                     {/* Decoration */}
-                  
-                  
-                  <TreeItem itemId="decoration" label="DECORATION" sx={{marginBottom:'6px'}}>
-                      <ListItemButton
-                        sx={{
-                          "&:hover": {
-                            backgroundColor: "#4d332",
-                            color: "#ffedcf",
-                          },
-                        }}
-                      >
-                        <ListItemText primary="Jackets" />
-                      </ListItemButton>
+                    <ListItemButton
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "#4d332",
+                          color: "#ffedcf",
+                        },
+                      }}
+                    >
+                      <ListItemText primary="Jackets" />
+                    </ListItemButton>
+                  </TreeItem>
 
-                      <ListItemButton
-                        sx={{
-                          "&:hover": {
-                            backgroundColor: "#4d332",
-                            color: "#ffedcf",
-                          },
-                        }}
-                      >
-                        <ListItemText primary="Jackets" />
-                      </ListItemButton>
+                  {/* Decoration */}
 
-                      <ListItemButton
-                        sx={{
-                          "&:hover": {
-                            backgroundColor: "#4d332",
-                            color: "#ffedcf",
-                          },
-                        }}
-                      >
-                        <ListItemText primary="Jackets" />
-                      </ListItemButton>
-                    </TreeItem>
+                  <TreeItem
+                    itemId="decoration"
+                    label="DECORATION"
+                    sx={{ marginBottom: "6px" }}
+                  >
+                    <ListItemButton
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "#4d332",
+                          color: "#ffedcf",
+                        },
+                      }}
+                    >
+                      <ListItemText primary="Jackets" />
+                    </ListItemButton>
 
+                    <ListItemButton
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "#4d332",
+                          color: "#ffedcf",
+                        },
+                      }}
+                    >
+                      <ListItemText primary="Jackets" />
+                    </ListItemButton>
+
+                    <ListItemButton
+                      sx={{
+                        "&:hover": {
+                          backgroundColor: "#4d332",
+                          color: "#ffedcf",
+                        },
+                      }}
+                    >
+                      <ListItemText primary="Jackets" />
+                    </ListItemButton>
+                  </TreeItem>
                 </SimpleTreeView>
               </ListItem>
             </List>
-            
-            
           </Box>
         </Drawer>
       </div>

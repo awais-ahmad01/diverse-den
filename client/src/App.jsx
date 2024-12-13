@@ -42,6 +42,7 @@ import UpdateProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Pr
 import ProductDetails from "./components/CustomerPanel/productDetails.jsx";
 
 import CategoryPage from "./components/CustomerPanel/categories/categoryPage.jsx";
+import ViewBranchProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/viewBranchProduct.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -109,6 +110,8 @@ function App() {
 
               <Route path="viewbranch/:id/:name" element={<ViewBranch/>} />
 
+              <Route path="viewBranchProduct/:productId/:productTitle" element={<ViewBranchProduct />} />
+
 
 
               <Route path="addSalesperson" element={<AddSalesperson />} />
@@ -141,13 +144,14 @@ function App() {
             <Route path="/" element={<HomePage />} />
 
             <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/productDetails" element={<ProductDetails />} />
                   
           </Route>
           
             
           
           
-          <Route path="/product-details" element={<ProductDetails />} />
+          
           
 
           <Route path="addsubscription" element={<AddSubscription />} />

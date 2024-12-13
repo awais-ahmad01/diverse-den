@@ -25,6 +25,7 @@ import { FaTrash } from "react-icons/fa";
 import { Link, useParams } from "react-router-dom";
 import { getProductByID } from "../../../../store/actions/products";
 import { getAllBranches } from "../../../../store/actions/branches";
+import { updateProduct } from "../../../../store/actions/products";
 
 const UpdateProduct = () => {
   const { productId } = useParams();
@@ -377,6 +378,7 @@ const UpdateProduct = () => {
       // productId,
     };
 
+
     console.log("DATaAAA:", updatedData)
 
     const body = {
@@ -388,11 +390,8 @@ const UpdateProduct = () => {
 
     console.log("Data: ", body);
 
-    // dispatch(updateProduct(body))
-    //   .unwrap()
-    //   .then(() => {
-    //     // Handle successful update
-    //   });
+    dispatch(updateProduct(body))
+      
   };
 
   return (

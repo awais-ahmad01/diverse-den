@@ -158,11 +158,11 @@ const ViewBranch = () => {
                         <TableCell align="left">{product.branch}</TableCell>
                         <TableCell align="left">{product.category}</TableCell>
                         <TableCell align="left">{product.price}</TableCell>
-                        <TableCell align="left">12</TableCell>
+                        <TableCell align="left">{product.totalQuantity}</TableCell>
 
                         <TableCell align="left">
                           <div className="flex items-center justify-center gap-3">
-                            <Link to={``}>
+                            <Link to={`../viewBranchProduct/${product._id}/${product.title}`}>
                               <GrFormView
                                 className="text-[18px]"
                                 style={{ color: "green" }}
