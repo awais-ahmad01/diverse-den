@@ -276,8 +276,11 @@ export const addProduct = createAsyncThunk(
         const response = await axios.post('http://localhost:3000/branchOwner/updateProductById', formdata, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+           
           },
+          params:{
+            productId:body.productId
+          }
           
         })
   

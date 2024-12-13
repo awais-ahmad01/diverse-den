@@ -25,12 +25,16 @@ import { ListItemText } from "@mui/material";
 
 import { SimpleTreeView } from "@mui/x-tree-view";
 import { TreeItem } from "@mui/x-tree-view";
+import { useSelector } from "react-redux";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
 const Header = () => {
+
+  const {isauthenticated} = useSelector(state => state.auth);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
@@ -236,7 +240,10 @@ const Header = () => {
               }}
               disableScrollLock={true}
             >
-              <MenuItem
+              
+             {isauthenticated ?
+              <div>
+                 <MenuItem
                 onClick={handleClose}
                 sx={{
                   "&:hover": {
@@ -267,7 +274,46 @@ const Header = () => {
                 >
                   Signup
                 </Link>
-              </MenuItem>
+                </MenuItem>
+              </div>
+              :
+              <div>
+                <MenuItem
+                onClick={handleClose}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "#8e6c4f",
+                  },
+                  fontWeight: "bold",
+                }}
+              >
+                <Link
+                  to="/signup"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  Profile
+                </Link>
+                </MenuItem>
+                <MenuItem
+                onClick={handleClose}
+                sx={{
+                  "&:hover": {
+                    backgroundColor: "#8e6c4f",
+                  },
+                  fontWeight: "bold",
+                }}
+              >
+                <Link
+                  to="/signup"
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  Logout
+                </Link>
+                </MenuItem>
+              </div>
+              
+
+             }
             </Menu>
           </div>
 
