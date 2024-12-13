@@ -30,6 +30,7 @@ export const addProduct = createAsyncThunk(
           });
         }
 
+
   
         const response = await axios.post('http://localhost:3000/branchOwner/addProduct', formdata, {
           headers: {
@@ -257,8 +258,22 @@ export const addProduct = createAsyncThunk(
           thunkAPI.dispatch(errorGlobal('No token found'));
           return;
         }
+
+
+        const formdata = new FormData();
+
+        formdata.append('data', JSON.stringify(body.data));
+        formdata.append('business', body.business);
+
+        if(body.data.media){
+          body.data.media.forEach((file) => {
+            formdata.append('media', file);
+          });
+        }
+        
+
   
-        const response = await axios.post('http://localhost:3000/branchOwner/updateProductById', body, {
+        const response = await axios.post('http://localhost:3000/branchOwner/updateProductById', formdata, {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

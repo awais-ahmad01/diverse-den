@@ -149,28 +149,38 @@ const ProductDetails = () => {
   }, []);
 
   const handleAddToCart = async () => {
-    try {
-      await axios.post("/api/cart", {
-        productId: product._id,
-        quantity: quantity,
-        variant: selectedVariant,
-      });
-      setSubmitSuccess(true);
-    } catch (err) {
-      setError("Failed to add to cart");
-    }
+
+    console.log('variant: ', selectedVariant.size)
+
+    console.log(`quantity: ${quantity} variant: ${selectedVariant}`)
+    // try {
+    //   await axios.post("/api/cart", {
+    //     productId: product._id,
+    //     quantity: quantity,
+    //     variant: selectedVariant,
+    //   });
+    //   setSubmitSuccess(true);
+    // } catch (err) {
+    //   setError("Failed to add to cart");
+    // }
   };
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const handleReviewSubmit = (e) => {
+    const handleReviewSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement actual review submission logic
-    console.log("Submitting review:", newReview);
-    // Reset form or show confirmation
-    setNewReview({ rating: 5, comment: "" });
+    console.log(`rating: ${newReview.rating} comment: ${newReview.comment}`)
+    // try {
+    //   await axios.post(`/api/products/${productId}/reviews`, {
+    //     rating: newReview.rating,
+    //     comment: newReview.comment
+    //   });
+    //   setNewReview({ rating: 5, comment: '' });
+    // } catch (err) {
+    //   setError('Failed to submit review');
+    // }
   };
 
   const variantRender = () => {
@@ -264,7 +274,7 @@ const ProductDetails = () => {
     );
   };
 
-  // Snackbar for success and error messages
+ 
   const handleCloseSnackbar = () => {
     setSubmitSuccess(false);
     setError(null);
@@ -280,7 +290,7 @@ const ProductDetails = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Snackbar for success message */}
+ 
       <Snackbar
         open={submitSuccess}
         autoHideDuration={6000}
@@ -292,7 +302,6 @@ const ProductDetails = () => {
         </Alert>
       </Snackbar>
 
-      {/* Snackbar for error message */}
       <Snackbar
         open={!!error}
         autoHideDuration={6000}
@@ -305,7 +314,8 @@ const ProductDetails = () => {
       </Snackbar>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Image Gallery */}
+     
+     
         <div>
           <div className="mb-4">
             <img
@@ -338,7 +348,6 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* Product Information */}
         <div>
           <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
           <div className="flex items-center mb-4">
@@ -390,7 +399,7 @@ const ProductDetails = () => {
             </button>
           </div>
 
-          {/* Reviews Section */}
+   
           <div>
             <Tabs
               value={tabValue}
@@ -460,7 +469,7 @@ const ProductDetails = () => {
   );
 };
 
-// Helper function to calculate average rating
+
 const calculateAverageRating = (reviews) => {
   if (!reviews || reviews.length === 0) return 0;
   const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
