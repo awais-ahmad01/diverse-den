@@ -386,6 +386,7 @@ const UpdateProduct = () => {
       business,
       productId
     };
+    
 
 
     console.log("Data: ", body);

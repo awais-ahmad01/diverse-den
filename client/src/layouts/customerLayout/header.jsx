@@ -25,7 +25,9 @@ import { ListItemText } from "@mui/material";
 
 import { SimpleTreeView } from "@mui/x-tree-view";
 import { TreeItem } from "@mui/x-tree-view";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+
+import { signOut } from "../../store/actions/auth";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
@@ -39,6 +41,15 @@ const Header = () => {
   const open = Boolean(anchorEl);
 
   const [opendrawer, setOpenDrawer] = useState(false);
+
+  const dispatch = useDispatch()
+
+
+  const signOutUser = ()=>{
+
+    dispatch(signOut())
+    
+  }
 
   const toggleDrawer = () => {
     setOpenDrawer(!opendrawer);
@@ -241,7 +252,7 @@ const Header = () => {
               disableScrollLock={true}
             >
               
-             {isauthenticated ?
+             {!isauthenticated ?
               <div>
                  <MenuItem
                 onClick={handleClose}
@@ -268,6 +279,7 @@ const Header = () => {
                   fontWeight: "bold",
                 }}
               >
+
                 <Link
                   to="/signup"
                   style={{ textDecoration: "none", color: "inherit" }}
@@ -288,7 +300,7 @@ const Header = () => {
                 }}
               >
                 <Link
-                  to="/signup"
+                  to="/"
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   Profile
@@ -304,7 +316,7 @@ const Header = () => {
                 }}
               >
                 <Link
-                  to="/signup"
+                  onClick={signOutUser}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   Logout

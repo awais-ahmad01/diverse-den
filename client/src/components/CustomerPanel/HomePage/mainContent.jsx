@@ -1,100 +1,94 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Chip} from "@mui/material";
+import { Chip } from "@mui/material";
+import axios from "axios"; 
 
-const products = [
-  {
-    id: 1,
-    title: "Elegant Minimalist Watch",
-    description: "Sleek design for modern professionals",
-    price: 129.99,
-    imageUrl: "/images/t1.jpeg",
-  },
-  {
-    id: 2,
-    title: "Leather Messenger Bag",
-    description: "Premium leather with smart compartments",
-    price: 249.99,
-    imageUrl: "/images/d1.jpeg",
-  },
-  {
-    id: 3,
-    title: "Wireless Noise Cancelling Headphones",
-    description: "Immersive sound, ultimate comfort",
-    price: 199.99,
-    imageUrl: "/images/t3.jpeg",
-  },
-  {
-    id: 4,
-    title: "Premium Leather Wallet",
-    description: "Compact and stylish leather wallet",
-    price: 49.99,
-    imageUrl: "/images/s1.jpeg",
-  },
-  {
-    id: 5,
-    title: "Classic Sunglasses",
-    description: "UV protection with timeless style",
-    price: 89.99,
-    imageUrl: "/images/f2.jpeg",
-  },
-  {
-    id: 6,
-    title: "Smartphone Stand",
-    description: "Adjustable stand for all devices",
-    price: 19.99,
-    imageUrl: "/images/f1.jpeg",
-  },
-];
-
-const Section = ({ title, products, categorySlug }) => {
+import { showToast } from "../../../tools";
 
 
+const Section = ({ title, categorySlug }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  console.log('Prod:', products)
+
+  useEffect(() => {
+    const fetchProductsByCategory = async () => {
+      try {
+        setLoading(true);
+
+        const response = await axios.get('http://localhost:3000/customer/getProductsByCategory',{
+          params:{
+            category:categorySlug
+          }
+        }
+
+        );
+
+        setProducts(response.data.products);
+        
+        setLoading(false);
+      } catch (err) {
+        console.log(error?.response?.data?.message)
+        // showToast("ERROR", error?.response?.data?.message || "Failed to fetch products")
+        setError(err);
+        setLoading(false);
+      }
+    };
+
+    fetchProductsByCategory();
+  }, [categorySlug]); 
+
+  if (loading) {
+    return (
+      <div className="text-center my-10">
+        <p>Loading products...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center my-10 text-red-500">
+        <p>Error loading products: {error.message}</p>
+      </div>
+    );
+  }
 
   return (
     <div>
       <h1 className="text-center font-bold text-3xl my-10">{title}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
         {products.map((product) => (
-          <Link to='/productDetails'>
+          <Link to='/productDetails' key={product._id}>
             <div
-            key={product.id}
-            className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
-          >
-            <div className="relative h-80 bg-gray-100">
-              <img
-                src={product.imageUrl}
-                alt={product.title}
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <div className="p-4">
-              <h2 className="text-lg font-semibold text-gray-800 truncate">
-                {product.title}
-              </h2>
-             
-              <div className="flex items-center justify-between mt-4">
-                {/* <span className="text-lg font-bold text-[#603F26]">
-                  ${product.price.toFixed(2)}
-                </span> */}
-                <Chip 
-                  label={`$${product.price.toFixed(2)}`}
-                  size="large"
-                  sx={{
-                    fontWeight: "bold",
-                    // marginTop: theme.spacing(1),
-                    backgroundColor: "#603F26",
-                    color: "white",
-                  }}
+              className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
+            >
+              <div className="relative h-80 bg-gray-100">
+                <img
+                  src={product.imagePath[0]}
+                  alt={product.title}
+                  className="object-cover w-full h-full"
                 />
-                  
-                
-                
+              </div>
+              <div className="p-4">
+                <h2 className="text-lg font-semibold text-gray-800 truncate">
+                  {product.title}
+                </h2>
+                <div className="flex items-center justify-between mt-4">
+                  <Chip 
+                    label={`$${product.price.toFixed(2)}`}
+                    size="large"
+                    sx={{
+                      fontWeight: "bold",
+                      backgroundColor: "#603F26",
+                      color: "white",
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-          
-          
           </Link>
         ))}
       </div>
@@ -107,17 +101,16 @@ const Section = ({ title, products, categorySlug }) => {
         </Link>
       </div>
     </div>
-    
   );
 };
-
 const MainContent = () => {
+
   return (
     <div className="mt-16 px-10 pb-16 space-y-20">
-      <Section title="CLOTHING" products={products} categorySlug='clothing'/>
-      <Section title="SHOES" products={products} categorySlug='shoes'/>
-      <Section title="FURNITURE" products={products} categorySlug='furniture'/>
-      <Section title="DECORATION" products={products} categorySlug='decoration'/>
+      <Section title="CLOTHING"  categorySlug='Clothing'/>
+      <Section title="SHOES"  categorySlug='Shoes'/>
+      <Section title="FURNITURE"  categorySlug='Furniture'/>
+      <Section title="DECORATION"  categorySlug='DecorationPieces'/>
       {/* <Section title="TRENDING PRODUCTS" products={products} /> */}
     </div>
   );

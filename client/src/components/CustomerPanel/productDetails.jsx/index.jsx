@@ -131,6 +131,7 @@ const ProductDetails = () => {
 
 
   useEffect(() => {
+
     if (selectedVariant.size) {
       const filteredColors = getColorsBySelectedSize(selectedVariant.size);
       setUniqueColorsData(filteredColors);
@@ -153,16 +154,16 @@ const ProductDetails = () => {
     console.log('variant: ', selectedVariant.size)
 
     console.log(`quantity: ${quantity} variant: ${selectedVariant}`)
-    // try {
-    //   await axios.post("/api/cart", {
-    //     productId: product._id,
-    //     quantity: quantity,
-    //     variant: selectedVariant,
-    //   });
-    //   setSubmitSuccess(true);
-    // } catch (err) {
-    //   setError("Failed to add to cart");
-    // }
+    try {
+      await axios.post("/api/cart", {
+        productId: product._id,
+        quantity: quantity,
+        variant: selectedVariant,
+      });
+      setSubmitSuccess(true);
+    } catch (err) {
+      setError("Failed to add to cart");
+    }
   };
 
   const handleTabChange = (event, newValue) => {
@@ -172,15 +173,15 @@ const ProductDetails = () => {
     const handleReviewSubmit = async (e) => {
     e.preventDefault();
     console.log(`rating: ${newReview.rating} comment: ${newReview.comment}`)
-    // try {
-    //   await axios.post(`/api/products/${productId}/reviews`, {
-    //     rating: newReview.rating,
-    //     comment: newReview.comment
-    //   });
-    //   setNewReview({ rating: 5, comment: '' });
-    // } catch (err) {
-    //   setError('Failed to submit review');
-    // }
+    try {
+      await axios.post(`/api/products/${productId}/reviews`, {
+        rating: newReview.rating,
+        comment: newReview.comment
+      });
+      setNewReview({ rating: 5, comment: '' });
+    } catch (err) {
+      setError('Failed to submit review');
+    }
   };
 
   const variantRender = () => {

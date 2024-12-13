@@ -37,7 +37,7 @@ const Footer = () => {
         {/* Social Media Section */}
         <div>
           <h4 className="text-xl font-semibold mb-4">Follow Us</h4>
-          <ul className="flex space-x-4">
+          <ul className="flex flex-col">
             <li><a href="https://facebook.com" className="hover:text-yellow-400" target="_blank" rel="noopener noreferrer">Facebook</a></li>
             <li><a href="https://twitter.com" className="hover:text-yellow-400" target="_blank" rel="noopener noreferrer">Twitter</a></li>
             <li><a href="https://instagram.com" className="hover:text-yellow-400" target="_blank" rel="noopener noreferrer">Instagram</a></li>
