@@ -29,27 +29,29 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { signOut } from "../../store/actions/auth";
 
+import { useForm } from "react-hook-form";
+import { searchProduct } from "../../store/actions/products";
+import { useNavigate } from "react-router-dom";
+import { showToast } from "../../tools";
+
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="down" ref={ref} {...props} />;
 });
 
 const Header = () => {
-
-  const {isauthenticated} = useSelector(state => state.auth);
+  const { isauthenticated } = useSelector((state) => state.auth);
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
 
   const [opendrawer, setOpenDrawer] = useState(false);
 
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-
-  const signOutUser = ()=>{
-
-    dispatch(signOut())
-    
-  }
+  const signOutUser = () => {
+    dispatch(signOut());
+  };
 
   const toggleDrawer = () => {
     setOpenDrawer(!opendrawer);
@@ -78,7 +80,7 @@ const Header = () => {
       top: 4,
       border: `2px solid ${theme.palette.background.paper}`,
       padding: "0 4px",
-      // Make badge smaller on mobile
+
       [theme.breakpoints.down("sm")]: {
         fontSize: "8px",
         minWidth: "13px",
@@ -103,18 +105,16 @@ const Header = () => {
     },
   }));
 
-  // Common icon styles based on screen size
   const iconStyles = {
     color: "white",
     fontSize: {
-      xs: "20px", // Extra small screens (mobile)
-      sm: "24px", // Small screens
-      md: "28px", // Medium screens
-      lg: "30px", // Large screens
+      xs: "20px",
+      sm: "24px",
+      md: "28px",
+      lg: "30px",
     },
   };
 
-  // Common button styles
   const buttonStyles = {
     padding: 0,
     minWidth: "auto",
@@ -127,64 +127,140 @@ const Header = () => {
       md: "28px",
       lg: "30px",
     },
-    display: "block", // This ensures the icon takes the fontSize properly
+    display: "block",
   };
 
-  const SearchForm = ({ isDialog = false }) => (
-    <form className="relative">
-      <div className="relative flex items-center">
-        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-          <svg
-            className="w-4 h-4 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 20 20"
+  
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+
+  // const { errors } = formState;
+
+  
+
+  const SearchForm = ({ isDialog = false }) => {
+    const {
+      register,
+      handleSubmit,
+      reset,
+      formState: { errors },
+    } = useForm({
+      defaultValues: {
+        searchQuery: "",
+      },
+    });
+
+    const onSubmit = async (data) => {
+      console.log("Search Query:", data.searchQuery);
+
+      const query = data.searchQuery;
+
+      if (!query.trim()) {
+        return;
+      }
+
+      
+
+      dispatch(searchProduct(query))
+      .unwrap()
+      .then(()=>{
+        navigate('searchedProduct')
+      })
+      .catch((error)=>{
+          console.log("Error:", error);
+          showToast("ERROR", 'No Related Products Found')
+      })
+      .finally(()=>{
+        if (isDialog) {
+          handleClosed();
+        }
+      })
+
+
+       
+    };
+
+    return (
+      <form className="relative" onSubmit={handleSubmit(onSubmit)}>
+        <div className="relative flex items-center">
+          <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+            <svg
+              className="w-4 h-4 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
+            </svg>
+          </div>
+          <input
+            {...register("searchQuery")}
+            // {
+            //   required: "Please enter a search term",
+            //   minLength: {
+            //     value: 2,
+            //     message: "Search term must be at least 2 characters"
+            //   }
+            // })}
+            className={`block w-full pl-10 p-4 text-sm text-white border border-transparent 
+            rounded-lg bg-[#8e6c4f] focus:outline-none focus:ring-2 focus:ring-white 
+            focus:border-transparent ${
+              errors.searchQuery ? "border-red-500" : ""
+            }`}
+            placeholder="Search Products"
+          />
+          <button
+            type="submit"
+            disabled={searchLoading}
+            className={`absolute ${
+              isDialog ? "right-[52px]" : "right-2.5"
+            } text-white bg-[#603F26] hover:bg-[#7a5633] 
+            focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium 
+            rounded-lg ${
+              isDialog ? "text-[12px] px-3 py-2" : "text-sm px-4 py-2"
+            } transition-colors duration-200 
+            ${searchLoading ? "opacity-50 cursor-not-allowed" : ""}`}
           >
-            <path
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-            />
-          </svg>
+            {searchLoading ? "Searching..." : "Search"}
+          </button>
+          {isDialog && (
+            <button
+              type="button"
+              onClick={handleClosed}
+              className="text-white bg-transparent hover:bg-red-500 rounded-full p-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          )}
         </div>
-        <input
-          type="search"
-          id="default-search"
-          className="block w-full pl-10 p-4 text-sm text-white border border-transparent 
-          rounded-lg bg-[#8e6c4f] focus:outline-none focus:ring-2 focus:ring-white 
-          focus:border-transparent"
-          placeholder="Search Products"
-          required
-        />
-        <button
-          type="submit"
-          className={`absolute ${
-            isDialog ? "right-[52px]" : "right-2.5"
-          } text-white bg-[#603F26] hover:bg-[#7a5633] 
-                    focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium 
-                    rounded-lg ${
-                      isDialog ? "text-[12px] px-3 py-2" : "text-sm px-4 py-2"
-                    } transition-colors duration-200`}
-        >
-          Search
-        </button>
-        {isDialog && (
-          <Button
-            onClick={handleClosed}
-            sx={{
-              color: "white",
-              minWidth: "40px",
-              marginLeft: "8px",
-            }}
-          >
-            <CloseIcon />
-          </Button>
+        {errors.searchQuery && (
+          <div className="text-red-500 mt-2 text-sm">
+            {errors.searchQuery.message}
+          </div>
         )}
-      </div>
-    </form>
-  );
+        {searchError && (
+          <div className="text-red-500 mt-2 text-sm">{searchError}</div>
+        )}
+      </form>
+    );
+  };
 
   return (
     <div>
@@ -193,7 +269,7 @@ const Header = () => {
           <MenuIcon onClick={() => toggleDrawer()} sx={{ fontSize: 25 }} />
         </div>
 
-        <Link to='/'>
+        <Link to="/">
           <h2 className="text-xl md:text-3xl font-bold">Diverse Den</h2>
         </Link>
 
@@ -251,81 +327,77 @@ const Header = () => {
               }}
               disableScrollLock={true}
             >
-              
-             {!isauthenticated ?
-              <div>
-                 <MenuItem
-                onClick={handleClose}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "#8e6c4f",
-                  },
-                  fontWeight: "bold",
-                }}
-              >
-                <Link
-                  to="/signin"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  Signin
-                </Link>
-              </MenuItem>
-              <MenuItem
-                onClick={handleClose}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "#8e6c4f",
-                  },
-                  fontWeight: "bold",
-                }}
-              >
-
-                <Link
-                  to="/signup"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  Signup
-                </Link>
-                </MenuItem>
-              </div>
-              :
-              <div>
-                <MenuItem
-                onClick={handleClose}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "#8e6c4f",
-                  },
-                  fontWeight: "bold",
-                }}
-              >
-                <Link
-                  to="/"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  Profile
-                </Link>
-                </MenuItem>
-                <MenuItem
-                onClick={handleClose}
-                sx={{
-                  "&:hover": {
-                    backgroundColor: "#8e6c4f",
-                  },
-                  fontWeight: "bold",
-                }}
-              >
-                <Link
-                  onClick={signOutUser}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  Logout
-                </Link>
-                </MenuItem>
-              </div>
-              
-
-             }
+              {!isauthenticated ? (
+                <div>
+                  <MenuItem
+                    onClick={handleClose}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#8e6c4f",
+                      },
+                      fontWeight: "bold",
+                    }}
+                  >
+                    <Link
+                      to="/signin"
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Signin
+                    </Link>
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleClose}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#8e6c4f",
+                      },
+                      fontWeight: "bold",
+                    }}
+                  >
+                    <Link
+                      to="/signup"
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Signup
+                    </Link>
+                  </MenuItem>
+                </div>
+              ) : (
+                <div>
+                  <MenuItem
+                    onClick={handleClose}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#8e6c4f",
+                      },
+                      fontWeight: "bold",
+                    }}
+                  >
+                    <Link
+                      to="/"
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Profile
+                    </Link>
+                  </MenuItem>
+                  <MenuItem
+                    onClick={handleClose}
+                    sx={{
+                      "&:hover": {
+                        backgroundColor: "#8e6c4f",
+                      },
+                      fontWeight: "bold",
+                    }}
+                  >
+                    <Link
+                      onClick={signOutUser}
+                      style={{ textDecoration: "none", color: "inherit" }}
+                    >
+                      Logout
+                    </Link>
+                  </MenuItem>
+                </div>
+              )}
             </Menu>
           </div>
 

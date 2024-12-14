@@ -30,7 +30,7 @@ const Section = ({ title, categorySlug }) => {
         
         setLoading(false);
       } catch (err) {
-        console.log(error?.response?.data?.message)
+        console.log(err?.response?.data?.message)
         // showToast("ERROR", error?.response?.data?.message || "Failed to fetch products")
         setError(err);
         setLoading(false);
@@ -60,8 +60,9 @@ const Section = ({ title, categorySlug }) => {
     <div>
       <h1 className="text-center font-bold text-3xl my-10">{title}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-        {products.map((product) => (
-          <Link to='/productDetails' key={product._id}>
+        {products && products.length > 0 &&
+          products.map((product) => (
+          <Link to={`/productDetails/${product._id}`} key={product._id}>
             <div
               className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
             >

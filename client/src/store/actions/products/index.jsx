@@ -169,6 +169,7 @@ export const addProduct = createAsyncThunk(
         })
   
         console.log("Product by Id data:", response.data);
+
   
         
         
@@ -292,6 +293,35 @@ export const addProduct = createAsyncThunk(
       } catch (error) {
         
         thunkAPI.dispatch(errorGlobal(error.response?.data?.message || 'Failed to update product'));
+        console.log(error)
+        throw error;
+      }
+    }
+  );
+
+
+
+
+  export const searchProduct = createAsyncThunk(
+    'products/searchProduct',
+    async (query, thunkAPI) => {
+      try {
+        console.log("search prduct.....");
+        console.log('que:', query)
+  
+        const response = await axios.get('http://localhost:3000/customer/getSearchedProduct', {
+          
+          params: {
+            searchQuery:query
+          },
+        })
+
+  
+        console.log("Product by Id data:", response.data);
+  
+        return { data: response.data.products};
+      } catch (error) {
+        
         console.log(error)
         throw error;
       }

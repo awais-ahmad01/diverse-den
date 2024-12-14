@@ -15,35 +15,35 @@ const NavigationBar = () => {
           label: "MEN",
           link: "/clothing/men",
           items: [
-            { name: "T-Shirts", link: "/clothing/men/t-shirts" },
-            { name: "Shirts", link: "/clothing/men/shirts" },
-            { name: "Pants", link: "/clothing/men/pants" },
-            { name: "Jackets", link: "/clothing/men/jackets" },
-            { name: "Suits", link: "/clothing/men/suits" },
-            { name: "Activewear", link: "/clothing/men/activewear" }
+            { name: "T-Shirts", link: "subCategory/clothing/men/t-shirts" },
+            { name: "Shirts", link: "subCategory/clothing/men/shirts" },
+            { name: "Pants", link: "subCategory/clothing/men/pants" },
+            { name: "Jackets", link: "subCategory/clothing/men/jackets" },
+            { name: "Suits", link: "subCategory/clothing/men/suits" },
+            { name: "Activewear", link: "subCategory/clothing/men/activewear" }
           ]
         },
         women: {
           label: "WOMEN",
           link: "/clothing/women",
           items: [
-            { name: "Dresses", link: "/clothing/women/dresses" },
-            { name: "Tops", link: "/clothing/women/tops" },
-            { name: "Skirts", link: "/clothing/women/skirts" },
-            { name: "Pants", link: "/clothing/women/pants" },
-            { name: "Jackets", link: "/clothing/women/jackets" },
-            { name: "Activewear", link: "/clothing/women/activewear" }
+            { name: "Dresses", link: "subCategory/clothing/women/dresses" },
+            { name: "Tops", link: "subCategory/clothing/women/tops" },
+            { name: "Skirts", link: "subCategory/clothing/women/skirts" },
+            { name: "Pants", link: "subCategory/clothing/women/pants" },
+            { name: "Jackets", link: "subCategory/clothing/women/jackets" },
+            { name: "Activewear", link: "subCategory/clothing/women/activewear" }
           ]
         },
         kids: {
           label: "KIDS",
           link: "/clothing/kids",
           items: [
-            { name: "Boys", link: "/clothing/kids/boys" },
-            { name: "Girls", link: "/clothing/kids/girls" },
-            { name: "Infants", link: "/clothing/kids/infants" },
-            { name: "Teenagers", link: "/clothing/kids/teenagers" },
-            { name: "School Wear", link: "/clothing/kids/school-wear" }
+            { name: "Boys", link: "subCategory/clothing/kids/boys" },
+            { name: "Girls", link: "subCategory/clothing/kids/girls" },
+            { name: "Infants", link: "subCategory/clothing/kids/infants" },
+            { name: "Teenagers", link: "subCategory/clothing/kids/teenagers" },
+            { name: "School Wear", link: "subCategory/clothing/kids/school-wear" }
           ]
         }
       }
@@ -57,32 +57,32 @@ const NavigationBar = () => {
           label: "MEN",
           link: "/shoes/men",
           items: [
-            { name: "Casual", link: "/shoes/men/casual" },
-            { name: "Formal", link: "/shoes/men/formal" },
-            { name: "Sports", link: "/shoes/men/sports" },
-            { name: "Sandals", link: "/shoes/men/sandals" },
-            { name: "Boots", link: "/shoes/men/boots" }
+            { name: "Casual", link: "subCategory/shoes/men/casual" },
+            { name: "Formal", link: "subCategory/shoes/men/formal" },
+            { name: "Sports", link: "subCategory/shoes/men/sports" },
+            { name: "Sandals", link: "subCategory/shoes/men/sandals" },
+            { name: "Boots", link: "subCategory/shoes/men/boots" }
           ]
         },
         women: {
           label: "WOMEN",
           link: "/shoes/women",
           items: [
-            { name: "Heels", link: "/shoes/women/heels" },
-            { name: "Flats", link: "/shoes/women/flats" },
-            { name: "Sneakers", link: "/shoes/women/sneakers" },
-            { name: "Boots", link: "/shoes/women/boots" },
-            { name: "Sandals", link: "/shoes/women/sandals" }
+            { name: "Heels", link: "subCategory/shoes/women/heels" },
+            { name: "Flats", link: "subCategory/shoes/women/flats" },
+            { name: "Sneakers", link: "subCategory/shoes/women/sneakers" },
+            { name: "Boots", link: "subCategory/shoes/women/boots" },
+            { name: "Sandals", link: "subCategory/shoes/women/sandals" }
           ]
         },
         kids: {
           label: "KIDS",
           link: "/shoes/kids",
           items: [
-            { name: "School Shoes", link: "/shoes/kids/school" },
-            { name: "Sports", link: "/shoes/kids/sports" },
-            { name: "Casual", link: "/shoes/kids/casual" },
-            { name: "Sandals", link: "/shoes/kids/sandals" }
+            { name: "School Shoes", link: "subCategory/shoes/kids/school" },
+            { name: "Sports", link: "subCategory/shoes/kids/sports" },
+            { name: "Casual", link: "subCategory/shoes/kids/casual" },
+            { name: "Sandals", link: "subCategory/shoes/kids/sandals" }
           ]
         }
       }
@@ -92,11 +92,11 @@ const NavigationBar = () => {
       type: "simple",
       link: "/furniture",
       submenu: [
-        { name: "Living Room", link: "/furniture/living-room" },
-        { name: "Bedroom", link: "/furniture/bedroom" },
-        { name: "Office", link: "/furniture/office" },
-        { name: "Dining", link: "/furniture/dining" },
-        { name: "Outdoor", link: "/furniture/outdoor" }
+        { name: "Living Room", link: "subCategory/furniture/living-room/" },
+        { name: "Bedroom", link: "subCategory/furniture/bedroom" },
+        { name: "Office", link: "subCategory/furniture/office" },
+        { name: "Dining", link: "subCategory/furniture/dining" },
+        { name: "Outdoor", link: "subCategory/furniture/outdoor" }
       ]
     },
     decoration: {
@@ -104,11 +104,11 @@ const NavigationBar = () => {
       type: "simple",
       link: "/decoration",
       submenu: [
-        { name: "Wall Art", link: "/decoration/wall-art" },
-        { name: "Lighting", link: "/decoration/lighting" },
-        { name: "Textiles", link: "/decoration/textiles" },
-        { name: "Plants", link: "/decoration/plants" },
-        { name: "Mirrors", link: "/decoration/mirrors" }
+        { name: "Wall Art", link: "subCategory/decoration/wall-art" },
+        { name: "Lighting", link: "subCategory/decoration/lighting" },
+        { name: "Textiles", link: "subCategory/decoration/textiles" },
+        { name: "Plants", link: "subCategory/decoration/plants" },
+        { name: "Mirrors", link: "subCategory/decoration/mirrors" }
       ]
     }
   };
@@ -134,7 +134,7 @@ const NavigationBar = () => {
       <div className="absolute w-full bg-[#8e6c4f] shadow-lg">
         <div className="flex items-start gap-8 px-10 py-4">
           {category.type === "complex" ? (
-            // Complex submenu (Clothing and Shoes)
+            
             Object.entries(category.submenu).map(([subKey, subItem]) => (
               <div 
                 key={subKey}
@@ -142,7 +142,7 @@ const NavigationBar = () => {
                 onMouseEnter={() => handleSubMenuEnter(subKey)}
               >
                 <Link 
-                  to={subItem.link}
+                  // to={subItem.link}
                   className="text-white hover:text-[#fffcf2] transition-colors 
                            duration-200 font-medium mb-2 text-sm block"
                 >
@@ -195,7 +195,7 @@ const NavigationBar = () => {
         {Object.entries(navItems).map(([key, item]) => (
           <Link
             key={key}
-            to={item.link}
+            // to={item.link}
             className="text-white hover:bg-[#704f37] px-4 py-2 rounded-md 
                      transition-colors duration-200 font-medium text-sm
                      focus:outline-none focus:ring-2 focus:ring-[#704f37]"

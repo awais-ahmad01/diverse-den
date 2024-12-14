@@ -8,53 +8,76 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
-import { AddShoppingCart, Add, Remove } from "@mui/icons-material";
+
+import { AddShoppingCart, Add, Remove, DoNotStep } from "@mui/icons-material";
+import { useParams } from "react-router-dom";
+
+import { getProductByID } from "../../../store/actions/products";
+import { useDispatch, useSelector } from "react-redux";
 
 const ProductDetails = () => {
-  const product = {
-    branch: "BR#10",
-    business: "674a9e15282f25a295c41840",
-    category: "Clothing",
-    description: "jhDAMBN QWJHFSABN",
-    imagePath: ["/images/t1.jpeg", "/images/s1.jpeg", "/images/d1.jpeg", "/images/f1.jpeg"],
-    price: 2000,
-    productType: "Shirts",
-    sku: "sd23",
-    subCategory: "Men",
-    title: "shirt",
-    variants: [
-      {
-        colors: [
-          { color: "white", quantity: 4, _id: "6755d153cb8421c4b2a123ba" },
-          { color: "blue", quantity: 4, _id: "6755d153cb8421c4b2a123bb" },
-        ],
-        material: "Leather",
-        size: "small",
-        variantTotal: 8,
-        _id: "6755d153cb8421c4b2a123bc",
-      },
-      {
-        colors: [
-          { color: "black", quantity: 6, _id: "6755d153cb8421c4b2a123bd" },
-          { color: "blue", quantity: 7, _id: "6755d153cb8421c4b2a123be" },
-        ],
-        material: "",
-        size: "large",
-        variantTotal: 13,
-        _id: "6755d153cb8421c4b2a123bf",
-      },
-    ],
-    reviews: [
-      {
-        rating: 4,
-        comment: "Great product!",
-        author: "John Doe",
-        date: new Date().toISOString()
-      }
-    ],
-    __v: 0,
-    _id: "6755d153cb8421c4b2a123b9",
-  };
+
+  const {productId} = useParams()
+
+  const dispatch = useDispatch()
+
+  const {productbyId} = useSelector(state => state.products);
+
+  console.log("pr: ", productbyId)
+
+
+  useEffect(()=>{
+
+    dispatch(getProductByID(productId))
+
+
+  },[productId])
+
+
+  // const product = {
+  //   branch: "BR#10",
+  //   business: "674a9e15282f25a295c41840",
+  //   category: "Clothing",
+  //   description: "jhDAMBN QWJHFSABN",
+  //   imagePath: ["/images/t1.jpeg", "/images/s1.jpeg", "/images/d1.jpeg", "/images/f1.jpeg"],
+  //   price: 2000,
+  //   productType: "Shirts",
+  //   sku: "sd23",
+  //   subCategory: "Men",
+  //   title: "shirt",
+  //   variants: [
+  //     {
+  //       colors: [
+  //         { color: "white", quantity: 4, _id: "6755d153cb8421c4b2a123ba" },
+  //         { color: "blue", quantity: 4, _id: "6755d153cb8421c4b2a123bb" },
+  //       ],
+  //       material: "Leather",
+  //       size: "small",
+  //       variantTotal: 8,
+  //       _id: "6755d153cb8421c4b2a123bc",
+  //     },
+  //     {
+  //       colors: [
+  //         { color: "black", quantity: 6, _id: "6755d153cb8421c4b2a123bd" },
+  //         { color: "blue", quantity: 7, _id: "6755d153cb8421c4b2a123be" },
+  //       ],
+  //       material: "",
+  //       size: "large",
+  //       variantTotal: 13,
+  //       _id: "6755d153cb8421c4b2a123bf",
+  //     },
+  //   ],
+  //   reviews: [
+  //     {
+  //       rating: 4,
+  //       comment: "Great product!",
+  //       author: "John Doe",
+  //       date: new Date().toISOString()
+  //     }
+  //   ],
+  //   __v: 0,
+  //   _id: "6755d153cb8421c4b2a123b9",
+  // };
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -81,7 +104,7 @@ const ProductDetails = () => {
 
  
   const getColorsBySelectedSize = (selectedSize) => {
-    const variantsWithSelectedSize = product.variants.filter(
+    const variantsWithSelectedSize = productbyId.variants.filter(
       (variant) => variant.size === selectedSize
     );
 
@@ -99,20 +122,20 @@ const ProductDetails = () => {
 
   useEffect(() => {
     const variantAvailability = {
-      hasSize: product.variants.some(
+      hasSize: productbyId?.variants.some(
         (variant) => variant.size && variant.size.length > 0
       ),
-      hasColors: product.variants.some(
+      hasColors: productbyId?.variants.some(
         (variant) => variant.colors && variant.colors.length > 0
       ),
-      hasMaterial: product.variants.some(
+      hasMaterial: productbyId?.variants.some(
         (variant) => variant.material && variant.material.length > 0
       ),
     };
 
     setCheckVariants(variantAvailability);
 
-    const defaultVariant = product.variants[0];
+    const defaultVariant = productbyId.variants[0];
     const initialSize = variantAvailability.hasSize ? defaultVariant.size : null;
     const initialColors = getColorsBySelectedSize(initialSize);
     
@@ -124,7 +147,7 @@ const ProductDetails = () => {
         : null,
     });
 
-    setViewImage(product.imagePath[0]);
+    setViewImage(productbyId.imagePath[0]);
     setUniqueColorsData(initialColors);
     setLoading(false);
   }, []);
@@ -156,7 +179,7 @@ const ProductDetails = () => {
     console.log(`quantity: ${quantity} variant: ${selectedVariant}`)
     try {
       await axios.post("/api/cart", {
-        productId: product._id,
+        productId: productbyId._id,
         quantity: quantity,
         variant: selectedVariant,
       });
@@ -191,7 +214,7 @@ const ProductDetails = () => {
           <div className="mb-4">
             <span className="block mb-2 font-semibold">Size</span>
             <div className="flex space-x-2">
-              {product.variants.map((variant, index) => (
+              {productbyId.variants.map((variant, index) => (
                 variant?.size?.length > 0 && (
                   <button
                     key={index}
@@ -222,7 +245,7 @@ const ProductDetails = () => {
           <div className="mb-4">
             <span className="block mb-2 font-semibold">Material</span>
             <div className="flex space-x-2">
-              {product.variants.map((variant, index) => (
+              {productbyId.variants.map((variant, index) => (
                 variant?.material?.length > 0 && (
                   <button
                     key={index}
@@ -326,7 +349,7 @@ const ProductDetails = () => {
             />
           </div>
           <div className="flex justify-center space-x-2">
-            {product.imagePath.map((image, index) => (
+            {productbyId.imagePath.map((image, index) => (
               <button
                 key={index}
                 onClick={() => {
@@ -350,10 +373,10 @@ const ProductDetails = () => {
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold mb-4">{product.title}</h1>
+          <h1 className="text-3xl font-bold mb-4">{productbyId.title}</h1>
           <div className="flex items-center mb-4">
             <span className="text-lg text-[#603f26] mr-4">
-              SKU: {product.sku}
+              SKU: {productbyId.sku}
             </span>
             <div className="flex items-center">
               <Rating
@@ -362,14 +385,14 @@ const ProductDetails = () => {
                 readOnly
               />
               <span className="ml-2 text-sm">
-                ({product?.reviews ? product?.reviews.length : 0} reviews)
+                ({productbyId?.reviews ? productbyId?.reviews.length : 0} reviews)
               </span>
             </div>
           </div>
           <p className="text-2xl text-primary font-semibold mb-4">
-            ${product.price.toFixed(2)}
+            ${productbyId.price.toFixed(2)}
           </p>
-          <p className="text-gray-700 mb-4">{product.description}</p>
+          <p className="text-gray-700 mb-4">{productbyId.description}</p>
 
           {variantRender()}
 
@@ -414,7 +437,7 @@ const ProductDetails = () => {
 
             {tabValue === "reviews" && (
               <div className="p-4">
-                {product.reviews && product.reviews.length > 0 ? (
+                {productbyId.reviews && productbyId.reviews.length > 0 ? (
                   product.reviews.map((review, index) => (
                     <div key={index} className="border-b pb-4 mb-4">
                       <Rating value={review.rating} readOnly />

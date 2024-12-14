@@ -26,7 +26,7 @@ export const showToast = (type,msg) => {
 
 
 export const Loader = () => (
-    <div className='text-center mt-52'>
+    <div className='text-center mt-48'>
         <CircularProgress/>
     </div>
 )

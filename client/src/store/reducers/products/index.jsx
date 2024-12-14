@@ -3,13 +3,15 @@ import {
   addProduct,
   getProducts,
   getBranchProducts,
-  getProductByID
+  getProductByID,
+  searchProduct
 } from "../../actions/products";
 
 const default_State = {
   isloading: false,
   products: [],
   branchProducts: [],
+  searchedProducts:[]
   
 };
 
@@ -65,6 +67,17 @@ export const addProductSlice = createSlice({
         state.productById = action.payload.data;
       })
       .addCase(getProductByID.rejected, (state) => {
+        state.isloading = false;
+      })
+
+      .addCase(searchProduct.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(searchProduct.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.searchedProducts = action.payload.data;
+      })
+      .addCase(searchProduct.rejected, (state) => {
         state.isloading = false;
       })
  
