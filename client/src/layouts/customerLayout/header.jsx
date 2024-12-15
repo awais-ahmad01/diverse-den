@@ -12,7 +12,7 @@ import { IoSearch } from "react-icons/io5";
 import { Dialog, DialogContent, Slide } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link } from "react-router-dom";
-
+import { motion } from 'framer-motion';
 import MenuIcon from "@mui/icons-material/Menu";
 
 import Box from "@mui/material/Box";
@@ -158,8 +158,6 @@ const Header = () => {
       if (!query.trim()) {
         return;
       }
-
-      
 
       dispatch(searchProduct(query))
       .unwrap()
@@ -837,6 +835,7 @@ const Header = () => {
                     >
                       <ListItemText primary="Jackets" />
                     </ListItemButton>
+
 
                     <ListItemButton
                       sx={{

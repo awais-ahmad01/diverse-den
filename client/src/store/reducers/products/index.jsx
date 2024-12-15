@@ -4,14 +4,19 @@ import {
   getProducts,
   getBranchProducts,
   getProductByID,
-  searchProduct
+  searchProduct,
+  getSubCategoryProducts,
+  getCustomerProductById,
+  getCartItems
 } from "../../actions/products";
 
 const default_State = {
   isloading: false,
   products: [],
   branchProducts: [],
-  searchedProducts:[]
+  searchedProducts:[],
+  subCategoryProducts:[],
+  cartItems:[]
   
 };
 
@@ -80,6 +85,46 @@ export const addProductSlice = createSlice({
       .addCase(searchProduct.rejected, (state) => {
         state.isloading = false;
       })
+
+
+      .addCase(getSubCategoryProducts.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getSubCategoryProducts.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.subCategoryProducts = action.payload.data;
+      })
+      .addCase(getSubCategoryProducts.rejected, (state) => {
+        state.isloading = false;
+      })
+
+
+
+      .addCase(getCustomerProductById.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getCustomerProductById.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.customerProduct = action.payload.data;
+      })
+      .addCase(getCustomerProductById.rejected, (state) => {
+        state.isloading = false;
+      })
+
+
+
+      .addCase(getCartItems.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getCartItems.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.cartItems = action.payload.data;
+      })
+      .addCase(getCartItems.rejected, (state) => {
+        state.isloading = false;
+      })
+ 
+ 
  
       
   },

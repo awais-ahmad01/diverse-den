@@ -10,66 +10,111 @@ import {
   Snackbar, 
   Alert 
 } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { getCartItems } from '../../../store/actions/products';
+import { showToast } from '../../../tools';
 
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
+
+  const dispatch = useDispatch();
+  const {user, isauthenticated} = useSelector(state => state.auth);
+  const {cartItems, isloading} = useSelector(state => state.products);
+  
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  // const [error, setError] = useState(null);
+  // const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
-    fetchCartItems();
+
+    if(isauthenticated){
+      const userId = user._id;
+      dispatch(getCartItems(userId))
+      .unwrap()
+      .catch((error)=>{
+        showToast("ERROR", 'Failed to fetch cart items');
+      })
+    }
+
+    
   }, []);
 
-  const fetchCartItems = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('/api/cart');
-      setCartItems(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to load cart items');
-      setLoading(false);
-    }
-  };
+  // const fetchCartItems = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const response = await axios.get('/api/cart');
+  //     setCartItems(response.data);
+  //     setLoading(false);
+  //   } catch (err) {
+  //     setError('Failed to load cart items');
+  //     setLoading(false);
+  //   }
+  // };
 
   const updateQuantity = async (itemId, newQuantity) => {
     try {
-      await axios.patch(`/api/cart/${itemId}`, { quantity: newQuantity });
-      
+
+      const token = localStorage.getItem("token");
+
+      console.log('Tok:', token)
+      console.log("id:", itemId)
+      console.log('qua:', newQuantity)
      
-      setCartItems(prevItems => 
-        prevItems.map(item => 
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
-        )
+
+      // if (!token) {
+        
+      //   return;
+      // }
+
+      const response = await axios.post('http://localhost:3000/customer/updateProductQuantityInCart', { quantity: newQuantity, cartId: itemId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-      
-      setSuccessMessage('Cart updated successfully');
+
+      console.log('response:', response.data)
+
+      if(isauthenticated){
+        const userId = user._id;
+        dispatch(getCartItems(userId))
+        .unwrap()
+        .catch((error)=>{
+          showToast("ERROR", 'Failed to fetch cart items');
+        })
+      }
+
     } catch (err) {
-      setError('Failed to update cart');
+    
+      showToast("ERROR", 'Failed to update cart');
      
-      fetchCartItems();
     }
   };
 
   const removeItem = async (itemId) => {
     try {
-      await axios.delete(`/api/cart/${itemId}`);
+      const response = await axios.delete('http://localhost:3000/customer/deleteCartProduct');
       
-   
-      setCartItems(prevItems => 
-        prevItems.filter(item => item.id !== itemId)
-      );
       
-      setSuccessMessage('Item removed from cart');
+      console.log('re:', response.data)
+
+      // setCartItems(prevItems => 
+      //   prevItems.filter(item => item.id !== itemId)
+      // );
+
+      
+      // setSuccessMessage('Item removed from cart');
     } catch (err) {
-      setError('Failed to remove item');
+      // setError('Failed to remove item');
+      console.log('err:',err)
     }
   };
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.length > 0 ? cartItems.reduce((total, item) => total + (item?.productId?.price * item.quantity), 0): null;
   };
 
   const handleCheckout = async () => {
@@ -86,7 +131,7 @@ const Cart = () => {
     }
   };
 
-  if (loading) {
+  if (isloading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress />
@@ -94,62 +139,65 @@ const Cart = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center text-red-500 p-8">
-        {error}
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="text-center text-red-500 p-8">
+  //       {error}
+  //     </div>
+  //   );
+  // }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-14">
       <h1 className="text-3xl font-bold mb-6">Your Cart</h1>
 
-      {cartItems.length === 0 ? (
+      {cartItems?.length === 0 ? (
         <div className="text-center text-gray-500">
           Your cart is empty
         </div>
       ) : (
         <div className="grid md:grid-cols-3 gap-8">
-        
+         
           <div className="md:col-span-2">
-            {cartItems.map((item) => (
+            {cartItems?.length > 0 &&
+              cartItems.map((item) => (
               <div 
                 key={item.id} 
                 className="flex items-center border-b pb-4 mb-4"
               >
+                
                 <img 
-                  src={item.imagePath[0]} 
-                  alt={item.title} 
+                  src={item?.productId?.imagePath[0]} 
+                  alt={item?.title} 
                   className="w-24 h-24 object-cover mr-4 rounded"
                 />
                 <div className="flex-grow">
-                  <h3 className="font-semibold">{item.title}</h3>
+                  <h3 className="font-semibold">{item?.title}</h3>
                   <p className="text-gray-600">
-                    {item.variant.color ? `Color: ${item.variant.color}` : ''}
-                    {item.variant.size ? ` | Size: ${item.variant.size}` : ''}
+                    {item?.selectedVariant?.color ? `Color: ${item?.selectedVariant?.color}` : ''}
+                    {item?.selectedVariant?.size ? ` | Size: ${item?.selectedVariant?.size}` : ''}
+                    {item?.selectedVariant?.material ? ` | Material: ${item?.selectedVariant?.material}` : ''}
                   </p>
-                  <p className="text-primary">${item.price.toFixed(2)}</p>
+                  <p className="text-primary">${item?.productId?.price.toFixed(2)}</p>
                 </div>
                 <div className="flex items-center space-x-2 mr-4">
                   <button 
                     className="p-1 hover:bg-gray-100"
-                    onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                    onClick={() => updateQuantity(item?._id, Math.max(1, item?.quantity - 1))}
                   >
                     <Remove />
                   </button>
-                  <span>{item.quantity}</span>
+                  <span>{item?.quantity}</span>
                   <button 
                     className="p-1 hover:bg-gray-100"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    onClick={() => updateQuantity(item?._id, item?.quantity + 1)}
                   >
                     <Add />
                   </button>
                 </div>
                 <button 
                   className="text-red-500 hover:text-red-700"
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => removeItem(item?._id)}
                 >
                   <Delete />
                 </button>
@@ -163,7 +211,7 @@ const Cart = () => {
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${calculateSubtotal().toFixed(2)}</span>
+                <span>${cartItems?.length > 0 && calculateSubtotal().toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
@@ -171,13 +219,13 @@ const Cart = () => {
               </div>
               <div className="flex justify-between font-bold border-t pt-2">
                 <span>Total</span>
-                <span>${calculateSubtotal().toFixed(2)}</span>
+                <span>${cartItems?.length > 0 && calculateSubtotal().toFixed(2)}</span>
               </div>
             </div>
             <button 
               onClick={handleCheckout}
-              className="w-full bg-primary text-white py-2 rounded hover:bg-primary-dark"
-              disabled={cartItems.length === 0}
+              className="w-full bg-[#603f26] text-white py-2 rounded hover:bg-opacity-85"
+              disabled={cartItems?.length === 0}
             >
               Proceed to Checkout
             </button>
@@ -185,7 +233,7 @@ const Cart = () => {
         </div>
       )}
 
-      <Snackbar 
+      {/* <Snackbar 
         open={!!successMessage} 
         autoHideDuration={6000} 
         onClose={() => setSuccessMessage(null)}
@@ -208,7 +256,7 @@ const Cart = () => {
         >
           {error}
         </Alert>
-      </Snackbar>
+      </Snackbar> */}
     </div>
   );
 };

@@ -45,6 +45,8 @@ import CategoryPage from "./components/CustomerPanel/categories/categoryPage.jsx
 import ViewBranchProduct from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/viewBranchProduct.jsx";
 import SearchedProduct from "./components/CustomerPanel/searchedProduct/index.jsx";
 import SubCategory from "./components/CustomerPanel/categories/subCategory.jsx";
+import Cart from "./components/CustomerPanel/cart/index.jsx";
+import Checkout from "./components/CustomerPanel/checkout/index.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -152,6 +154,10 @@ function App() {
             <Route path="productDetails/:productId" element={<ProductDetails />} />
             
             <Route path="/searchedProduct" element={<SearchedProduct />} />
+
+            <Route path="/cart" element={<Cart />} />
+
+            <Route path="/checkout" element={<Checkout />} />
 
 
 

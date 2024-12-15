@@ -3,7 +3,6 @@
     "Men": [
       "Sneakers",
       "Dress Shoes",
-      "Boots",
       "Casual Shoes",
       "Loafers",
       "Sandals",
@@ -15,14 +14,11 @@
       "Sandals",
       "Sneakers",
       "Casual Shoes",
-      "Boots",
-      "Flats",
       "Athletic Shoes"
     ],
     "Kids": [
       "Sneakers",
       "Sandals",
-      "Boots",
       "Athletic Shoes",
       "School Shoes"
     ]
@@ -36,9 +32,7 @@
       "Jackets",
       "Sweaters",
       "Shorts",
-      "Activewear",
-      "Underwear",
-      "Sleepwear"
+      "Underwear"
     ],
     "Women": [
       "T-shirts",
@@ -48,11 +42,7 @@
       "Jackets",
       "Sweaters",
       "Dresses",
-      "Skirts",
-      "Shorts",
-      "Activewear",
-      "Underwear",
-      "Sleepwear"
+      "Skirts"
     ],
     "Kids": [
       "T-shirts",
@@ -62,22 +52,15 @@
       "Jackets",
       "Sweaters",
       "Dresses",
-      "Shorts",
-      "Activewear",
-      "Sleepwear"
+      "Shorts"
     ]
   },
   "DecorationPieces": [
     "Wall Art",
     "Sculptures",
-    "Vases",
     "Candle Holders",
     "Picture Frames",
-    "Mirrors",
-    "Figurines",
-    "Decorative Bowls",
-    "Tapestries",
-    "Ornamental Objects"
+    "Mirrors"
   ],
   "Furniture": [
     "Sofas",
@@ -87,10 +70,7 @@
     "Wardrobes",
     "Cabinets",
     "Shelving Units",
-    "Ottomans",
-    "Dining Sets",
-    "Coffee Tables",
-    "Desk Furniture",
-    "Outdoor Furniture"
+    "Dining Sets"
   ]
 }
+

@@ -6,109 +6,120 @@ const NavigationBar = () => {
   const [activeSubCategory, setActiveSubCategory] = useState(null);
 
   const navItems = {
-    clothing: {
+    Clothing: {
       label: "CLOTHING",
       type: "complex",
       link: "/clothing",
       submenu: {
-        men: {
+        Men: {
           label: "MEN",
           link: "/clothing/men",
           items: [
-            { name: "T-Shirts", link: "subCategory/clothing/men/t-shirts" },
-            { name: "Shirts", link: "subCategory/clothing/men/shirts" },
-            { name: "Pants", link: "subCategory/clothing/men/pants" },
-            { name: "Jackets", link: "subCategory/clothing/men/jackets" },
-            { name: "Suits", link: "subCategory/clothing/men/suits" },
-            { name: "Activewear", link: "subCategory/clothing/men/activewear" }
+            { name: "T-shirts", link: "subCategory/Clothing/Men/T-shirts" },
+            { name: "Shirts", link: "subCategory/Clothing/Men/Shirts" },
+            { name: "Pants", link: "subCategory/Clothing/Men/Pants" },
+            { name: "Jackets", link: "subCategory/Clothing/Men/Jackets" },
+            { name: "Jeans", link: "subCategory/Clothing/Men/Jeans" },
+            { name: "Sweaters", link: "subCategory/Clothing/Men/Sweaters" },
+            { name: "Shorts", link: "subCategory/Clothing/Men/Shorts" },
+            { name: "Underwear", link: "subCategory/Clothing/Men/Underwear" }
           ]
         },
-        women: {
+        Women: {
           label: "WOMEN",
           link: "/clothing/women",
           items: [
-            { name: "Dresses", link: "subCategory/clothing/women/dresses" },
-            { name: "Tops", link: "subCategory/clothing/women/tops" },
-            { name: "Skirts", link: "subCategory/clothing/women/skirts" },
-            { name: "Pants", link: "subCategory/clothing/women/pants" },
-            { name: "Jackets", link: "subCategory/clothing/women/jackets" },
-            { name: "Activewear", link: "subCategory/clothing/women/activewear" }
+            { name: "T-shirts", link: "subCategory/Clothing/Women/T-shirts"},
+            { name: "Shirts", link: "subCategory/Clothing/Women/Shirts"},
+            { name: "Dresses", link: "subCategory/Clothing/Women/Dresses" },
+            { name: "Jeans", link: "subCategory/Clothing/Women/Jeans" },
+            { name: "Skirts", link: "subCategory/Clothing/Women/Skirts" },
+            { name: "Pants", link: "subCategory/Clothing/Women/Pants" },
+            { name: "Jackets", link: "subCategory/clothing/Women/Jackets" },
+            { name: "Sweaters", link: "subCategory/Clothing/Women/Sweaters" }
           ]
         },
-        kids: {
+        Kids: {
           label: "KIDS",
           link: "/clothing/kids",
           items: [
-            { name: "Boys", link: "subCategory/clothing/kids/boys" },
-            { name: "Girls", link: "subCategory/clothing/kids/girls" },
-            { name: "Infants", link: "subCategory/clothing/kids/infants" },
-            { name: "Teenagers", link: "subCategory/clothing/kids/teenagers" },
-            { name: "School Wear", link: "subCategory/clothing/kids/school-wear" }
+            { name: "T-shirts", link: "subCategory/Clothing/Kids/T-shirts" },
+            { name: "Shirts", link: "subCategory/Clothing/Kids/Shirts" },
+            { name: "Pants", link: "subCategory/Clothing/Kids/Pants" },
+            { name: "jeans", link: "subCategory/Clothing/Kids/Jeans" },
+            { name: "Jackets", link: "subCategory/Clothing/Kids/Jacktes"},
+            { name: "Sweaters", link: "subCategory/Clothing/Kids/Sweaters" },
+            { name: "Shorts", link: "subCategory/Clothing/Kids/Shorts" },
           ]
         }
       }
     },
-    shoes: {
+    Shoes: {
       label: "SHOES",
       type: "complex",
       link: "/shoes",
       submenu: {
-        men: {
+        Men: {
           label: "MEN",
           link: "/shoes/men",
           items: [
-            { name: "Casual", link: "subCategory/shoes/men/casual" },
-            { name: "Formal", link: "subCategory/shoes/men/formal" },
-            { name: "Sports", link: "subCategory/shoes/men/sports" },
-            { name: "Sandals", link: "subCategory/shoes/men/sandals" },
-            { name: "Boots", link: "subCategory/shoes/men/boots" }
+            { name: "Sneakers", link: "subCategory/Shoes/Men/Sneakers" },
+            { name: "Dress Shoes", link: "subCategory/Shoes/Men/Dress Shoes" },
+            { name: "Loafers", link: "subCategory/Shoes/Men/Loafers" },
+            { name: "Sandals", link: "subCategory/Shoes/Men/Sandals" },
+            { name: "Athletic Shoes", link: "subCategory/Shoes/Men/Athletic Shoes" },
+         
           ]
         },
-        women: {
+        Women: {
           label: "WOMEN",
           link: "/shoes/women",
           items: [
-            { name: "Heels", link: "subCategory/shoes/women/heels" },
-            { name: "Flats", link: "subCategory/shoes/women/flats" },
-            { name: "Sneakers", link: "subCategory/shoes/women/sneakers" },
-            { name: "Boots", link: "subCategory/shoes/women/boots" },
+            { name: "Heels", link: "subCategory/Shoes/Women/Heels" },
+            { name: "Casual Shoes", link: "subCategory/Shoes/Women/Casual Shoes" },
+            { name: "Sneakers", link: "subCategory/Shoes/Women/Sneakers" },
+            { name: "Athletic Shoes", link: "subCategory/Shoes/Women/Athletic Shoes" },
             { name: "Sandals", link: "subCategory/shoes/women/sandals" }
           ]
         },
-        kids: {
+        Kids: {
           label: "KIDS",
           link: "/shoes/kids",
           items: [
-            { name: "School Shoes", link: "subCategory/shoes/kids/school" },
-            { name: "Sports", link: "subCategory/shoes/kids/sports" },
-            { name: "Casual", link: "subCategory/shoes/kids/casual" },
-            { name: "Sandals", link: "subCategory/shoes/kids/sandals" }
+            { name: "School Shoes", link: "subCategory/Shoes/Kids/School Shoes" },
+            { name: "Sneakers", link: "subCategory/Shoes/Kids/Sneakers" },
+            { name: "Athletic Shoes", link: "subCategory/Shoes/kids/Atheltic Shoes" },
+            { name: "Sandals", link: "subCategory/Shoes/Kids/Sandals" }
           ]
         }
       }
     },
-    furniture: {
+
+    Furniture: {
       label: "FURNITURE",
       type: "simple",
       link: "/furniture",
       submenu: [
-        { name: "Living Room", link: "subCategory/furniture/living-room/" },
-        { name: "Bedroom", link: "subCategory/furniture/bedroom" },
-        { name: "Office", link: "subCategory/furniture/office" },
-        { name: "Dining", link: "subCategory/furniture/dining" },
-        { name: "Outdoor", link: "subCategory/furniture/outdoor" }
+        { name: "Sofas", link: "subCategory/Furniture/Sofas" },
+        { name: "Chairs", link: "subCategory/Furniture/Chairs" },
+        { name: "Tables", link: "subCategory/Furniture/Tables" },
+        { name: "Beds", link: "subCategory/Furniture/Beds" },
+        { name: "Cabinets", link: "subCategory/Furniture/Cabinets" },
+        { name: "Wardrobes", link: "subCategory/Furniture/Wardrobes" },
+        { name: "Shelving Units", link: "subCategory/Furniture/Shelving Units" },
+        { name: "Dinning Sets", link: "subCategory/Furniture/Dinning Sets" }
       ]
     },
-    decoration: {
+    Decoration: {
       label: "DECORATION",
       type: "simple",
       link: "/decoration",
       submenu: [
-        { name: "Wall Art", link: "subCategory/decoration/wall-art" },
-        { name: "Lighting", link: "subCategory/decoration/lighting" },
-        { name: "Textiles", link: "subCategory/decoration/textiles" },
-        { name: "Plants", link: "subCategory/decoration/plants" },
-        { name: "Mirrors", link: "subCategory/decoration/mirrors" }
+        { name: "Wall Art", link: "subCategory/Decoration/Wall Art" },
+        { name: "Sculptures", link: "subCategory/Decoration/Sculptures" },
+        { name: "Picture Frames", link: "subCategory/Decoration/pictureFrames" },
+        { name: "Mirrors", link: "subCategory/decoration/Mirrors" },
+        { name: "Candle Holders", link: "subCategory/Decoration/Candle Holders" }
       ]
     }
   };

@@ -9,26 +9,29 @@ import {
   Tab,
 } from "@mui/material";
 
-import { AddShoppingCart, Add, Remove, DoNotStep } from "@mui/icons-material";
-import { useParams } from "react-router-dom";
-
-import { getProductByID } from "../../../store/actions/products";
+import { AddShoppingCart, Add, Remove, DoNotStep, ConstructionOutlined } from "@mui/icons-material";
+import { useNavigate, useParams } from "react-router-dom";
+import { getCustomerProductById } from "../../../store/actions/products";
 import { useDispatch, useSelector } from "react-redux";
+import { showToast } from "../../../tools";
 
 const ProductDetails = () => {
 
+  const {user, isauthenticated} = useSelector(state => state.auth)
+
   const {productId} = useParams()
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const {productbyId} = useSelector(state => state.products);
+  const {customerProduct} = useSelector(state => state.products);
 
-  console.log("pr: ", productbyId)
+  console.log("pr: ", customerProduct)
 
 
   useEffect(()=>{
 
-    dispatch(getProductByID(productId))
+    dispatch(getCustomerProductById(productId))
 
 
   },[productId])
@@ -104,12 +107,12 @@ const ProductDetails = () => {
 
  
   const getColorsBySelectedSize = (selectedSize) => {
-    const variantsWithSelectedSize = productbyId.variants.filter(
+    const variantsWithSelectedSize = customerProduct?.variants.filter(
       (variant) => variant.size === selectedSize
     );
 
     const colorSet = new Set();
-    variantsWithSelectedSize.forEach((variant) => {
+    variantsWithSelectedSize?.forEach((variant) => {
       variant.colors.forEach((colorObj) => {
         if (colorObj.color) {
           colorSet.add(colorObj.color);
@@ -122,20 +125,20 @@ const ProductDetails = () => {
 
   useEffect(() => {
     const variantAvailability = {
-      hasSize: productbyId?.variants.some(
+      hasSize: customerProduct?.variants.some(
         (variant) => variant.size && variant.size.length > 0
       ),
-      hasColors: productbyId?.variants.some(
+      hasColors: customerProduct?.variants.some(
         (variant) => variant.colors && variant.colors.length > 0
       ),
-      hasMaterial: productbyId?.variants.some(
+      hasMaterial: customerProduct?.variants.some(
         (variant) => variant.material && variant.material.length > 0
       ),
     };
 
     setCheckVariants(variantAvailability);
 
-    const defaultVariant = productbyId.variants[0];
+    const defaultVariant = customerProduct?.variants[0];
     const initialSize = variantAvailability.hasSize ? defaultVariant.size : null;
     const initialColors = getColorsBySelectedSize(initialSize);
     
@@ -147,10 +150,10 @@ const ProductDetails = () => {
         : null,
     });
 
-    setViewImage(productbyId.imagePath[0]);
+    setViewImage(customerProduct?.imagePath[0]);
     setUniqueColorsData(initialColors);
     setLoading(false);
-  }, []);
+  }, [customerProduct]);
 
 
   useEffect(() => {
@@ -177,14 +180,47 @@ const ProductDetails = () => {
     console.log('variant: ', selectedVariant.size)
 
     console.log(`quantity: ${quantity} variant: ${selectedVariant}`)
+
+    if(!isauthenticated){
+      navigate('/signin')
+      return
+    }
+
+
+
     try {
-      await axios.post("/api/cart", {
-        productId: productbyId._id,
+
+      console.log("c:", customerProduct._id)
+      console.log("q:", quantity);
+      console.log('s:', selectedVariant)
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        showToast("ERROR", "Please Login first")
+        return;
+      }
+
+      const response = await axios.post("http://localhost:3000/customer/addToCart", {
+        userId: user._id,
+        productId: customerProduct._id,
         quantity: quantity,
-        variant: selectedVariant,
-      });
+        selectedVariant: selectedVariant,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+       
+      }  
+    
+    );
       setSubmitSuccess(true);
+      console.log('res:', response.data)
     } catch (err) {
+      console.log('err:', err);
       setError("Failed to add to cart");
     }
   };
@@ -214,12 +250,12 @@ const ProductDetails = () => {
           <div className="mb-4">
             <span className="block mb-2 font-semibold">Size</span>
             <div className="flex space-x-2">
-              {productbyId.variants.map((variant, index) => (
+              {customerProduct.variants.map((variant, index) => (
                 variant?.size?.length > 0 && (
                   <button
                     key={index}
                     onClick={() => {
-                      // Directly update the size and reset color
+                      
                       const filteredColors = getColorsBySelectedSize(variant.size);
                       setSelectedVariant((prev) => ({
                         ...prev,
@@ -245,7 +281,7 @@ const ProductDetails = () => {
           <div className="mb-4">
             <span className="block mb-2 font-semibold">Material</span>
             <div className="flex space-x-2">
-              {productbyId.variants.map((variant, index) => (
+              {customerProduct.variants.map((variant, index) => (
                 variant?.material?.length > 0 && (
                   <button
                     key={index}
@@ -344,12 +380,12 @@ const ProductDetails = () => {
           <div className="mb-4">
             <img
               src={viewImage}
-              alt={product.title}
+              alt={customerProduct?.title}
               className="w-full h-[500px] object-cover rounded-lg"
             />
           </div>
           <div className="flex justify-center space-x-2">
-            {productbyId.imagePath.map((image, index) => (
+            {customerProduct?.imagePath?.map((image, index) => (
               <button
                 key={index}
                 onClick={() => {
@@ -373,26 +409,26 @@ const ProductDetails = () => {
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold mb-4">{productbyId.title}</h1>
+          <h1 className="text-3xl font-bold mb-4">{customerProduct?.title}</h1>
           <div className="flex items-center mb-4">
             <span className="text-lg text-[#603f26] mr-4">
-              SKU: {productbyId.sku}
+              SKU: {customerProduct?.sku}
             </span>
             <div className="flex items-center">
               <Rating
-                value={calculateAverageRating(product?.reviews)}
+                value={calculateAverageRating(customerProduct?.reviews)}
                 precision={0.1}
                 readOnly
               />
               <span className="ml-2 text-sm">
-                ({productbyId?.reviews ? productbyId?.reviews.length : 0} reviews)
+                ({customerProduct?.reviews ? customerProduct?.reviews.length : 0} reviews)
               </span>
             </div>
           </div>
           <p className="text-2xl text-primary font-semibold mb-4">
-            ${productbyId.price.toFixed(2)}
+            ${customerProduct?.price.toFixed(2)}
           </p>
-          <p className="text-gray-700 mb-4">{productbyId.description}</p>
+          <p className="text-gray-700 mb-4">{customerProduct?.description}</p>
 
           {variantRender()}
 
@@ -437,8 +473,8 @@ const ProductDetails = () => {
 
             {tabValue === "reviews" && (
               <div className="p-4">
-                {productbyId.reviews && productbyId.reviews.length > 0 ? (
-                  product.reviews.map((review, index) => (
+                {customerProduct?.reviews && customerProduct?.reviews.length > 0 ? (
+                  customerProduct?.reviews.map((review, index) => (
                     <div key={index} className="border-b pb-4 mb-4">
                       <Rating value={review.rating} readOnly />
                       <p className="mt-2">{review.comment}</p>
