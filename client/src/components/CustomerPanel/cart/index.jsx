@@ -96,19 +96,49 @@ const Cart = () => {
 
   const removeItem = async (itemId) => {
     try {
-      const response = await axios.delete('http://localhost:3000/customer/deleteCartProduct');
+
+      const body = {
+        cartId:itemId
+      }
+
+
+      const token = localStorage.getItem("token");
+
+      console.log('Tok:', token)
+
+      if (!token) {
+        
+        return;
+      }
+
+
+
+      const response = await axios.post('http://localhost:3000/customer/deleteCartProduct', body,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       
       
       console.log('re:', response.data)
 
-      // setCartItems(prevItems => 
-      //   prevItems.filter(item => item.id !== itemId)
-      // );
+      if(isauthenticated){
+        const userId = user._id;
+        dispatch(getCartItems(userId))
+        .unwrap()
+        .catch((error)=>{
+          showToast("ERROR", 'Failed to fetch cart items');
+        })
+      }
 
-      
-      // setSuccessMessage('Item removed from cart');
+
+      showToast('SUCCESS', "Cart Item Deleted Succesfully!")
+
     } catch (err) {
-      // setError('Failed to remove item');
+      showToast("ERROR","Failed to delete cart item!")
       console.log('err:',err)
     }
   };
@@ -162,7 +192,7 @@ const Cart = () => {
             {cartItems?.length > 0 &&
               cartItems.map((item) => (
               <div 
-                key={item.id} 
+                key={item._id} 
                 className="flex items-center border-b pb-4 mb-4"
               >
                 
@@ -172,7 +202,7 @@ const Cart = () => {
                   className="w-24 h-24 object-cover mr-4 rounded"
                 />
                 <div className="flex-grow">
-                  <h3 className="font-semibold">{item?.title}</h3>
+                  <h3 className="font-semibold">{item?.productId?.title}</h3>
                   <p className="text-gray-600">
                     {item?.selectedVariant?.color ? `Color: ${item?.selectedVariant?.color}` : ''}
                     {item?.selectedVariant?.size ? ` | Size: ${item?.selectedVariant?.size}` : ''}

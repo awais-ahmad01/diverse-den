@@ -123,7 +123,7 @@ const ViewProduct = () => {
             </Typography>
           </Box>
           <Chip
-            label={`Total Quantity: ${productById.totalQuantity}`}
+            label={`Total Quantity: ${productById?.totalQuantity}`}
             // color="primary"
             variant="outlined"
             size="large"
