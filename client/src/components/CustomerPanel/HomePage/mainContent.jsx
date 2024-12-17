@@ -79,7 +79,7 @@ const Section = ({ title, categorySlug }) => {
                 </h2>
                 <div className="flex items-center justify-between mt-4">
                   <Chip 
-                    label={`$${product.price.toFixed(2)}`}
+                    label={`Rs ${product.price.toFixed(2)}`}
                     size="large"
                     sx={{
                       fontWeight: "bold",

@@ -23,7 +23,11 @@ const default_State = {
 export const addProductSlice = createSlice({
   name: "products",
   initialState: default_State,
-  reducers: {},
+  reducers: {
+    clearSubCategoryProducts:(state)=>{
+      state.subCategoryProducts = []
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(addProduct.pending, (state) => {
@@ -129,5 +133,7 @@ export const addProductSlice = createSlice({
       
   },
 });
+
+export const {clearSubCategoryProducts} = addProductSlice.actions;
 
 export default addProductSlice.reducer;

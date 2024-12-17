@@ -117,7 +117,7 @@ const NavigationBar = () => {
       submenu: [
         { name: "Wall Art", link: "subCategory/Decoration/Wall Art" },
         { name: "Sculptures", link: "subCategory/Decoration/Sculptures" },
-        { name: "Picture Frames", link: "subCategory/Decoration/pictureFrames" },
+        { name: "Picture Frames", link: "subCategory/Decoration/Picture Frames" },
         { name: "Mirrors", link: "subCategory/decoration/Mirrors" },
         { name: "Candle Holders", link: "subCategory/Decoration/Candle Holders" }
       ]

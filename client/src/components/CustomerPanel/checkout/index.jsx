@@ -24,7 +24,6 @@ import { getCartItems } from "../../../store/actions/products";
 import { showToast } from "../../../tools";
 import { placeOrder } from "../../../store/actions/products";
 
-
 const checkoutSchema = yup.object().shape({
   firstName: yup
     .string()
@@ -134,10 +133,10 @@ const Checkout = () => {
       .then((response) => {
         console.log(response.data);
         showToast("SUCCESS", "Payment Successfull!!");
-        setIsPayment(true)
+        setIsPayment(true);
       })
       .catch((error) => {
-        showToast("ERROR", 'Payment Failed!')
+        showToast("ERROR", "Payment Failed!");
         throw error;
       });
   };
@@ -151,15 +150,14 @@ const Checkout = () => {
 
     console.log("order:", body);
 
-
     dispatch(placeOrder(body))
-    .unwrap()
-    .then(()=>{
-      showToast("SUCCESS", "Order Placed Successfully!")
-    })
-    .catch(()=>{
-      showToast("ERROR", "Failed to place Order")
-    })
+      .unwrap()
+      .then(() => {
+        showToast("SUCCESS", "Order Placed Successfully!");
+      })
+      .catch(() => {
+        showToast("ERROR", "Failed to place Order");
+      });
   };
 
   if (isloading) {
@@ -174,12 +172,11 @@ const Checkout = () => {
     <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-3 gap-8">
-          
           <Paper
             elevation={3}
             className="md:col-span-2 p-6 bg-white rounded-lg shadow-md"
           >
-            <Typography variant="h4" className="font-bold mb-6 text-gray-800">
+            <Typography variant="h4" className="font-bold pb-6 text-gray-800">
               Checkout
             </Typography>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -373,29 +370,24 @@ const Checkout = () => {
                     Pay Now
                   </button>
                 </StripeCheckout>
-
               )}
 
               {isPayment && (
                 <button
-                type="submit"
-                className="w-full bg-[#603f26] font-semibold text-white py-3 rounded-lg transition duration-300 ease-in-out transform hover:scale-[1.02]"
-              >
-                Place order
-              </button>
+                  type="submit"
+                  className="w-full bg-[#603f26] font-semibold text-white py-3 rounded-lg transition duration-300 ease-in-out transform hover:scale-[1.02]"
+                >
+                  Place order
+                </button>
               )}
             </form>
           </Paper>
-
-     
-
-
 
           <Paper
             elevation={3}
             className="p-6 bg-white rounded-lg shadow-md h-fit"
           >
-            <Typography variant="h5" className="font-bold mb-4 text-gray-800">
+            <Typography variant="h5" className="font-bold pb-6 text-gray-900">
               Order Summary
             </Typography>
             {cartItems.length > 0 && (
@@ -420,13 +412,29 @@ const Checkout = () => {
                         >
                           {item?.productId?.title}
                         </Typography>
-                        <Typography variant="body2" className="text-gray-600">
-                          {item?.selectedVariant.color &&
+                        <Typography
+                          variant="body2"
+                          className="text-gray-600 flex flex-col"
+                        >
+                          <div>
+                            {item?.selectedVariant.color &&
+                              `Color: ${item?.selectedVariant?.color}`}
+                          </div>
+                          <div>
+                            {item?.selectedVariant?.size &&
+                              `Size: ${item?.selectedVariant?.size} `}
+                          </div>
+
+                          <div>
+                            {item?.selectedVariant?.material &&
+                              `Material: ${item?.selectedVariant?.material}`}
+                          </div>
+                          {/* {item?.selectedVariant.color &&
                             `Color: ${item?.selectedVariant?.color} | `}
                           {item?.selectedVariant?.size &&
                             `Size: ${item?.selectedVariant?.size} | `}
                           {item?.selectedVariant?.material &&
-                            `Material: ${item?.selectedVariant?.material}`}
+                            `Material: ${item?.selectedVariant?.material}`} */}
                         </Typography>
                       </div>
                     </div>
@@ -451,9 +459,6 @@ const Checkout = () => {
             )}
           </Paper>
         </div>
-
-
-
 
         {/* <Snackbar
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
@@ -485,21 +490,6 @@ const Checkout = () => {
 };
 
 export default Checkout;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React, { useState, useEffect } from 'react';
 // import { useDispatch } from 'react-redux';

@@ -169,7 +169,7 @@ if(loading){
 
               <div className="flex items-center justify-between mt-4">
                 <span className="text-lg font-bold text-[#603F26]">
-                  ${product.price.toFixed(2)}
+                  Rs {product.price.toFixed(2)}
                 </span>
               </div>
             </div>
