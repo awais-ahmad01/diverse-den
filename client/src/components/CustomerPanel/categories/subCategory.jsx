@@ -68,9 +68,7 @@ const SubCategory = () => {
           </div>
           ) : (
             <div className="h-screen">
-             
-                <h1 className="text-center font-semibold text-2xl text-gray-500"> No related products found</h1>
-              
+                <h1 className="text-center font-semibold text-2xl text-gray-500"> No related products found</h1>    
             </div>
           )}
         

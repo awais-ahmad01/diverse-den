@@ -63,7 +63,7 @@ export const isAuth = createAsyncThunk(
 
             const token = localStorage.getItem("token"); 
 
-            console.log("Retrieved Token:", token);
+            console.log("Retrieved Token auth...:", token);
             if (!token) {
                 console.log("No token found!");
                 
@@ -79,6 +79,7 @@ export const isAuth = createAsyncThunk(
                     },
                 }
              );
+             console.log('auth res:', request.data)
             return { data:request.data.user, auth:true }
             } 
             catch(error){

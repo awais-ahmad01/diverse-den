@@ -39,32 +39,44 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
   useEffect(() => {
     setActiveLink(location.pathname);
   }, [location]);
+  console.log('active', activeLink)
 
   const navItems = [
-    { to: '', label: 'Dashboard', icon: <FaHome /> },
+    { to: '', label: 'Dashboard'},
     {
       to: 'branchesList',
       label: 'Manage Branches',
-      icon: <FaBox />,
+      
       activePaths: [
         '/branchOwnerPanel/branchOwnerDashboard/branchesList',
       '/branchOwnerPanel/branchOwnerDashboard/addBranch',
       '/branchOwnerPanel/branchOwnerDashboard/updatebranch',
+      '/branchOwnerPanel/branchOwnerDashboard/viewbranch',
+      '/branchOwnerPanel/branchOwnerDashboard/viewBranchProduct'
       ],
     },
-    { to: 'salespersonsList', label: 'Manage Salespersons', icon: <FaHome/>,
+
+    { to: 'salespersonsList', label: 'Manage Salespersons', 
       activePaths:[
         '/branchOwnerPanel/branchOwnerDashboard/salespersonsList',
         '/branchOwnerPanel/branchOwnerDashboard/addSalesperson'
       ]
      },
-    { to: 'productsList', label: 'Manage Products', icon: <FaBox />,
+    { to: 'productsList', label: 'Manage Products', 
+
       activePaths:[
         '/branchOwnerPanel/branchOwnerDashboard/productsList',
         '/branchOwnerPanel/branchOwnerDashboard/addProduct',
+        '/branchOwnerPanel/branchOwnerDashboard/viewProduct'
       ]
      },
-    // Add other items as needed
+     { to: 'ordersList', label: 'Manage Orders', 
+      activePaths:[
+        '/branchOwnerPanel/branchOwnerDashboard/ordersList',
+        
+      ]
+     }
+   
   ];
 
   return (
@@ -72,7 +84,7 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
       ref={sidebarRef}
       className={`${
         isSidebarOpen ? 'w-64' : 'hidden'
-      } sm:w-64 bg-[#603F26] text-white h-full p-5 fixed top-10 left-0 transition-all duration-300 border-r-4 border-[#8e6c4f] z-40`}
+      } sm:w-64 bg-[#603F26] text-white h-full p-5 py-10 fixed top-10 left-0 transition-all duration-300 border-r-4 border-[#8e6c4f] z-40`}
     >
       <nav className="my-2">
         <ul>
@@ -97,6 +109,7 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
       </nav>
     </div>
   );
+
 };
 
 export default SideBar;

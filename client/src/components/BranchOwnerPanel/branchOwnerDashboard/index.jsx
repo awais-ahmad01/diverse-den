@@ -14,6 +14,7 @@ const BranchOwnerDashboard = () => {
 
   const dispatch = useDispatch()
 
+
   useEffect(() => {
     let { global } = notifications;
     if (notifications && global.error) {
@@ -27,6 +28,8 @@ const BranchOwnerDashboard = () => {
       dispatch(clearNotifications());
     }
   }, [notifications]);
+
+
 
 
 

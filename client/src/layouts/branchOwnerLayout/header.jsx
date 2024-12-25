@@ -28,7 +28,7 @@ const BranchOwnerDashboardHeader = ({ toggleSidebar, hamburgerRef }) => {
     <div>
       <div
         className="flex justify-between items-center text-white 
-      px-4 py-3 sm:px-10 sm:py-2 bg-[#603F26] border-b-4 border-[#8e6c4f]
+      px-4 py-3 sm:px-10 sm:py-4 bg-[#603F26] border-b-4 border-[#8e6c4f]
       fixed top-0 left-0 w-full z-50"
       >
         {/* Hamburger Icon */}

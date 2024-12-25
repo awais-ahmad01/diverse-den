@@ -23,30 +23,26 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import CircularProgress from "@mui/material/CircularProgress";
-
 import { Loader } from "../../../../tools";
-import { getProducts, removeProduct } from "../../../../store/actions/products";
+import { listOrders } from "../../../../store/actions/orders";
 
-const ListProducts = () => {
+const ListOrders = () => {
     const dispatch = useDispatch();
 
     const { user } = useSelector((state) => state.auth);
 
-    const { products, meta, isloading } = useSelector((state) => state.products);
+    const {orders, isloading, meta} = useSelector(state => state.orders);
 
-    console.log("Products: ", products)
+    console.log('ord:', orders);
 
-    const totalProducts = meta?.totalItems || 0;
+    const totalOrders = meta?.totalOrders || 0;
 
-
-  //   console.log("id:", user.business);
-
+   
     const handleNextPage = (page) => {
       const business = user?.business;
       if (business && page) {
         console.log("Next Page:", page);
-        dispatch(getProducts({ business, pageNo: page }));
+        dispatch(listOrders({ business, pageNo: page }));
       }
     };
 
@@ -54,38 +50,38 @@ const ListProducts = () => {
       const business = user?.business;
       if (business && page) {
         console.log("Previous Page:", page);
-        dispatch(getProducts({ business, pageNo: page }));
+        dispatch(listOrders({ business, pageNo: page }));
       }
     };
 
-    const [open, setOpen] = useState(false);
-    const [toRemove, setToRemove] = useState(null);
+    // const [open, setOpen] = useState(false);
+    // const [toRemove, setToRemove] = useState(null);
 
-    const handleClickOpen = (productId) => {
-      console.log("Open:code:", productId);
-      setToRemove(productId);
-      setOpen(true);
-    };
+    // const handleClickOpen = (productId) => {
+    //   console.log("Open:code:", productId);
+    //   setToRemove(productId);
+    //   setOpen(true);
+    // };
 
-    const handleClose = () => {
-      setOpen(false);
-    };
+    // const handleClose = () => {
+    //   setOpen(false);
+    // };
 
-    const handleDelete = () => {
-      const business = user?.business;
-    console.log("dlete:code:", toRemove);
-     dispatch(removeProduct({toRemove, business}))
-        .unwrap()
-        .finally(() => {
-          setOpen(false);
-          setToRemove(null);
-        }); 
-    };
+    // const handleDelete = () => {
+    //   const business = user?.business;
+    // console.log("dlete:code:", toRemove);
+    //  dispatch(removeProduct({toRemove, business}))
+    //     .unwrap()
+    //     .finally(() => {
+    //       setOpen(false);
+    //       setToRemove(null);
+    //     }); 
+    // };
 
     useEffect(() => {
       console.log("getting products.....");
       const business = user?.business;
-      dispatch(getProducts({ business }));
+      dispatch(listOrders({business}));
 
     }, []);
 
@@ -98,42 +94,25 @@ const ListProducts = () => {
   return (
     <div className="relative bg-gray-50 flex flex-col pt-5">
       <div className="mb-4 pl-4 md:pl-8 lg:pl-12">
-        <h1 className="text-[#603F26] font-bold text-2xl">Products</h1>
+        <h1 className="text-[#603F26] font-bold text-2xl">Orders</h1>
       </div>
 
       <div className="w-full flex justify-between items-center px-4 md:px-8 lg:px-12">
         <div className="border border-[#603F26] bg-[#603F26] p-2 w-32 rounded-lg text-white">
           <span className="font-semibold text-2xl">
-            {totalProducts < 10 ? 0 : null}
-            {totalProducts}
+            {totalOrders < 10 ? 0 : null}
+            {totalOrders}
             
           </span>
-          <h3 className="text-[14px] font-medium">Total Products</h3>
+          <h3 className="text-[14px] font-medium">Total Orders</h3>
         </div>
-        <div className="">
-          <Button
-            variant="contained"
-            color="primary"
-            size="small"
-            component={Link}
-            to="../addProduct"
-            sx={{
-              textTransform: "none",
-              width: "120px",
-              fontSize: "16px",
-              fontWeight: "semi-bold",
-              backgroundColor: "#603F26",
-            }}
-          >
-            Add Product
-          </Button>
-        </div>
+        
       </div>
 
       <div className="w-full px-4 md:px-8 lg:px-12 mt-10 flex-grow">
-        {!products || products.length === 0 ? (
+        {!orders || orders.length === 0 ? (
           <div className="text-3xl font-bold flex justify-center">
-            No Products found
+            No Orders found
           </div>
         ) : (
           <>
@@ -149,66 +128,66 @@ const ListProducts = () => {
                           fontWeight: "bold",
                         }}
                       >
-                        Product
-                      </TableCell>
-                      <TableCell
-                        align="left"
-                        sx={{
-                          color: "white",
-                          fontSize: "16px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Branch
-                      </TableCell>
-                      <TableCell
-                        align="left"
-                        sx={{
-                          color: "white",
-                          fontSize: "16px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Category
-                      </TableCell>
-                      <TableCell
-                        align="left"
-                        sx={{
-                          color: "white",
-                          fontSize: "16px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Price
-                      </TableCell>
-                      <TableCell
-                        align="left"
-                        sx={{
-                          color: "white",
-                          fontSize: "16px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Quantity
+                        Customer
                       </TableCell>
 
-
-
                       <TableCell
-                        align="center"
+                        align="left"
                         sx={{
                           color: "white",
                           fontSize: "16px",
                           fontWeight: "bold",
                         }}
                       >
-                        Action
+                        Date
                       </TableCell>
+                      <TableCell
+                        align="left"
+                        sx={{
+                          color: "white",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Items
+                      </TableCell>
+                      <TableCell
+                        align="left"
+                        sx={{
+                          color: "white",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Total
+                      </TableCell>
+
+                      <TableCell
+                        align="left"
+                        sx={{
+                          color: "white",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Payment
+                      </TableCell>
+
+                      <TableCell
+                        align="left"
+                        sx={{
+                          color: "white",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Status
+                      </TableCell>       
                     </TableRow>
                   </TableHead>
                   <TableBody>
 
-                      {products.map((product, index)=>(
+                      {orders.map((order, index)=>(
                         <TableRow
                         key={index}
                         sx={{
@@ -216,39 +195,18 @@ const ListProducts = () => {
                         }}
                       >
                         <TableCell component="th" scope="row">
-                          {product.title}
+                          {order?.userInfo?.firstname } {order?.userInfo?.lastname}
                         </TableCell>
-                        <TableCell align="left">{product?.branch ? product?.branch : 'Not Assigned'}</TableCell>
-                        <TableCell align="left">{product.category}</TableCell>
-                        <TableCell align="left">{product.price}</TableCell>
-                        <TableCell align="left">{product.totalQuantity}</TableCell>
+                        
+                        <TableCell align="left">{order?.createdAt}</TableCell>
+                        <TableCell align="left">{order?.cartItemCount}</TableCell>
+                        <TableCell align="left">{order?.totalAmount}</TableCell>
+                        <TableCell align="left">{order?.userInfo?.paymentMethod}</TableCell>
+                        <TableCell align="left">{order?.status}</TableCell>
                       
-                        <TableCell align="left">
-                          <div className="flex items-center justify-center gap-3">
-                            <Link to={`../viewProduct/${product._id}/${product.title}`}>
-                              <GrFormView
-                                className="text-[18px]"
-                                style={{ color: "green" }}
-                              />
-                            </Link>
-                            <Link to={`../updateProduct/${product._id}`}>
-                              <MdEdit
-                                className="text-[16px]"
-                                style={{ color: "blue" }}
-                              />
-                            </Link>
-                            <Link
-                              onClick={() => handleClickOpen(product._id)}
-                            >
-                              <FaTrash
-                                className="text-[13px]"
-                                style={{ color: "red" }}
-                              />
-                            </Link>
-                          </div>
-                        </TableCell>
                       </TableRow>
                       ))
+
 
                       }
                     
@@ -257,51 +215,39 @@ const ListProducts = () => {
               </TableContainer>
             </div>
 
-            {/* Card View for Small Screens */}
+          
+
+
             <div className="block xl:hidden">
-              {products.map((product, index) => (
+              {orders?.map((order, index) => (
                 <div
                   key={index}
                   className="mb-4 bg-white p-4 rounded-lg shadow-md border border-gray-300"
                 >
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Product:</span> {product.title}
+                    <span className="font-bold">Customer:</span> {order?.userInfo?.firstname } {order?.userInfo?.lastname} 
+                  </p>
+                  
+                  <p className="text-sm font-medium text-gray-900">
+                    <span className="font-bold">Date:</span> {order?.createdAt}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Branch:</span> {product.branch}
+                    <span className="font-bold">Items:</span>{order?.cartItemCount}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Category:</span> {product.category}
+                    <span className="font-bold">Total:</span>{order?.totalAmount}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Price:</span> {product.price}
+                    <span className="font-bold">Payment:</span>{order?.userInfo?.paymentMethod}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Quantity:</span>{product.totalQuantity}
+                    <span className="font-bold">Status:</span>{order?.status}
                   </p>
 
                  
-                  <div className="mt-3 flex items-center gap-5">
-                    <Link 
-                      to={`../viewProduct/${product._id}/${product.title}`}
-                      className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
-                      View
-                    </Link>
-                    <Link
-                      to={`../updateProduct/${product._id}`}
-                      className="text-green-600 font-semibold hover:underline hover:text-green-800 transition duration-200"
-                    >
-                      Update
-                    </Link>
-                    <Link
-                      onClick={() => handleClickOpen(product._id)}
-                      className="text-red-600 font-semibold hover:underline hover:text-red-800 transition duration-200"
-                    >
-                      Delete
-                    </Link>
-                  </div>
                 </div>
               ))}
+
             </div>
 
 
@@ -357,9 +303,9 @@ const ListProducts = () => {
           </ul>
         </nav>
         : null
-      }
+      } 
 
-      <div>
+      {/* <div>
         <Dialog
           open={open}
           onClose={handleClose}
@@ -381,10 +327,10 @@ const ListProducts = () => {
             </Button>
           </DialogActions>
         </Dialog>
-      </div>
+      </div> */}
 
     </div>
   );
 };
 
-export default ListProducts;
+export default ListOrders;

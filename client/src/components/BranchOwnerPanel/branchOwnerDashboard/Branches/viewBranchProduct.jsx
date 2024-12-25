@@ -109,6 +109,7 @@ const ViewBranchProduct = () => {
                 fontWeight: "bold",
                 color: "#603F26",
               }}
+              
             >
               {productById?.title || "Untitled Product"}
             </Typography>
@@ -122,7 +123,7 @@ const ViewBranchProduct = () => {
             </Typography>
           </Box>
           <Chip
-            label={`Total Quantity: ${productById.totalQuantity}`}
+            label={`Total Quantity: ${productById?.totalQuantity}`}
             // color="primary"
             variant="outlined"
             size="large"

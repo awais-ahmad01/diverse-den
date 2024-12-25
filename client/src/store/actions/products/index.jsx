@@ -244,6 +244,64 @@ export const removeProduct = createAsyncThunk(
   }
 );
 
+
+
+export const removeBranchProduct = createAsyncThunk(
+  "products/removeBranchProduct",
+  async ({ toRemove, branchId }, { dispatch, getState }) => {
+    try {
+      console.log("Delete Product.....");
+
+      console.log("toremove:", toRemove);
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      const body = {
+        productId: toRemove,
+        branchId
+      };
+
+      const response = await axios.post(
+        "http://localhost:3000/branchOwner/deleteProductFromBranch",
+        body,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      dispatch(successGlobal("Product deteled Successfully!!"));
+
+      console.log("product Deleted: ", response.data);
+
+      const { branchMeta } = getState().products;
+      const pageNo = branchMeta.currentPage;
+      dispatch(getBranchProducts({ branchId, pageNo }));
+
+      return true;
+    } catch (error) {
+      console.log("Errrorrr...");
+
+      dispatch(
+        errorGlobal(error.response?.data?.message || "Failed to delete product")
+      );
+      console.log(error.response.data.message);
+      throw error;
+    }
+
+  }
+);
+
+
+
 export const updateProduct = createAsyncThunk(
   "products/updateProduct",
   async (body, thunkAPI) => {

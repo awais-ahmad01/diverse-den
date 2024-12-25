@@ -47,6 +47,7 @@ import SearchedProduct from "./components/CustomerPanel/searchedProduct/index.js
 import SubCategory from "./components/CustomerPanel/categories/subCategory.jsx";
 import Cart from "./components/CustomerPanel/cart/index.jsx";
 import Checkout from "./components/CustomerPanel/checkout/index.jsx";
+import ListOrders from "./components/BranchOwnerPanel/branchOwnerDashboard/Orders/listOrders.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -55,7 +56,8 @@ function App() {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    console.log("Token Verification....");
+    console.log("Token Verification....auth");
+    
     dispatch(isAuth())
       .finally(() => {
         setAuthChecked(true);
@@ -134,6 +136,9 @@ function App() {
               <Route path="addProduct" element={<AddProduct />} />
               <Route path="viewProduct/:productId/:productTitle" element={<ViewProduct />} />
               <Route path="updateProduct/:productId" element={<UpdateProduct />} />
+
+              <Route path="ordersList" element={<ListOrders />} />
+
             </Route>
           </Route>
 

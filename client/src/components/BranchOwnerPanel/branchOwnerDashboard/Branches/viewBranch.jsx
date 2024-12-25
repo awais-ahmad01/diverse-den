@@ -27,7 +27,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { getBranchProducts } from "../../../../store/actions/products";
+import { getBranchProducts, removeBranchProduct } from "../../../../store/actions/products";
 import { Loader } from "../../../../tools";
 
 const ViewBranch = () => {
@@ -40,6 +40,46 @@ const ViewBranch = () => {
   const totalProducts = branchMeta?.totalItems || 0;
 
   const { id, name } = useParams();
+
+  const handleNextPage = (page) => {
+        const business = user?.business;
+        if (business && page) {
+          console.log("Next Page:", page);
+          dispatch(getProducts({ business, pageNo: page }));
+        }
+      };
+  
+      const handlePrevPage = (page) => {
+        const business = user?.business;
+        if (business && page) {
+          console.log("Previous Page:", page);
+          dispatch(getProducts({ business, pageNo: page }));
+        }
+      };
+  
+      const [open, setOpen] = useState(false);
+      const [toRemove, setToRemove] = useState(null);
+  
+      const handleClickOpen = (productId) => {
+        console.log("Open:code:", productId);
+        setToRemove(productId);
+        setOpen(true);
+      };
+  
+      const handleClose = () => {
+        setOpen(false);
+      };
+  
+      const handleDelete = () => {
+        
+      console.log("dlete:code:", toRemove);
+       dispatch(removeBranchProduct({toRemove, branchId: id  }))
+          .unwrap()
+          .finally(() => {
+            setOpen(false);
+            setToRemove(null);
+          }); 
+      };
 
 
 
@@ -73,7 +113,7 @@ const ViewBranch = () => {
       <div className="w-full px-4 md:px-8 lg:px-12 mt-10 flex-grow">
         {!branchProducts || branchProducts.length === 0 ? (
           <div className="text-3xl font-bold flex justify-center">
-            No Products found
+           
           </div>
         ) : (
           <>
@@ -174,7 +214,7 @@ const ViewBranch = () => {
                                 style={{ color: "blue" }}
                               />
                             </Link>
-                            <Link onClick={() => handleClickOpen()}>
+                            <Link onClick={() => handleClickOpen(product?._id)}>
                               <FaTrash
                                 className="text-[13px]"
                                 style={{ color: "red" }}
@@ -189,49 +229,43 @@ const ViewBranch = () => {
               </TableContainer>
             </div>
 
-            {/* Card View for Small Screens */}
-            {/* <div className="block xl:hidden">
-              {branches.map((branch, index) => (
+            
+            <div className="block xl:hidden">
+              {branchProducts.map((product, index) => (
                 <div
                   key={index}
                   className="mb-4 bg-white p-4 rounded-lg shadow-md border border-gray-300"
                 >
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Code:</span> {branch.branchCode}
+                    <span className="font-bold">Product:</span> {product.title}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Name:</span> {branch.name}
+                    <span className="font-bold">Branch:</span> {product.branch}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">City:</span> {branch.city}
+                    <span className="font-bold">Category:</span> {product.category}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Address:</span> {branch.address}
+                    <span className="font-bold">Price:</span> {product.price}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Contact:</span>{" "}
-                    {branch.contactNo}
+                    <span className="font-bold">Quantity:</span>{product.totalQuantity}
+                   
                   </p>
-                  <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Email:</span>{" "}
-                    {branch.emailAddress}
-                  </p>
-                  <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Salesperson:</span>{" "}
-                    {branch?.salesperson?.name || "Not Assigned"}
-                  </p>
+
                   <div className="mt-3 flex items-center gap-5">
-                    <Link className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
+                    <Link to={`../viewBranchProduct/${product._id}/${product.title}`} 
+                      className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
                       View
                     </Link>
                     <Link
-                      to="../updatebranch"
+                      to="../updateProduct"
                       className="text-green-600 font-semibold hover:underline hover:text-green-800 transition duration-200"
                     >
                       Update
                     </Link>
                     <Link
-                      onClick={() => handleClickOpen(branch.branchCode)}
+                      onClick={() => handleClickOpen(product._id)}
                       className="text-red-600 font-semibold hover:underline hover:text-red-800 transition duration-200"
                     >
                       Delete
@@ -239,48 +273,48 @@ const ViewBranch = () => {
                   </div>
                 </div>
               ))}
-            </div> */}
+            </div>
           </>
         )}
       </div>
 
-      {/* {meta?.nextPage || meta?.previousPage ? 
+      {branchMeta?.nextPage || branchMeta?.previousPage ? 
         <nav
           aria-label="Page navigation example"
           className="w-full flex justify-center items-center my-16"
         >
           <ul className="inline-flex items-center -space-x-px text-sm">
-            {meta?.previousPage && (
+            {branchMeta?.previousPage && (
               <>
                 <li
-                  onClick={() => handlePrevPage(meta?.previousPage)}
+                  onClick={() => handlePrevPage(branchMeta?.previousPage)}
                   className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-l-md shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
                 >
                   Previous
                 </li>
                 <li
-                  onClick={() => handlePrevPage(meta?.previousPage)}
+                  onClick={() => handlePrevPage(branchMeta?.previousPage)}
                   className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
                 >
-                  {meta?.previousPage}
+                  {branchMeta?.previousPage}
                 </li>
               </>
             )}
 
             <li className="flex items-center justify-center px-4 py-2 text-white bg-[#603F26] border border-[#603F26] shadow-md font-bold cursor-default rounded-md">
-              {meta?.currentPage}
+              {branchMeta?.currentPage}
             </li>
 
-            {meta?.nextPage && (
+            {branchMeta?.nextPage && (
               <>
                 <li
                   onClick={() => handleNextPage(meta?.nextPage)}
                   className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
                 >
-                  {meta?.nextPage}
+                  {branchMeta?.nextPage}
                 </li>
                 <li
-                  onClick={() => handleNextPage(meta?.nextPage)}
+                  onClick={() => handleNextPage(branchMeta?.nextPage)}
                   className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-r-md shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
                 >
                   Next
@@ -315,7 +349,7 @@ const ViewBranch = () => {
           </DialogActions>
         </Dialog>
       </div>
- */}
+ 
     </div>
   );
 };

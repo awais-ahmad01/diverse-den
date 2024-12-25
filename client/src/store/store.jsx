@@ -4,6 +4,7 @@ import notificationsReducer from "./reducers/notifications";
 import branchesReducer from "./reducers/branches";
 import salespersonReducer from "./reducers/salespersons";
 import productsReducer from "./reducers/products"
+import ordersReducer from "./reducers/orders";
 
 
 const store = configureStore({
@@ -12,7 +13,8 @@ const store = configureStore({
         notifications: notificationsReducer,
         branches: branchesReducer,
         salespersons: salespersonReducer,
-        products: productsReducer
+        products: productsReducer,
+        orders: ordersReducer
     },
 });
 

@@ -17,7 +17,6 @@ import {
   IconButton,
   FormControl,
   FormHelperText,
-  selectClasses,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { FaTrash } from "react-icons/fa";
@@ -150,11 +149,11 @@ const AddProduct = () => {
 
   const watchVariants = watch("variants");
 
-  // Recalculate variant and total quantity
+  
   const recalculateQuantities = React.useCallback(() => {
     const currentVariants = getValues("variants");
 
-    // Update each variant's total and quantity
+    
     currentVariants.forEach((variant, index) => {
       const variantTotal =
         variant.colors && variant.colors.length > 0
@@ -164,16 +163,16 @@ const AddProduct = () => {
             )
           : Number(variant.quantity) || 0;
 
-      // Update variant total
+      
       setValue(`variants.${index}.variantTotal`, variantTotal);
 
-      // If variant has colors, update its quantity field to match total
+      
       if (variant.colors && variant.colors.length > 0) {
         setValue(`variants.${index}.quantity`, variantTotal);
       }
     });
 
-    // Calculate and update total quantity
+   
     const total = currentVariants.reduce(
       (sum, variant) => sum + (variant.variantTotal || 0),
       0
@@ -181,7 +180,7 @@ const AddProduct = () => {
     setValue("totalQuantity", total);
   }, [setValue, getValues]);
 
-  // Watch for changes in color quantities
+ 
   React.useEffect(() => {
     recalculateQuantities();
   }, [watchVariants, recalculateQuantities]);
@@ -213,13 +212,11 @@ const AddProduct = () => {
     );
     setValue(`variants.${variantIndex}.colors`, updatedColors);
 
-    // Reset quantity field if no colors remain
     if (updatedColors.length === 0) {
       setValue(`variants.${variantIndex}.quantity`, null);
       setValue(`variants.${variantIndex}.variantTotal`, 0);
     }
 
-    // Recalculate quantities immediately
     recalculateQuantities();
   };
 
@@ -702,7 +699,7 @@ const AddProduct = () => {
                   </IconButton>
                 )}
 
-                {/* Size Field */}
+              
                 <div className="mb-4 mt-2">
                   <Controller
                     name={`variants.${index}.size`}
@@ -720,7 +717,6 @@ const AddProduct = () => {
                   />
                 </div>
 
-                {/* Material Field */}
                 <div className="mb-4">
                   <Controller
                     name={`variants.${index}.material`}
@@ -738,7 +734,7 @@ const AddProduct = () => {
                   />
                 </div>
 
-                {/* Color Fields */}
+                
                 {watchVariants[index].colors?.map((color, colorIndex) => (
                   <div
                     key={`${field.id}-color-${colorIndex}`}
@@ -801,7 +797,7 @@ const AddProduct = () => {
                   </div>
                 ))}
 
-                {/* Add Color Button */}
+            
                 <Button
                   variant="outlined"
                   size="small"
@@ -811,7 +807,6 @@ const AddProduct = () => {
                   Add Color
                 </Button>
 
-                {/* Quantity Field for Non-Color Variants */}
                 {!watchVariants[index].colors?.length && (
                   <div className="mt-4">
                     <Controller
@@ -843,7 +838,7 @@ const AddProduct = () => {
                   </div>
                 )}
 
-                {/* Variant Total Field */}
+           
                 {watchVariants[index].colors?.length > 0 && (
                   <div className="mt-4">
                     <Controller
@@ -866,7 +861,6 @@ const AddProduct = () => {
               </div>
             ))}
 
-            {/* Add Variant Button */}
             <Button
               variant="outlined"
               size="medium"
@@ -876,7 +870,7 @@ const AddProduct = () => {
               Add Variant
             </Button>
 
-            {/* Total Quantity Field */}
+         
             <div className="mb-4">
               <Controller
                 name="totalQuantity"
