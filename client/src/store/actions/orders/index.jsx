@@ -40,9 +40,53 @@ export const listOrders = createAsyncThunk(
       return { data: response.data.businessOrders, metaData: response.data.meta, };
     } catch (error) {
       console.log("errro000r................");
-      thunkAPI.dispatch(
-        errorGlobal(error.response?.data?.message || "Failed to get Orders")
+      // thunkAPI.dispatch(
+      //   errorGlobal(error.response?.data?.message || "Failed to get Orders")
+      // );
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+
+
+
+export const updateOrderStatus = createAsyncThunk(
+  "orders/updateOrderStatus",
+  async ({orderId, status}, thunkAPI) => {
+    try {
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      const response = await axios.put(
+        "http://localhost:3000/updateOrderStatus",
+        {
+          orderId,
+          status,
+        },
+        
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          
+        }
       );
+
+      console.log("status:", response.data);
+      // return { data: response.data.businessOrders, metaData: response.data.meta, };
+    } catch (error) {
+      console.log("errro000r................");
+      // thunkAPI.dispatch(
+      //   errorGlobal(error.response?.data?.message || "Failed to get Orders")
+      // );
       console.log(error);
       throw error;
     }

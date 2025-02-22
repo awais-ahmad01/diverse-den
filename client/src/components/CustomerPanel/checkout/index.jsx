@@ -148,7 +148,7 @@ const Checkout = () => {
       totalAmount: calculateSubtotal(),
     };
 
-    console.log("order:", body);
+    console.log("orderrrrrr:", body);
 
     dispatch(placeOrder(body))
       .unwrap()

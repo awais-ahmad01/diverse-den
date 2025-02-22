@@ -95,7 +95,7 @@ const Section = ({ title, categorySlug }) => {
       </div>
       <div className="text-center mb-10">
         <Link
-           to={`/category/${categorySlug}`}
+           to={`/${categorySlug}`}
           className="bg-[#603F26] text-white text-2xl px-8 py-3 rounded shadow hover:bg-opacity-90"
         >
           View All

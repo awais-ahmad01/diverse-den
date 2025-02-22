@@ -1,35 +1,47 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getSubCategoryProducts} from "../../../store/actions/products";
+import { getSubCategoryProducts } from "../../../store/actions/products";
 import { clearSubCategoryProducts } from "../../../store/reducers/products";
-
 
 const SubCategory = () => {
   const dispatch = useDispatch();
-
 
   const { category, subcategory, productType } = useParams();
 
   const { subCategoryProducts } = useSelector((state) => state.products);
 
-  // const [products, setProducts] = useState([]);
+  const [filterOption, setFilterOption] = useState("bestMatch");
+  const [sortedProducts, setSortedProducts] = useState(null);
 
-  console.log('sub:', subCategoryProducts)
+  const handleFilterChange = (e) => {
+    setFilterOption(e.target.value);
+    if (e.target.value === 'bestMatch') {
+      setSortedProducts(null);
+    } else if (e.target.value === 'lowToHigh') {
+      setSortedProducts(subCategoryProducts.slice().sort((a, b) => a.price - b.price));
+    } else if (e.target.value === 'highToLow') {
+      setSortedProducts(subCategoryProducts.slice().sort((a, b) => b.price - a.price));
+    }
+  };
 
-  // console.log("params:", category, subcategory, productType);
+  useEffect(() => {
+    dispatch(clearSubCategoryProducts());
 
-  // console.log('sub',subcategory)
-  // console.log('pr:', productType)
+    dispatch(getSubCategoryProducts({ subcategory, productType }));
+  }, [category, subcategory, productType]);
 
 
   useEffect(() => {
-
-    dispatch(clearSubCategoryProducts());
-    
-    dispatch(getSubCategoryProducts({ subcategory, productType }));
-    
-  }, [category, subcategory, productType]);
+    setSortedProducts(null);
+  }, [subCategoryProducts]);
+  
+  useEffect(() => {
+    if (!sortedProducts) {
+      const shuffledProducts = [...subCategoryProducts].sort(() => Math.random() - 0.5);
+      setSortedProducts(shuffledProducts);
+    }
+  }, [subCategoryProducts, sortedProducts, subcategory, productType]);
 
   return (
     <div>
@@ -37,10 +49,22 @@ const SubCategory = () => {
         <h1 className="text-center font-bold text-3xl my-2 md:my-6">
           {productType ? productType.toUpperCase() : subcategory.toUpperCase()}
         </h1>
-        
-          {subCategoryProducts && subCategoryProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-              {subCategoryProducts.map((product) => (
+
+        <div className="flex justify-end mb-4">
+          <select
+            className="bg-white border border-gray-300 rounded-lg py-2 px-4"
+            value={filterOption}
+            onChange={handleFilterChange}
+          >
+            <option value="bestMatch">Best Match</option>
+            <option value="lowToHigh">Price: Low to High</option>
+            <option value="highToLow">Price: High to Low</option>
+          </select>
+        </div>
+
+        {sortedProducts && sortedProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            {sortedProducts.map((product) => (
               <div
                 key={product?._id}
                 className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
@@ -66,12 +90,14 @@ const SubCategory = () => {
               </div>
             ))}
           </div>
-          ) : (
-            <div className="h-screen">
-                <h1 className="text-center font-semibold text-2xl text-gray-500"> No related products found</h1>    
-            </div>
-          )}
-        
+        ) : (
+          <div className="h-screen">
+            <h1 className="text-center font-semibold text-2xl text-gray-500">
+              {" "}
+              No related products found
+            </h1>
+          </div>
+        )}
       </div>
     </div>
   );

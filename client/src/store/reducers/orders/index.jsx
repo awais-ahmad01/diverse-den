@@ -1,6 +1,6 @@
 
 import { createSlice } from "@reduxjs/toolkit";
-import { listOrders } from "../../actions/orders";
+import { listOrders, updateOrderStatus } from "../../actions/orders";
 
 const default_State = {
   isloading: false,
@@ -32,11 +32,20 @@ export const ordersSlice = createSlice({
         state.isloading = false;
       })
 
-      
- 
- 
- 
-      
+
+      .addCase(updateOrderStatus.pending, (state) => {
+        state.isloading = true;
+      })
+
+      .addCase(updateOrderStatus.fulfilled, (state, action) => {
+        state.isloading = false, 
+        state.orderStatus = action.payload.data
+      })
+
+      .addCase(updateOrderStatus.rejected, (state) => {
+        state.isloading = false;
+      })
+   
   },
 });
 

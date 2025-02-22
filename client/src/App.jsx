@@ -48,6 +48,11 @@ import SubCategory from "./components/CustomerPanel/categories/subCategory.jsx";
 import Cart from "./components/CustomerPanel/cart/index.jsx";
 import Checkout from "./components/CustomerPanel/checkout/index.jsx";
 import ListOrders from "./components/BranchOwnerPanel/branchOwnerDashboard/Orders/listOrders.jsx";
+import BranchOwnerProfile from "./components/BranchOwnerPanel/branchOwnerDashboard/Profile/index.jsx";
+import OrderPaymentHistory from "./components/BranchOwnerPanel/branchOwnerDashboard/Orders/orderPaymentsHistory.jsx";
+import SaleEventsList from "./components/BranchOwnerPanel/branchOwnerDashboard/Sales/saleEventsList.jsx";
+import CreateSaleEvent from "./components/BranchOwnerPanel/branchOwnerDashboard/Sales/createSaleEvent.jsx";
+import UpdateSaleEvent from "./components/BranchOwnerPanel/branchOwnerDashboard/Sales/updateSaleEvent.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -139,6 +144,18 @@ function App() {
 
               <Route path="ordersList" element={<ListOrders />} />
 
+
+              
+              <Route path="branchOwnerProfile" element={<BranchOwnerProfile />} />
+
+              <Route path="OrdersPaymentHistory" element={<OrderPaymentHistory />} />
+
+              <Route path="createSaleEvent" element={<CreateSaleEvent />} />
+
+              <Route path="updateSaleEvent/:id" element={<UpdateSaleEvent />} />
+
+              <Route path="saleEventsList" element={<SaleEventsList />} />
+
             </Route>
           </Route>
 
@@ -149,12 +166,13 @@ function App() {
 
           {/* Cutomer  */}
 
+
           <Route path="/" element={<CustomerPanel />}>
             <Route path="/" element={<HomePage />} />
 
-            <Route path="category/:slug" element={<CategoryPage />} />
+            <Route path="/:slug" element={<CategoryPage />} />
 
-            <Route path="subCategory/:category?/:subcategory?/:productType?" element={<SubCategory />} />
+            <Route path="/:category?/:subcategory?/:productType?" element={<SubCategory />} />
 
             <Route path="productDetails/:productId" element={<ProductDetails />} />
             
@@ -176,6 +194,8 @@ function App() {
           
 
           <Route path="addsubscription" element={<AddSubscription />} />
+
+
 
       
         </Routes>
