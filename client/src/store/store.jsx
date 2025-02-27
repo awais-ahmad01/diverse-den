@@ -5,7 +5,9 @@ import branchesReducer from "./reducers/branches";
 import salespersonReducer from "./reducers/salespersons";
 import productsReducer from "./reducers/products"
 import ordersReducer from "./reducers/orders";
-
+import usersReducer from "./reducers/users";
+import businessesReducer from "./reducers/businesses";
+import subscriptionPlansReducer from "./reducers/subscriptionPlans";
 
 const store = configureStore({
     reducer: {
@@ -14,7 +16,10 @@ const store = configureStore({
         branches: branchesReducer,
         salespersons: salespersonReducer,
         products: productsReducer,
-        orders: ordersReducer
+        orders: ordersReducer,
+        users: usersReducer,
+        businesses: businessesReducer,
+        subscriptionPlans: subscriptionPlansReducer
     },
 });
 

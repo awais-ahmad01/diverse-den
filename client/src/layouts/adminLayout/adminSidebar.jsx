@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { FaHome, FaBox } from 'react-icons/fa';
 import { Link, useLocation, useMatch } from 'react-router-dom';
 
-const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef }) => {
+const AdminSideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef }) => {
   const sidebarRef = useRef(null);
   const location = useLocation();
 
@@ -44,22 +44,19 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
   const navItems = [
     { to: '', label: 'Dashboard'},
     {
-      to: 'branchesList',
-      label: 'Manage Branches',
+      to: 'manageUsers',
+      label: 'Manage Users',
       
       activePaths: [
-        '/branchOwnerPanel/branchOwnerDashboard/branchesList',
-      '/branchOwnerPanel/branchOwnerDashboard/addBranch',
-      '/branchOwnerPanel/branchOwnerDashboard/updatebranch',
-      '/branchOwnerPanel/branchOwnerDashboard/viewbranch',
-      '/branchOwnerPanel/branchOwnerDashboard/viewBranchProduct'
+        '/adminPanel/manageUsers',
+   
       ],
     },
 
-    { to: 'salespersonsList', label: 'Manage Salespersons', 
+    { to: 'manageBusinesses', label: 'Manage Businesses', 
       activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/salespersonsList',
-        '/branchOwnerPanel/branchOwnerDashboard/addSalesperson'
+        '/adminPanel/manageBusinesses',
+       
       ]
      },
     { to: 'productsList', label: 'Manage Products', 
@@ -70,27 +67,12 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
         '/branchOwnerPanel/branchOwnerDashboard/viewProduct'
       ]
      },
+     { to: 'manageSubscriptionPlans', label: 'Manage Subscriptions', 
+      activePaths:[
+        '/adminPanel/manageSubscriptionPlans', 
+      ]
+     },
      
-     { to: 'ordersList', label: 'Manage Orders', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/ordersList',
-      ]
-     },
-     { to: 'saleEventsList', label: 'Manage Sale Events', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/saleEventsList', 
-      ]
-     },
-     { to: 'manageSubscriptions', label: 'Manage Subscriptions', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/manageSubscriptions', 
-      ]
-     },
-     { to: 'manageProductReviews', label: 'Manage Product Reviews', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/manageProductReviews', 
-      ]
-     }
    
   ];
 
@@ -127,4 +109,4 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
 
 };
 
-export default SideBar;
+export default AdminSideBar;

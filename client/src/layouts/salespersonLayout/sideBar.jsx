@@ -44,53 +44,31 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
   const navItems = [
     { to: '', label: 'Dashboard'},
     {
-      to: 'branchesList',
-      label: 'Manage Branches',
+      to: 'manageOrders',
+      label: 'Manage Orders',
       
       activePaths: [
-        '/branchOwnerPanel/branchOwnerDashboard/branchesList',
-      '/branchOwnerPanel/branchOwnerDashboard/addBranch',
-      '/branchOwnerPanel/branchOwnerDashboard/updatebranch',
-      '/branchOwnerPanel/branchOwnerDashboard/viewbranch',
-      '/branchOwnerPanel/branchOwnerDashboard/viewBranchProduct'
+        '/branchOwnerPanel/salespersonDashboard/manageOrders',
+      ],
+    },
+    {
+      to: 'manageInventory',
+      label: 'Manage Inventory',
+      
+      activePaths: [
+        '/branchOwnerPanel/salespersonDashboard/manageInventory',
+      ],
+    },
+    {
+      to: 'manageChats',
+      label: 'Chats',
+      
+      activePaths: [
+        '/branchOwnerPanel/salespersonDashboard/manageChats',
       ],
     },
 
-    { to: 'salespersonsList', label: 'Manage Salespersons', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/salespersonsList',
-        '/branchOwnerPanel/branchOwnerDashboard/addSalesperson'
-      ]
-     },
-    { to: 'productsList', label: 'Manage Products', 
-
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/productsList',
-        '/branchOwnerPanel/branchOwnerDashboard/addProduct',
-        '/branchOwnerPanel/branchOwnerDashboard/viewProduct'
-      ]
-     },
-     
-     { to: 'ordersList', label: 'Manage Orders', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/ordersList',
-      ]
-     },
-     { to: 'saleEventsList', label: 'Manage Sale Events', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/saleEventsList', 
-      ]
-     },
-     { to: 'manageSubscriptions', label: 'Manage Subscriptions', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/manageSubscriptions', 
-      ]
-     },
-     { to: 'manageProductReviews', label: 'Manage Product Reviews', 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/manageProductReviews', 
-      ]
-     }
+   
    
   ];
 
@@ -102,6 +80,7 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
       } sm:w-64 bg-[#603F26] text-white h-full p-5 py-10 fixed top-10 left-0 transition-all duration-300 border-r-4 border-[#8e6c4f] z-40`}
     >
       <nav className="my-2">
+        
         <ul>
           {navItems.map(({ to, label, icon, activePaths }, index) => (
             <li key={index} className="mb-2">

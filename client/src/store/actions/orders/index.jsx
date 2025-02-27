@@ -92,3 +92,52 @@ export const updateOrderStatus = createAsyncThunk(
     }
   }
 );
+
+
+
+
+
+export const listPaymentHistory = createAsyncThunk(
+  "orders/listPaymentHistory",
+  async ({business, pageNo=1, limit=7}, thunkAPI) => {
+    try {
+      console.log("List Orders.....");
+
+
+  
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      
+
+      const response = await axios.get(
+        "http://localhost:3000/",
+        
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params:{
+            business,
+            pageNo,
+            limit,
+          }
+        }
+      );
+
+      console.log("Orders:", response.data);
+      return { data: response.data.paymentHistory, paymentMetaData: response.data.meta, };
+    } catch (error) {
+      console.log("errro000r................");
+      console.log(error);
+      throw error;
+    }
+  }
+);
+

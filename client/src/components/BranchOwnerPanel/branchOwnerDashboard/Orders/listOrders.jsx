@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../../../tools";
+import { Link } from "react-router-dom";
 import {
   listOrders,
   updateOrderStatus,
@@ -35,18 +36,15 @@ import { Loader } from "../../../../tools";
 import { format } from "date-fns";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import FilterListIcon from '@mui/icons-material/FilterList';
-
-
+import FilterListIcon from "@mui/icons-material/FilterList";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 
 const theme = createTheme({
   palette: {
     primary: {
       main: "#603F26",
     },
-    error: {
-      main: "#d32f2f",
-    },
+    
   },
 });
 
@@ -208,8 +206,8 @@ const ListOrders = () => {
   const [viewOrderDetails, setViewOrderDetails] = useState(null);
   const [deleteOrderId, setDeleteOrderId] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [orderNumber, setOrderNumber] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [orderNumber, setOrderNumber] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const [filteredOrders, setFilteredOrders] = useState([]);
 
   const totalOrders = meta?.totalOrders || 0;
@@ -243,7 +241,17 @@ const ListOrders = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await dispatch(deleteOrder(deleteOrderId));
+      await dispatch(deleteOrder(deleteOrderId))
+      .unwrap()
+        .then((response) => {
+          
+          showToast("SUCCESS", "Order deleted Successfully!!");
+        })
+        .catch((error) => {
+          showToast("ERROR", "Failed! to delete order");
+          // throw error;
+        });
+
       const business = user?.business;
       dispatch(listOrders({ business }));
     } catch (error) {
@@ -253,23 +261,21 @@ const ListOrders = () => {
     }
   };
 
-
   const applyFilters = () => {
     let filtered = [...orders];
-    
+
     if (orderNumber) {
-      filtered = filtered.filter(order => 
+      filtered = filtered.filter((order) =>
         order._id.slice(-6).toLowerCase().includes(orderNumber.toLowerCase())
       );
     }
-    
+
     if (statusFilter) {
-      filtered = filtered.filter(order => order.status === statusFilter);
+      filtered = filtered.filter((order) => order.status === statusFilter);
     }
-    
+
     setFilteredOrders(filtered);
   };
-
 
   useEffect(() => {
     if (orders) {
@@ -306,37 +312,67 @@ const ListOrders = () => {
       <div className="relative bg-gray-50 flex flex-col pt-5">
         {/* Header */}
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
-          <Typography variant="h4" sx={{ color: '#603F26', fontWeight: 'bold' }}>
+          <Typography
+            variant="h4"
+            sx={{ color: "#603F26", fontWeight: "bold" }}
+          >
             Orders
           </Typography>
         </Box>
-  
+
         {/* Stats and Actions */}
-        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-          <Paper sx={{ bgcolor: '#603F26', color: 'white', px: 3, py: 2, borderRadius: 2 }}>
-            <Typography variant="h4" component="div">
-              {String(totalOrders).padStart(2, '0')}
-            </Typography>
-            <Typography variant="body2">
-              Total Orders
-            </Typography>
-          </Paper>
-  
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<FilterListIcon />}
-            onClick={() => setShowFilters(!showFilters)}
-          >
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
-          </Button>
+        <Box
+          sx={{
+            px: { xs: 2, md: 4, lg: 6 },
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Box >
+            <Paper
+              sx={{
+                bgcolor: "#603F26",
+                color: "white",
+                px: 3,
+                py: 2,
+                borderRadius: 2,
+              }}
+            >
+              <Typography variant="h4" component="div">
+                {String(totalOrders).padStart(2, "0")}
+              </Typography>
+              <Typography variant="body2">Total Orders</Typography>
+            </Paper>
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<ReceiptLongIcon />}
+              component={Link}
+              to="../OrdersPaymentHistory"
+            >
+              Payment History
+            </Button>
+
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<FilterListIcon />}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? "Hide Filters" : "Show Filters"}
+            </Button>
+          </Box>
         </Box>
-  
         {/* Filters */}
         {showFilters && (
           <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
             <Paper sx={{ p: 3 }}>
-              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+              <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
                 <TextField
                   label="Order Number"
                   placeholder="Search by order number"
@@ -367,8 +403,8 @@ const ListOrders = () => {
                   variant="outlined"
                   color="primary"
                   onClick={() => {
-                    setOrderNumber('');
-                    setStatusFilter('');
+                    setOrderNumber("");
+                    setStatusFilter("");
                     setFilteredOrders(orders);
                   }}
                 >
@@ -378,7 +414,7 @@ const ListOrders = () => {
             </Paper>
           </Box>
         )}
-  
+
         {/* Orders Content */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!filteredOrders || filteredOrders.length === 0 ? (
@@ -393,25 +429,67 @@ const ListOrders = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="orders table">
                     <TableHead sx={{ backgroundColor: "#603F26" }}>
                       <TableRow>
-                        <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
                           Order ID
                         </TableCell>
-                        <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
                           Customer
                         </TableCell>
-                        <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
                           Date
                         </TableCell>
-                        <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
                           Items
                         </TableCell>
-                        <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
                           Total
                         </TableCell>
-                        <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
                           Status
                         </TableCell>
-                        <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
                           Actions
                         </TableCell>
                       </TableRow>
@@ -421,7 +499,8 @@ const ListOrders = () => {
                         <TableRow key={order._id}>
                           <TableCell>#{order._id.slice(-6)}</TableCell>
                           <TableCell>
-                            {order?.userInfo?.firstname} {order?.userInfo?.lastname}
+                            {order?.userInfo?.firstname}{" "}
+                            {order?.userInfo?.lastname}
                           </TableCell>
                           <TableCell>
                             {format(new Date(order?.createdAt), "PP")}
@@ -431,7 +510,9 @@ const ListOrders = () => {
                           <TableCell>
                             <Select
                               value={order.status}
-                              onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                              onChange={(e) =>
+                                handleStatusChange(order._id, e.target.value)
+                              }
                               className={getStatusColor(order.status)}
                             >
                               <MenuItem value="Pending">Pending</MenuItem>
@@ -455,7 +536,10 @@ const ListOrders = () => {
                                 <IconButton
                                   onClick={() => handleDeleteClick(order._id)}
                                   color="error"
-                                  disabled={order.status === "Shipped" || order.status === "Delivered"}
+                                  disabled={
+                                    order.status === "Shipped" ||
+                                    order.status === "Delivered"
+                                  }
                                 >
                                   <DeleteIcon />
                                 </IconButton>
@@ -468,16 +552,20 @@ const ListOrders = () => {
                   </Table>
                 </TableContainer>
               </div>
-  
+
               {/* Mobile View */}
               <div className="block xl:hidden space-y-4">
                 {filteredOrders.map((order) => (
-                  <div key={order._id} className="bg-white p-4 rounded-lg shadow">
+                  <div
+                    key={order._id}
+                    className="bg-white p-4 rounded-lg shadow"
+                  >
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <p className="font-bold">#{order._id.slice(-6)}</p>
                         <p>
-                          {order?.userInfo?.firstname} {order?.userInfo?.lastname}
+                          {order?.userInfo?.firstname}{" "}
+                          {order?.userInfo?.lastname}
                         </p>
                       </div>
                       <Chip
@@ -485,18 +573,20 @@ const ListOrders = () => {
                         className={getStatusColor(order.status)}
                       />
                     </div>
-  
+
                     <div className="space-y-2">
                       <p>Date: {format(new Date(order?.createdAt), "PP")}</p>
                       <p>Items: {order?.cartItemCount}</p>
                       <p>Total: ${order?.totalAmount}</p>
                     </div>
-  
+
                     <div className="mt-4 space-y-2">
                       <Select
                         fullWidth
                         value={order.status}
-                        onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                        onChange={(e) =>
+                          handleStatusChange(order._id, e.target.value)
+                        }
                       >
                         <MenuItem value="Pending">Pending</MenuItem>
                         <MenuItem value="Processing">Processing</MenuItem>
@@ -504,7 +594,7 @@ const ListOrders = () => {
                         <MenuItem value="Delivered">Delivered</MenuItem>
                         <MenuItem value="Cancelled">Cancelled</MenuItem>
                       </Select>
-  
+
                       <div className="flex gap-2">
                         <Button
                           variant="contained"
@@ -517,7 +607,10 @@ const ListOrders = () => {
                           variant="contained"
                           color="error"
                           onClick={() => handleDeleteClick(order._id)}
-                          disabled={order.status === "Shipped" || order.status === "Delivered"}
+                          disabled={
+                            order.status === "Shipped" ||
+                            order.status === "Delivered"
+                          }
                           fullWidth
                         >
                           Delete
@@ -530,7 +623,7 @@ const ListOrders = () => {
             </>
           )}
         </div>
-  
+
         {/* Pagination */}
         {meta?.nextPage || meta?.previousPage ? (
           <nav className="w-full flex justify-center items-center my-16">
@@ -561,14 +654,14 @@ const ListOrders = () => {
             </ul>
           </nav>
         ) : null}
-  
+
         {/* Order Details Dialog */}
         <OrderDetailsDialog
           open={!!viewOrderDetails}
           onClose={() => setViewOrderDetails(null)}
           order={viewOrderDetails}
         />
-  
+
         {/* Delete Confirmation Dialog */}
         <DeleteConfirmationDialog
           open={!!deleteOrderId}

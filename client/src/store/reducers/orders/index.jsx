@@ -1,11 +1,12 @@
 
 import { createSlice } from "@reduxjs/toolkit";
-import { listOrders, updateOrderStatus } from "../../actions/orders";
+import { listOrders, updateOrderStatus, listPaymentHistory } from "../../actions/orders";
 
 const default_State = {
   isloading: false,
   orders: [],
-  meta: []
+  meta: [],
+  paymentHistory: []
 
   
 };
@@ -43,6 +44,20 @@ export const ordersSlice = createSlice({
       })
 
       .addCase(updateOrderStatus.rejected, (state) => {
+        state.isloading = false;
+      })
+
+      .addCase(listPaymentHistory.pending, (state) => {
+        state.isloading = true;
+      })
+
+      .addCase(listPaymentHistory.fulfilled, (state, action) => {
+        state.isloading = false, 
+        state.paymentHistory = action.payload.data,
+        state.paymentMeta = action.payload.paymentMetaData
+      })
+
+      .addCase(listPaymentHistory.rejected, (state) => {
         state.isloading = false;
       })
    

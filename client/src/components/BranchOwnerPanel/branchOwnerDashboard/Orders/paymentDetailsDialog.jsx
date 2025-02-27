@@ -154,6 +154,7 @@ const PaymentDetailsDialog = ({ open, handleClose, payment }) => {
                   </Grid>
                 ))}
               </Box>
+              
             </Grid>
 
             {/* Payment Summary */}

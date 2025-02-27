@@ -53,6 +53,17 @@ import OrderPaymentHistory from "./components/BranchOwnerPanel/branchOwnerDashbo
 import SaleEventsList from "./components/BranchOwnerPanel/branchOwnerDashboard/Sales/saleEventsList.jsx";
 import CreateSaleEvent from "./components/BranchOwnerPanel/branchOwnerDashboard/Sales/createSaleEvent.jsx";
 import UpdateSaleEvent from "./components/BranchOwnerPanel/branchOwnerDashboard/Sales/updateSaleEvent.jsx";
+import ManageSubscriptions from "./components/BranchOwnerPanel/branchOwnerDashboard/ManageSubscription/index.jsx";
+import ProductReviews from "./components/BranchOwnerPanel/branchOwnerDashboard/ManageProductReviews/index.jsx";
+import DashboardLayout from "./layouts/adminLayout/index.jsx";
+import ManageUsers from "./components/AdminPanel/ManageUsers/index.jsx";
+import AdminPanel from "./components/AdminPanel/index.jsx";
+import ManageBusinesses from "./components/AdminPanel/ManageBusinesses/index.jsx";
+import ManageSubscriptionPlans from "./components/AdminPanel/ManageSubscriptions/index.jsx";
+import SalespersonDashboard from "./components/BranchOwnerPanel/salespersonDashboard/index.jsx";
+import OrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/manageOrders/index.jsx";
+import ChatSection from "./components/BranchOwnerPanel/salespersonDashboard/manageChats/index.jsx";
+import SalespersonOrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/manageOrders/index.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -156,7 +167,27 @@ function App() {
 
               <Route path="saleEventsList" element={<SaleEventsList />} />
 
+              
+              <Route path="manageSubscriptions" element={<ManageSubscriptions />} />
+
+              <Route path="manageProductReviews" element={<ProductReviews/>} />
+
+
             </Route>
+
+
+
+
+            <Route path="salespersonDashboard" element={<SalespersonDashboard />} >
+                  
+                <Route path="manageOrders" element={<SalespersonOrderManagement />} />
+
+                <Route path="manageChats" element={<ChatSection />} />
+            </Route>
+
+
+
+
           </Route>
 
           <Route path="/riderPanel" element={<RiderPanel />} />
@@ -186,18 +217,23 @@ function App() {
 
                   
           </Route>
-          
             
-          
-          
-          
-          
+                    
 
           <Route path="addsubscription" element={<AddSubscription />} />
 
 
+          <Route path="adminPanel" element={<AdminPanel />}>
+                  
+              <Route path="manageUsers" element={<ManageUsers />} />
 
-      
+              <Route path="manageBusinesses" element={<ManageBusinesses />} />
+
+              <Route path="manageSubscriptionPlans" element={<ManageSubscriptionPlans />} />
+          
+          </Route> 
+          
+          
         </Routes>
       </BrowserRouter>
     </>
