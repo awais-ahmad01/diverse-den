@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getBranches, getAllBranches } from "../../actions/branches";
+import { getBranches, getAllBranches, } from "../../actions/branches";
 
 let default_state = {
   isloading: false,
@@ -41,8 +41,11 @@ export const branchesSlice = createSlice({
       })
       .addCase(getAllBranches.rejected, (state) => {
         state.isloading = false;
-        
       })
+
+
+
+     
 
       
   },

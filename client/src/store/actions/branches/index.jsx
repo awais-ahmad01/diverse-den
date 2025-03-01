@@ -242,4 +242,56 @@ export const getAllBranches = createAsyncThunk(
 
 
 
+
+export const addProductToBranch = createAsyncThunk(
+  "branches/addProductToBranch",
+  async ({branchId, product, business}, thunkAPI) => {
+    try {
+      
+
+      const body = {
+        branchId,
+        business,
+        product
+      }
+
+      console.log("Body:", body);
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      
+
+      const response = await axios.post(
+        "http://localhost:3000/branchOwner/",
+        body,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("product:", response.data);
+
+    
+
+      return { data: response.data };
+    } catch (error) {
+      console.log("errro000r................");
+      
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+
+
+
   

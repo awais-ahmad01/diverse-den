@@ -108,6 +108,26 @@ const ViewBranch = () => {
           </span>
           <h3 className="text-[14px] font-medium">Total Products</h3>
         </div>
+
+        <div className="">
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            component={Link}
+            to={`../assignProduct/${id}`}
+            sx={{
+              textTransform: "none",
+              width: "120px",
+              fontSize: "16px",
+              fontWeight: "semi-bold",
+              backgroundColor: "#603F26",
+            }}
+          >
+            Add Product
+          </Button>
+        </div>
+
       </div>
 
       <div className="w-full px-4 md:px-8 lg:px-12 mt-10 flex-grow">

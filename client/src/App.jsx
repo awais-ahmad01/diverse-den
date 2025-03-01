@@ -64,6 +64,7 @@ import SalespersonDashboard from "./components/BranchOwnerPanel/salespersonDashb
 import OrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/manageOrders/index.jsx";
 import ChatSection from "./components/BranchOwnerPanel/salespersonDashboard/manageChats/index.jsx";
 import SalespersonOrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/manageOrders/index.jsx";
+import ProductList from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/assignProduct.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -131,6 +132,9 @@ function App() {
               <Route path="updatebranch/:id" element={<UpdateBranch />} />
 
               <Route path="viewbranch/:id/:name" element={<ViewBranch/>} />
+
+
+              <Route path="assignProduct/:branchId" element={<ProductList/>} />
 
               <Route path="viewBranchProduct/:productId/:productTitle" element={<ViewBranchProduct />} />
 
