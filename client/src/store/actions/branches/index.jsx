@@ -243,15 +243,99 @@ export const getAllBranches = createAsyncThunk(
 
 
 
+export const getBranchProducts = createAsyncThunk(
+  'branches/getBranchProducts',
+  async ({branchId, pageNo=1, limit=5}, thunkAPI) => {
+    try {
+
+      console.log("Get Branch Products.....");
+      console.log("br Id:", branchId);
+    
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal('No token found'));
+        return;
+      }
+
+      const response = await axios.get('http://localhost:3000/branchOwner/viewBranchProductsById', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+
+        params: {
+          branchId,
+          pageNo,
+          limit
+        },
+      })
+
+      console.log("All Branch Products: ", response.data)
+      
+      return { data: response.data.products , metaData: response.data.meta };
+    } catch (error) {
+      
+      console.log(error)
+      throw error;
+    }
+  }
+);
+
+
+export const getVariantRemainings = createAsyncThunk(
+  'branches/getVariantRemainings',
+  async (productId, thunkAPI) => {
+    try {
+
+      console.log("Get Variants.....");
+  
+    
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal('No token found'));
+        return;
+      }
+
+      const response = await axios.get('http://localhost:3000/branchOwner/calculateVariantRemainings', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+
+        params: {
+          productId
+        }
+      })
+
+      console.log("All variants: ", response.data)
+      
+      return { data: response.data};
+    } catch (error) {
+      
+      console.log(error)
+      throw error;
+    }
+  }
+);
+
+
+
+
+
 export const addProductToBranch = createAsyncThunk(
   "branches/addProductToBranch",
-  async ({branchId, product, business}, thunkAPI) => {
+  async ({branchCode, product}, thunkAPI) => {
     try {
       
 
       const body = {
-        branchId,
-        business,
+        branchCode,
         product
       }
 
@@ -268,7 +352,7 @@ export const addProductToBranch = createAsyncThunk(
       
 
       const response = await axios.post(
-        "http://localhost:3000/branchOwner/",
+        "http://localhost:3000/branchOwner/assignProductToBranch",
         body,
         {
           headers: {

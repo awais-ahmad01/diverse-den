@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -28,7 +28,9 @@ import {
 } from "@mui/material";
 import { FaArrowLeft } from "react-icons/fa";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import { addProductToBranch } from "../../../../store/actions/branches";
+import { addProductToBranch, getBranchProducts, getVariantRemainings } from "../../../../store/actions/branches";
+import { getProducts } from "../../../../store/actions/products";
+
 
 const theme = createTheme({
   palette: {
@@ -121,245 +123,315 @@ const mockProducts = [
   },
 ];
 
-const ProductDetailsDialog = ({ open, onClose, product, branchId }) => {
+const ProductDetailsDialog = ({ open, onClose, product, branchCode }) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const [assignedQuantities, setAssignedQuantities] = useState({});
+  
+  // This contains the remainingVariants array
+  const { variants } = useSelector((state) => state.branches);
 
-    const dispatch = useDispatch();
+  useEffect(() => {
+    if (open && product?._id) {
+      dispatch(getVariantRemainings(product._id));
+    }
+  }, [open, product?._id, dispatch]);
 
-    const { user } = useSelector((state) => state.auth);
-    const [assignedQuantities, setAssignedQuantities] = useState({});
-  
-    if (!product) return null;
-  
-    const handleQuantityChange = (variantId, color, quantity) => {
-      const variant = product.variants.find((v) => v.id === variantId);
-      const remainingQuantity = color
-        ? variant.colors.find((c) => c.color === color).quantity
-        : variant.variantTotal;
-  
-      if (quantity <= remainingQuantity) {
-        setAssignedQuantities((prev) => ({
-          ...prev,
-          [variantId]: {
-            ...prev[variantId],
-            [color || "default"]: quantity,
-          },
-        }));
-      } else {
-        alert(`Quantity cannot exceed ${remainingQuantity}`);
+  useEffect(() => {
+    // Reset assigned quantities when dialog opens or product changes
+    if (open) {
+      setAssignedQuantities({});
+    }
+  }, [open, product?._id]);
+
+  if (!product) return null;
+
+  const handleQuantityChange = (variantIndex, colorName, quantity) => {
+    if (!variants || !variants.remainingVariants || !variants.remainingVariants[variantIndex]) return;
+    
+    const variant = variants.remainingVariants[variantIndex];
+    let remainingQuantity = 0;
+    
+    // If we're dealing with a color variant
+    if (colorName) {
+      // Find the color in the variant's colors array
+      const colorVariant = variant.colors && variant.colors.find(c => c.color === colorName);
+      if (colorVariant) {
+        remainingQuantity = colorVariant.remainingQuantity || 0;
       }
-    };
-  
-    const handleAssignQuantities = () => {
-      // Calculate the total assigned quantity
-      let totalAssignedQuantity = 0;
-  
-      const assignedQuantitiesArray = product.variants.map((variant) => {
-        const variantQuantities = assignedQuantities[variant.id] || {};
-  
-        // If the variant has colors, include color-specific quantities
-        if (variant.colors.length > 0) {
-          const colorsWithQuantities = variant.colors.map((color) => {
-            const assignedQty = variantQuantities[color.color] || 0;
-            totalAssignedQuantity += assignedQty; // Add to total assigned quantity
-            return {
-              color: color.color,
-              assignedQuantity: assignedQty,
-            };
-          });
-  
+    } else {
+      // If no color specified, use the variant's total quantity
+      remainingQuantity = variant.totalRemaining || 0;
+    }
+
+    if (quantity <= remainingQuantity) {
+      setAssignedQuantities(prev => ({
+        ...prev,
+        [variantIndex]: {
+          ...prev[variantIndex],
+          [colorName || "default"]: quantity,
+        },
+      }));
+    } else {
+      alert(`Quantity cannot exceed ${remainingQuantity}`);
+    }
+  };
+
+  const handleAssignQuantities = () => {
+    // Check if variants and remainingVariants exist
+    if (!variants || !variants.remainingVariants) {
+      showToast("ERROR", "No variant data available");
+      return;
+    }
+    
+    let totalAssignedQuantity = 0;
+
+    const assignedQuantitiesArray = variants.remainingVariants.map((variant, index) => {
+      const variantQuantities = assignedQuantities[index] || {};
+      
+      // If the variant has colors
+      if (variant.colors && variant.colors.length > 0) {
+        // Map each color with its assigned quantity
+        const colorsWithQuantities = variant.colors.map(colorObj => {
+          const colorName = colorObj.color;
+          const assignedQty = variantQuantities[colorName] || 0;
+          totalAssignedQuantity += assignedQty;
+          
           return {
-            variantId: variant.id,
-            size: variant.size,
-            material: variant.material,
-            colors: colorsWithQuantities,
-          };
-        } else {
-          // If the variant has no colors, include the variant's default quantity
-          const assignedQty = variantQuantities.default || 0;
-          totalAssignedQuantity += assignedQty; // Add to total assigned quantity
-          return {
-            variantId: variant.id,
-            size: variant.size,
-            material: variant.material,
+            color: colorName,
             assignedQuantity: assignedQty,
           };
-        }
-      });
-  
-      // Create an object to store the selected product and its assigned quantities
-      const selectedProductWithQuantities = {
-        product: {
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          category: product.category,
-          totalQuantity: product.totalQuantity,
-          variants: product.variants,
-        },
-        assignedQuantities: assignedQuantitiesArray,
-        totalAssignedQuantity: totalAssignedQuantity, // Include total assigned quantity
-      };
-  
-      // Log the selected product and its assigned quantities
-      console.log("Selected Product with Assigned Quantities:", selectedProductWithQuantities);
-
-
-
-      const business = user?.business;
-        dispatch(addProductToBranch({ branchId, product: selectedProductWithQuantities, business }))
-        .unwrap()
-        .then(() => {
-            showToast("SUCCESS", "product added successfully");
-            setAssignedQuantities({});
-            
-        })
-        .catch(error => {
-            showToast("ERROR", "Failed to add Product");
-            console.error("Failed to delete sale event:", error);
         });
-  
-      onClose();
+        
+        return {
+          variantIndex: index,
+          size: variant.size || "",
+          material: variant.material || "",
+          colors: colorsWithQuantities,
+        };
+      } else {
+        // If no colors, just use the default quantity
+        const assignedQty = variantQuantities.default || 0;
+        totalAssignedQuantity += assignedQty;
+        
+        return {
+          variantIndex: index,
+          size: variant.size || "",
+          material: variant.material || "",
+          assignedQuantity: assignedQty,
+        };
+      }
+    });
+    
+    // Filter out variants with no assigned quantities
+    const filteredAssignedQuantities = assignedQuantitiesArray.filter(variantData => {
+      if (variantData.colors) {
+        // Check if any color has a quantity assigned
+        return variantData.colors.some(color => color.assignedQuantity > 0);
+      }
+      // Check if the variant has a quantity assigned
+      return variantData.assignedQuantity > 0;
+    });
+    
+    // If no quantities were assigned, show a message
+    if (filteredAssignedQuantities.length === 0) {
+      showToast("ERROR", "Please assign at least one quantity");
+      return;
+    }
+
+    const selectedProductWithQuantities = {
+      product: {
+        id: product._id,
+        title: product.title,
+        price: product.price,
+        category: product.category,
+        totalQuantity: product.totalQuantity,
+        productId: variants.productId,
+        productTitle: variants.productTitle,
+      },
+      assignedQuantities: filteredAssignedQuantities,
+      totalAssignedQuantity: totalAssignedQuantity,
     };
+
+    console.log("Selected Product with Assigned Quantities:", selectedProductWithQuantities);
+
+    // const business = user?.business;
+    dispatch(addProductToBranch({ branchCode, product: selectedProductWithQuantities }))
+      .unwrap()
+      .then(() => {
+          showToast("SUCCESS", "Product added successfully");
+          setAssignedQuantities({});
+          onClose();
+      })
+      .catch(error => {
+          showToast("ERROR", "Failed to add Product");
+          console.error("Failed to add product:", error);
+      });
+  };
   
-    return (
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-        <DialogTitle className="bg-[#603F26] text-white">
-          Product Details - {product.title}
-        </DialogTitle>
-        <DialogContent className="mt-4" style={{ overflow: "auto" }}>
-          <Grid container spacing={3}>
-            {/* Product Information */}
-            <Grid item xs={12}>
-              <Typography variant="h6" className="font-bold mb-2">
-                Product Information
-              </Typography>
-              <Typography>Title: {product.title}</Typography>
-              <Typography>Price: ${product.price}</Typography>
-              <Typography>Category: {product.category}</Typography>
-              <Typography>
-                Total Quantity: {product.totalQuantity}
-              </Typography>
-            </Grid>
-  
-            {/* Variants */}
-            <Grid item xs={12}>
-              <Divider className="my-4" />
-              <Typography variant="h6" className="font-bold mb-2">
-                Variants
-              </Typography>
-              <TableContainer>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Size</TableCell>
-                      <TableCell>Material</TableCell>
-                      <TableCell>Colors</TableCell>
-                      <TableCell align="right">Remaining Quantity</TableCell>
-                      <TableCell align="right">Assign Quantity</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {product.variants.map((variant, index) => (
-                      <React.Fragment key={index}>
-                        {/* Variant Row */}
-                        <TableRow>
-                          <TableCell>{variant.size}</TableCell>
-                          <TableCell>{variant.material}</TableCell>
-                          <TableCell>
-                            {variant.colors.length > 0
-                              ? variant.colors
-                                  .map((color) => `${color.color} (${color.quantity})`)
-                                  .join(", ")
-                              : "N/A"}
-                          </TableCell>
-                          <TableCell align="right">
-                            {variant.variantTotal}
-                          </TableCell>
-                          <TableCell align="right">
-                            {variant.colors.length === 0 && (
+  // Helper function to check if any quantities have been assigned
+  const hasAssignedQuantities = () => {
+    for (const variantIndex in assignedQuantities) {
+      const variantQtys = assignedQuantities[variantIndex];
+      for (const colorKey in variantQtys) {
+        if (variantQtys[colorKey] > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle className="bg-[#603F26] text-white">
+        Product Details - {variants?.productTitle || product.title}
+      </DialogTitle>
+      <DialogContent className="mt-4" style={{ overflow: "auto" }}>
+        <Grid container spacing={3}>
+          {/* Product Information */}
+          <Grid item xs={12}>
+            <Typography variant="h6" className="font-bold mb-2">
+              Product Information
+            </Typography>
+            <Typography>Title: {variants?.productTitle || product.title}</Typography>
+            <Typography>Price: ${product.price}</Typography>
+            <Typography>Category: {product.category}</Typography>
+            <Typography>
+              Total Quantity: {product.totalQuantity}
+            </Typography>
+          </Grid>
+
+          {/* Variants */}
+          <Grid item xs={12}>
+            <Divider className="my-4" />
+            <Typography variant="h6" className="font-bold mb-2">
+              Variants
+            </Typography>
+            <TableContainer>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Size</TableCell>
+                    <TableCell>Material</TableCell>
+                    <TableCell>Color</TableCell>
+                    <TableCell align="right">Available Quantity</TableCell>
+                    <TableCell align="right">Assign Quantity</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {variants && variants.remainingVariants && variants.remainingVariants.map((variant, index) => (
+                    <React.Fragment key={index}>
+                      {/* If variant has colors, render each color as a separate row */}
+                      {variant.colors && variant.colors.length > 0 ? (
+                        variant.colors.map((colorObj, colorIndex) => (
+                          <TableRow key={`${index}-${colorIndex}`}>
+                            {colorIndex === 0 ? (
+                              <>
+                                <TableCell rowSpan={variant.colors.length}>{variant.size || "N/A"}</TableCell>
+                                <TableCell rowSpan={variant.colors.length}>{variant.material || "N/A"}</TableCell>
+                              </>
+                            ) : null}
+                            <TableCell>{colorObj.color}</TableCell>
+                            <TableCell align="right">{colorObj.remainingQuantity|| 0}</TableCell>
+                            <TableCell align="right">
                               <TextField
                                 type="number"
-                                value={
-                                  assignedQuantities[variant.id]?.default || ""
-                                }
+                                value={assignedQuantities[index]?.[colorObj.color] || ""}
                                 onChange={(e) =>
                                   handleQuantityChange(
-                                    variant.id,
-                                    null,
+                                    index,
+                                    colorObj.color,
                                     Number(e.target.value)
                                   )
                                 }
                                 inputProps={{
-                                  max: variant.variantTotal,
+                                  max: colorObj.quantity || 0,
                                   min: 0,
                                 }}
                                 size="small"
                                 sx={{ width: "100px" }}
                               />
-                            )}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        // If variant has no colors, render a single row
+                        <TableRow key={index}>
+                          <TableCell>{variant.size || "N/A"}</TableCell>
+                          <TableCell>{variant.material || "N/A"}</TableCell>
+                          <TableCell>N/A</TableCell>
+                          <TableCell align="right">{variant.totalRemaining || 0}</TableCell>
+                          <TableCell align="right">
+                            <TextField
+                              type="number"
+                              value={assignedQuantities[index]?.default || ""}
+                              onChange={(e) =>
+                                handleQuantityChange(
+                                  index,
+                                  null,
+                                  Number(e.target.value)
+                                )
+                              }
+                              inputProps={{
+                                max: variant.totalQuantity || 0,
+                                min: 0,
+                              }}
+                              size="small"
+                              sx={{ width: "100px" }}
+                            />
                           </TableCell>
                         </TableRow>
-  
-                        {/* Color Rows (if colors exist) */}
-                        {variant.colors.length > 0 &&
-                          variant.colors.map((color, colorIndex) => (
-                            <TableRow key={colorIndex}>
-                              <TableCell colSpan={3} align="right">
-                                {color.color}
-                              </TableCell>
-                              <TableCell align="right">
-                                {color.quantity}
-                              </TableCell>
-                              <TableCell align="right">
-                                <TextField
-                                  type="number"
-                                  value={
-                                    assignedQuantities[variant.id]?.[color.color] || ""
-                                  }
-                                  onChange={(e) =>
-                                    handleQuantityChange(
-                                      variant.id,
-                                      color.color,
-                                      Number(e.target.value)
-                          )}
-                                  inputProps={{
-                                    max: color.quantity,
-                                    min: 0,
-                                  }}
-                                  size="small"
-                                  sx={{ width: "100px" }}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                      </React.Fragment>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
+                      )}
+                    </React.Fragment>
+                  ))}
+                  {(!variants || !variants.remainingVariants || variants.remainingVariants.length === 0) && (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center">
+                        No variant data available
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Grid>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} color="primary">
-            Cancel
-          </Button>
-          <Button
-            onClick={handleAssignQuantities}
-            color="primary"
-            variant="contained"
-          >
-            Assign Quantities
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  };
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button
+          onClick={handleAssignQuantities}
+          color="primary"
+          variant="contained"
+          disabled={
+            !variants || 
+            !variants.remainingVariants || 
+            variants.remainingVariants.length === 0 ||
+            !hasAssignedQuantities()
+          }
+        >
+          Assign Quantities
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 const ProductList = () => {
+
+  const dispatch = useDispatch();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
 
-  const { branchId } = useParams();
+  const { user } = useSelector((state) => state.auth);
+
+  // const {branchProducts, branchMeta} = useSelector((state) => state.branches);
+
+  const {products, meta} = useSelector((state) => state.products);
+
+  const { branchCode } = useParams();
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
@@ -370,6 +442,32 @@ const ProductList = () => {
     setOpenDialog(false);
     setSelectedProduct(null);
   };
+
+
+
+  const handleNextPage = (page) => {
+          const business = user?.business;
+          if (business && page) {
+            console.log("Next Page:", page);
+            dispatch(getProducts({ business, pageNo: page }));
+          }
+        };
+    
+        const handlePrevPage = (page) => {
+          const business = user?.business;
+          if (business && page) {
+            console.log("Previous Page:", page);
+            dispatch(getProducts({ business, pageNo: page }));
+          }
+        };
+    
+
+  useEffect(() => {
+    const business = user?.business;
+    dispatch(getProducts({business}));
+    
+  }, [dispatch]);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -408,15 +506,15 @@ const ProductList = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {mockProducts.map((product) => (
+                    {products.map((product) => (
                       <TableRow
-                        key={product.id}
+                        key={product._id}
                         className="cursor-pointer hover:bg-gray-100"
                       >
                         <TableCell>{product.title}</TableCell>
                         <TableCell>${product.price}</TableCell>
                         <TableCell>{product.category}</TableCell>
-                        <TableCell>{product.totalQuantity}</TableCell>
+                        <TableCell>{product.remainingQuantity}</TableCell>
                         <TableCell>
                           <Tooltip title="View Details">
                             <IconButton
@@ -438,8 +536,8 @@ const ProductList = () => {
 
         {/* Product Cards (Mobile) */}
         <div className="block xl:hidden space-y-4">
-          {mockProducts.map((product) => (
-            <Paper key={product.id} className="p-4 rounded-lg shadow">
+          {products.map((product) => (
+            <Paper key={product._id} className="p-4 rounded-lg shadow">
               <div className="flex justify-between items-start mb-3">
                 <div>
                   <Typography variant="h6" className="font-bold">
@@ -449,7 +547,7 @@ const ProductList = () => {
                   <Typography>{product.category}</Typography>
                 </div>
                 <Chip
-                  label={`Quantity: ${product.totalQuantity}`}
+                  label={`Quantity: ${product.remainingQuantity}`}
                   className="bg-[#603F26] text-white"
                 />
               </div>
@@ -465,12 +563,61 @@ const ProductList = () => {
           ))}
         </div>
 
+
+        {meta?.nextPage || meta?.previousPage ? 
+        <nav
+          aria-label="Page navigation example"
+          className="w-full flex justify-center items-center my-16"
+        >
+          <ul className="inline-flex items-center -space-x-px text-sm">
+            {meta?.previousPage && (
+              <>
+                <li
+                  onClick={() => handlePrevPage(meta?.previousPage)}
+                  className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-l-md shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
+                >
+                  Previous
+                </li>
+                <li
+                  onClick={() => handlePrevPage(meta?.previousPage)}
+                  className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
+                >
+                  {meta?.previousPage}
+                </li>
+              </>
+            )}
+
+            <li className="flex items-center justify-center px-4 py-2 text-white bg-[#603F26] border border-[#603F26] shadow-md font-bold cursor-default rounded-md">
+              {meta?.currentPage}
+            </li>
+
+            {meta?.nextPage && (
+              <>
+                <li
+                  onClick={() => handleNextPage(meta?.nextPage)}
+                  className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
+                >
+                  {meta?.nextPage}
+                </li>
+                <li
+                  onClick={() => handleNextPage(meta?.nextPage)}
+                  className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-r-md shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
+                >
+                  Next
+                </li>
+              </>
+            )}
+          </ul>
+        </nav>
+        : null
+      }
+
         {/* Product Details Dialog */}
         <ProductDetailsDialog
           open={openDialog}
           onClose={handleCloseDialog}
           product={selectedProduct}
-          branchId={branchId}
+          branchCode={branchCode}
         />
       </div>
     </ThemeProvider>

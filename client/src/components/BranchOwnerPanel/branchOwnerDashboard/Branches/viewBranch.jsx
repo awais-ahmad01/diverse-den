@@ -27,7 +27,8 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import CircularProgress from "@mui/material/CircularProgress";
 
-import { getBranchProducts, removeBranchProduct } from "../../../../store/actions/products";
+import {removeBranchProduct } from "../../../../store/actions/products";
+import { getBranchProducts } from "../../../../store/actions/branches";
 import { Loader } from "../../../../tools";
 
 const ViewBranch = () => {
@@ -35,17 +36,17 @@ const ViewBranch = () => {
 
   const { user } = useSelector((state) => state.auth);
 
-  const { branchProducts, branchMeta } = useSelector((state) => state.products);
+  const { branchProducts, branchMeta } = useSelector((state) => state.branches);
 
   const totalProducts = branchMeta?.totalItems || 0;
 
-  const { id, name } = useParams();
+  const { id, name, code } = useParams();
 
   const handleNextPage = (page) => {
         const business = user?.business;
         if (business && page) {
           console.log("Next Page:", page);
-          dispatch(getProducts({ business, pageNo: page }));
+          dispatch(getBranchProducts({ branchId: id, pageNo: page }));
         }
       };
   
@@ -53,7 +54,7 @@ const ViewBranch = () => {
         const business = user?.business;
         if (business && page) {
           console.log("Previous Page:", page);
-          dispatch(getProducts({ business, pageNo: page }));
+          dispatch(getBranchProducts({ branchId: id, pageNo: page }));
         }
       };
   
@@ -87,6 +88,7 @@ const ViewBranch = () => {
   console.log("ID:", id);
   console.log("name:", name);
 
+
   useEffect(() => {
     dispatch(getBranchProducts({ branchId: id }));
   }, []);
@@ -115,7 +117,7 @@ const ViewBranch = () => {
             color="primary"
             size="small"
             component={Link}
-            to={`../assignProduct/${id}`}
+            to={`../assignProduct/${code}`}
             sx={{
               textTransform: "none",
               width: "120px",
@@ -218,7 +220,7 @@ const ViewBranch = () => {
                         <TableCell align="left">{product.branch}</TableCell>
                         <TableCell align="left">{product.category}</TableCell>
                         <TableCell align="left">{product.price}</TableCell>
-                        <TableCell align="left">{product.totalQuantity}</TableCell>
+                        <TableCell align="left">{product.remainingQuantity}</TableCell>
 
                         <TableCell align="left">
                           <div className="flex items-center justify-center gap-3">
@@ -228,12 +230,12 @@ const ViewBranch = () => {
                                 style={{ color: "green" }}
                               />
                             </Link>
-                            <Link to={``}>
+                            {/* <Link to={``}>
                               <MdEdit
                                 className="text-[16px]"
                                 style={{ color: "blue" }}
                               />
-                            </Link>
+                            </Link> */}
                             <Link onClick={() => handleClickOpen(product?._id)}>
                               <FaTrash
                                 className="text-[13px]"
@@ -269,7 +271,7 @@ const ViewBranch = () => {
                     <span className="font-bold">Price:</span> {product.price}
                   </p>
                   <p className="text-sm font-medium text-gray-900">
-                    <span className="font-bold">Quantity:</span>{product.totalQuantity}
+                    <span className="font-bold">Quantity:</span>{product.remainingQuantity}
                    
                   </p>
 
@@ -278,12 +280,13 @@ const ViewBranch = () => {
                       className="text-blue-600 font-semibold hover:underline hover:text-blue-800 transition duration-200">
                       View
                     </Link>
-                    <Link
+
+                    {/* <Link
                       to="../updateProduct"
                       className="text-green-600 font-semibold hover:underline hover:text-green-800 transition duration-200"
                     >
                       Update
-                    </Link>
+                    </Link> */}
                     <Link
                       onClick={() => handleClickOpen(product._id)}
                       className="text-red-600 font-semibold hover:underline hover:text-red-800 transition duration-200"
@@ -328,7 +331,7 @@ const ViewBranch = () => {
             {branchMeta?.nextPage && (
               <>
                 <li
-                  onClick={() => handleNextPage(meta?.nextPage)}
+                  onClick={() => handleNextPage(branchMeta?.nextPage)}
                   className="flex items-center justify-center px-4 py-2 text-gray-700 bg-white border border-gray-300 shadow-sm hover:bg-gray-100 hover:text-gray-900 transition-all duration-200 cursor-pointer"
                 >
                   {branchMeta?.nextPage}

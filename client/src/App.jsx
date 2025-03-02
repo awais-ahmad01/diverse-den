@@ -65,22 +65,24 @@ import OrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/
 import ChatSection from "./components/BranchOwnerPanel/salespersonDashboard/manageChats/index.jsx";
 import SalespersonOrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/manageOrders/index.jsx";
 import ProductList from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/assignProduct.jsx";
+import LandingPage from "./components/LandingPage/index.jsx";
 
 function App() {
   const dispatch = useDispatch();
 
-  const { isloading, isauthenticated, user } = useSelector((state) => state.auth);
+  const { isloading, isauthenticated, user } = useSelector(
+    (state) => state.auth
+  );
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     console.log("Token Verification....auth");
-    
-    dispatch(isAuth())
-      .finally(() => {
-        setAuthChecked(true);
-      });
+
+    dispatch(isAuth()).finally(() => {
+      setAuthChecked(true);
+    });
   }, [dispatch]);
-  
+
   useEffect(() => {
     if (user?.business) {
       console.log("Fetching branches for business:", user.business);
@@ -89,7 +91,7 @@ function App() {
   }, [user, dispatch]);
 
   if (!authChecked || isloading) {
-    return <Loader/>
+    return <Loader />;
   }
 
   return (
@@ -108,6 +110,12 @@ function App() {
             }
           />
 
+          {/* Landing Page */}
+
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Branch Owner Panel */}
+
           <Route
             path="/branchOwnerPanel"
             element={
@@ -120,7 +128,6 @@ function App() {
 
             <Route path="business_setup" element={<BusinessSetup />} />
 
-
             <Route
               path="branchOwnerDashboard"
               element={<BranchOwnerDashboard />}
@@ -131,19 +138,18 @@ function App() {
 
               <Route path="updatebranch/:id" element={<UpdateBranch />} />
 
-              <Route path="viewbranch/:id/:name" element={<ViewBranch/>} />
+              <Route path="viewbranch/:id/:name/:code" element={<ViewBranch />} />
 
+              <Route path="assignProduct/:branchCode" element={<ProductList />} />
 
-              <Route path="assignProduct/:branchId" element={<ProductList/>} />
-
-              <Route path="viewBranchProduct/:productId/:productTitle" element={<ViewBranchProduct />} />
-
-
+              <Route
+                path="viewBranchProduct/:productId/:productTitle"
+                element={<ViewBranchProduct />}
+              />
 
               <Route path="addSalesperson" element={<AddSalesperson />} />
 
               <Route path="salespersonsList" element={<ListSalespersons />}>
-
                 {/* <Route path="addSalesperson" element={<AddSalesperson />} /> */}
 
                 {/* <Route
@@ -154,16 +160,26 @@ function App() {
 
               <Route path="productsList" element={<ListProducts />} />
               <Route path="addProduct" element={<AddProduct />} />
-              <Route path="viewProduct/:productId/:productTitle" element={<ViewProduct />} />
-              <Route path="updateProduct/:productId" element={<UpdateProduct />} />
+              <Route
+                path="viewProduct/:productId/:productTitle"
+                element={<ViewProduct />}
+              />
+              <Route
+                path="updateProduct/:productId"
+                element={<UpdateProduct />}
+              />
 
               <Route path="ordersList" element={<ListOrders />} />
 
+              <Route
+                path="branchOwnerProfile"
+                element={<BranchOwnerProfile />}
+              />
 
-              
-              <Route path="branchOwnerProfile" element={<BranchOwnerProfile />} />
-
-              <Route path="OrdersPaymentHistory" element={<OrderPaymentHistory />} />
+              <Route
+                path="OrdersPaymentHistory"
+                element={<OrderPaymentHistory />}
+              />
 
               <Route path="createSaleEvent" element={<CreateSaleEvent />} />
 
@@ -171,73 +187,60 @@ function App() {
 
               <Route path="saleEventsList" element={<SaleEventsList />} />
 
-              
-              <Route path="manageSubscriptions" element={<ManageSubscriptions />} />
+              <Route
+                path="manageSubscriptions"
+                element={<ManageSubscriptions />}
+              />
 
-              <Route path="manageProductReviews" element={<ProductReviews/>} />
-
-
+              <Route path="manageProductReviews" element={<ProductReviews />} />
             </Route>
 
+            <Route
+              path="salespersonDashboard"
+              element={<SalespersonDashboard />}
+            >
+              <Route
+                path="manageOrders"
+                element={<SalespersonOrderManagement />}
+              />
 
-
-
-            <Route path="salespersonDashboard" element={<SalespersonDashboard />} >
-                  
-                <Route path="manageOrders" element={<SalespersonOrderManagement />} />
-
-                <Route path="manageChats" element={<ChatSection />} />
+              <Route path="manageChats" element={<ChatSection />} />
             </Route>
-
-
-
-
           </Route>
 
           <Route path="/riderPanel" element={<RiderPanel />} />
 
-
-
-
           {/* Cutomer  */}
 
-
-          <Route path="/" element={<CustomerPanel />}>
-            <Route path="/" element={<HomePage />} />
-
-            <Route path="/:slug" element={<CategoryPage />} />
-
-            <Route path="/:category?/:subcategory?/:productType?" element={<SubCategory />} />
-
-            <Route path="productDetails/:productId" element={<ProductDetails />} />
-            
-            <Route path="/searchedProduct" element={<SearchedProduct />} />
-
-            <Route path="/cart" element={<Cart />} />
-
-            <Route path="/checkout" element={<Checkout />} />
-
-
-
-                  
-          </Route>
-            
-                    
+            <Route path="/customer" element={<CustomerPanel />}>
+              <Route index element={<HomePage />} /> {/* Default child route */}
+              <Route path=":slug" element={<CategoryPage />} />
+              <Route
+                path=":category?/:subcategory?/:productType?"
+                element={<SubCategory />}
+              />
+              <Route
+                path="productDetails/:productId"
+                element={<ProductDetails />}
+              />
+              <Route path="searchedProduct" element={<SearchedProduct />} />
+              <Route path="cart" element={<Cart />} />
+              <Route path="checkout" element={<Checkout />} />
+            </Route>
+         
 
           <Route path="addsubscription" element={<AddSubscription />} />
 
-
           <Route path="adminPanel" element={<AdminPanel />}>
-                  
-              <Route path="manageUsers" element={<ManageUsers />} />
+            <Route path="manageUsers" element={<ManageUsers />} />
 
-              <Route path="manageBusinesses" element={<ManageBusinesses />} />
+            <Route path="manageBusinesses" element={<ManageBusinesses />} />
 
-              <Route path="manageSubscriptionPlans" element={<ManageSubscriptionPlans />} />
-          
-          </Route> 
-          
-          
+            <Route
+              path="manageSubscriptionPlans"
+              element={<ManageSubscriptionPlans />}
+            />
+          </Route>
         </Routes>
       </BrowserRouter>
     </>
