@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Typography,
   Button,
   Card,
   CardContent,
@@ -15,7 +14,6 @@ import {
   Box,
   Alert,
   AlertTitle,
-  Container,
   Stack,
   CircularProgress
 } from "@mui/material";
@@ -32,7 +30,7 @@ import {
 } from "@mui/icons-material";
 import StripeCheckout from "react-stripe-checkout";
 
-// Define theme
+// Define theme - updated to match ProductReviews
 const theme = createTheme({
   palette: {
     primary: {
@@ -193,23 +191,19 @@ const ManageSubscriptions = () => {
           />
         )}
         <CardContent>
-          <Typography variant="h6" component="div">
-            {plan.name}
-          </Typography>
-          <Typography variant="h4" component="div" sx={{ my: 2 }}>
-            ${plan.price}
-            <Typography variant="caption" component="span" sx={{ ml: 1 }}>
-              /{selectedInterval}
-            </Typography>
-          </Typography>
-          <Stack spacing={2}>
+          <h3 className="text-base font-semibold">{plan.name}</h3>
+          <div className="my-4">
+            <span className="text-2xl font-bold">${plan.price}</span>
+            <span className="text-sm text-gray-500 ml-1">/{selectedInterval}</span>
+          </div>
+          <div className="space-y-2">
             {plan.features.map((feature, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <div key={index} className="flex items-center gap-2">
                 <CheckCircleIcon color="success" fontSize="small" />
-                <Typography variant="body2">{feature}</Typography>
-              </Box>
+                <span className="text-sm">{feature}</span>
+              </div>
             ))}
-          </Stack>
+          </div>
         </CardContent>
         <CardActions>
           {(!activeSubscription || plan.name !== activeSubscription?.name) && (
@@ -249,91 +243,105 @@ const ManageSubscriptions = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Container maxWidth="xl" sx={{ py: 4 }}>
-        <Stack spacing={4}>
-          {/* Header Section */}
-          <Box>
-            <Typography variant="h4" component="h1" gutterBottom>
-              Subscription Management
-            </Typography>
-            <Typography variant="subtitle1" color="text.secondary">
-              Manage your subscription, billing and plan details
-            </Typography>
-          </Box>
+      <div className="relative bg-gray-50 flex flex-col pt-5">
+        {/* Header Section */}
+        <div className="px-4 md:px-8 lg:px-12 mb-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#603F26]">
+            Subscription Management
+          </h1>
+          <p className="text-sm text-gray-500">
+            Manage your subscription, billing and plan details
+          </p>
+        </div>
 
+        {/* Stats and Actions */}
+        {activeSubscription && (
+          <div className="px-4 md:px-8 lg:px-12 mb-3">
+            <Card 
+              sx={{
+                bgcolor: "#603F26",
+                color: "white",
+                px: 3,
+                py: 2,
+                borderRadius: 2,
+                display: "inline-block"
+              }}
+            >
+              <h2 className="text-2xl font-bold">
+                ${activeSubscription.price}
+              </h2>
+              <p className="text-sm">Monthly Subscription</p>
+            </Card>
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="w-full px-4 md:px-8 lg:px-12 mt-4">
           {/* Active Subscription Card */}
           {activeSubscription && (
-            <Card elevation={2}>
+            <Card elevation={2} className="mb-6">
               <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                  <Box>
-                    <Typography variant="h5">{activeSubscription.name}</Typography>
-                    <Typography variant="subtitle2" color="text.secondary">
+                <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold">{activeSubscription.name}</h2>
+                    <p className="text-sm text-gray-500">
                       Active Plan
-                    </Typography>
-                  </Box>
+                    </p>
+                  </div>
                   <Chip
                     label={activeSubscription.status === "active" ? "Active" : "Inactive"}
                     color={activeSubscription.status === "active" ? "success" : "default"}
                   />
-                </Box>
+                </div>
 
                 {/* Billing Info */}
-                <Grid container spacing={4} sx={{ mb: 4 }}>
-                  <Grid item xs={12} md={4}>
-                    <Stack spacing={1}>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Current Period
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CalendarIcon fontSize="small" />
-                        <Typography>{getDaysRemaining()} days remaining</Typography>
-                      </Box>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <Stack spacing={1}>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Next Billing
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <ClockIcon fontSize="small" />
-                        <Typography>{activeSubscription.nextBillingDate}</Typography>
-                      </Box>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12} md={4}>
-                    <Stack spacing={1}>
-                      <Typography variant="subtitle2" color="text.secondary">
-                        Payment Method
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CreditCardIcon fontSize="small" />
-                        <Typography>•••• {activeSubscription.paymentMethod.last4}</Typography>
-                      </Box>
-                    </Stack>
-                  </Grid>
-                </Grid>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 font-medium">
+                      Current Period
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon fontSize="small" />
+                      <span>{getDaysRemaining()} days remaining</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 font-medium">
+                      Next Billing
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <ClockIcon fontSize="small" />
+                      <span>{activeSubscription.nextBillingDate}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 font-medium">
+                      Payment Method
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <CreditCardIcon fontSize="small" />
+                      <span>•••• {activeSubscription.paymentMethod.last4}</span>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Features List */}
-                <Box>
-                  <Typography variant="h6" gutterBottom>
+                <div>
+                  <h3 className="text-lg font-bold mb-4">
                     Features
-                  </Typography>
-                  <Grid container spacing={2}>
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {activeSubscription.features.map((feature, index) => (
-                      <Grid item xs={12} sm={6} key={index}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <CheckCircleIcon color="success" fontSize="small" />
-                          <Typography>{feature}</Typography>
-                        </Box>
-                      </Grid>
+                      <div key={index} className="flex items-center gap-2">
+                        <CheckCircleIcon color="success" fontSize="small" />
+                        <span>{feature}</span>
+                      </div>
                     ))}
-                  </Grid>
-                </Box>
+                  </div>
+                </div>
               </CardContent>
 
-              <CardActions sx={{ justifyContent: 'space-between', p: 2 }}>
+              <CardActions className="justify-between p-4 border-t">
                 <Button
                   variant="contained"
                   startIcon={<UpgradeIcon />}
@@ -355,15 +363,15 @@ const ManageSubscriptions = () => {
 
           {/* No Active Subscription View */}
           {!activeSubscription && (
-            <Card elevation={2}>
+            <Card elevation={2} className="mb-6">
               <CardContent>
-                <Box sx={{ textAlign: 'center', py: 4 }}>
-                  <Typography variant="h5" gutterBottom>
+                <div className="text-center py-8">
+                  <h2 className="text-xl font-bold mb-3">
                     No Active Subscription
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                  </h2>
+                  <p className="text-gray-500 mb-6">
                     Choose a plan to get started with our premium features
-                  </Typography>
+                  </p>
                   <Button
                     variant="contained"
                     startIcon={<StarIcon />}
@@ -371,95 +379,83 @@ const ManageSubscriptions = () => {
                   >
                     View Plans
                   </Button>
-                </Box>
+                </div>
               </CardContent>
             </Card>
           )}
+        </div>
 
-          {/* Plan Selection Dialog */}
-          <Dialog
-            open={showUpgradeDialog}
-            onClose={() => setShowUpgradeDialog(false)}
-            maxWidth="lg"
-            fullWidth
-          >
-            <DialogTitle>Choose a Plan</DialogTitle>
-            <DialogContent>
-              <DialogContentText sx={{ mb: 4 }}>
-                Select the plan that best fits your needs
-              </DialogContentText>
-              
-              {paymentError && (
-                <Alert severity="error" sx={{ mb: 3 }}>
-                  {paymentError}
-                </Alert>
-              )}
-
-              <Grid container spacing={3}>
-                {subscriptionPlans.map(renderPlanCard)}
-              </Grid>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setShowUpgradeDialog(false)}>Close</Button>
-            </DialogActions>
-          </Dialog>
-
-          {/* Cancel Dialog */}
-          <Dialog
-            open={showCancelDialog}
-            onClose={() => setShowCancelDialog(false)}
-          >
-            <DialogTitle>Cancel Subscription</DialogTitle>
-            <DialogContent>
-              <DialogContentText gutterBottom>
-                Are you sure you want to cancel your subscription? This action cannot be undone.
-              </DialogContentText>
-              <Alert severity="warning" sx={{ mt: 2 }}>
-                <AlertTitle>Warning</AlertTitle>
-                Canceling your subscription will result in losing access to all premium features at the end of your current billing period.
+        {/* Plan Selection Dialog */}
+        <Dialog
+          open={showUpgradeDialog}
+          onClose={() => setShowUpgradeDialog(false)}
+          maxWidth="lg"
+          fullWidth
+        >
+          <DialogTitle className="bg-[#603F26] text-white flex justify-between items-center">
+            Choose a Plan
+          </DialogTitle>
+          <DialogContent className="mt-4">
+            <p className="text-gray-600 mb-6">
+              Select the plan that best fits your needs
+            </p>
+            
+            {paymentError && (
+              <Alert severity="error" className="mb-6">
+                {paymentError}
               </Alert>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setShowCancelDialog(false)}>
-                Keep Subscription
-              </Button>
-              <Button
-                color="error"
-                variant="contained"
-                onClick={handleCancel}
-                disabled={loading}
-              >
-                {loading ? (
-                  <CircularProgress size={24} color="inherit" />
-                ) : (
-                  "Confirm Cancellation"
-                )}
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </Stack>
-      </Container>
+            )}
+
+            <Grid container spacing={3}>
+              {subscriptionPlans.map(renderPlanCard)}
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowUpgradeDialog(false)}>Close</Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Cancel Dialog */}
+        <Dialog
+          open={showCancelDialog}
+          onClose={() => setShowCancelDialog(false)}
+        >
+          <DialogTitle className="text-red-600">
+            Cancel Subscription
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText className="mb-3">
+              Are you sure you want to cancel your subscription? This action cannot be undone.
+            </DialogContentText>
+            <Alert severity="warning" className="mt-4">
+              <AlertTitle>Warning</AlertTitle>
+              Canceling your subscription will result in losing access to all premium features at the end of your current billing period.
+            </Alert>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowCancelDialog(false)}>
+              Keep Subscription
+            </Button>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={handleCancel}
+              disabled={loading}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Confirm Cancellation"
+              )}
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </ThemeProvider>
   );
 };
 
 export default ManageSubscriptions;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

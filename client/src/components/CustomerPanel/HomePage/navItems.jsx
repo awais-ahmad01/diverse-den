@@ -1,107 +1,116 @@
-export const navItems = {
-    clothing: {
-      label: "Clothing",
-      type: "complex",
-      link: "/clothing",
-      submenu: {
-        men: {
-          label: "Men",
-          link: "/clothing/men",
-          items: [
-            { name: "T-Shirts", link: "/clothing/men/t-shirts" },
-            { name: "Shirts", link: "/clothing/men/shirts" },
-            { name: "Pants", link: "/clothing/men/pants" },
-            { name: "Jackets", link: "/clothing/men/jackets" },
-            { name: "Suits", link: "/clothing/men/suits" },
-            { name: "Activewear", link: "/clothing/men/activewear" }
-          ]
-        },
-        women: {
-          label: "Women",
-          link: "/clothing/women",
-          items: [
-            { name: "Dresses", link: "/clothing/women/dresses" },
-            { name: "Tops", link: "/clothing/women/tops" },
-            { name: "Skirts", link: "/clothing/women/skirts" },
-            { name: "Pants", link: "/clothing/women/pants" },
-            { name: "Jackets", link: "/clothing/women/jackets" },
-            { name: "Activewear", link: "/clothing/women/activewear" }
-          ]
-        },
-        kids: {
-          label: "Kids",
-          link: "/clothing/kids",
-          items: [
-            { name: "Boys", link: "/clothing/kids/boys" },
-            { name: "Girls", link: "/clothing/kids/girls" },
-            { name: "Infants", link: "/clothing/kids/infants" },
-            { name: "Teenagers", link: "/clothing/kids/teenagers" },
-            { name: "School Wear", link: "/clothing/kids/school-wear" }
-          ]
-        }
+const navItems = {
+  Clothing: {
+    label: "CLOTHING",
+    type: "complex",
+    link: "/customer/Clothing",
+    submenu: {
+      Men: {
+        label: "MEN",
+        link: "/customer/Clothing/Men",
+        items: [
+          { name: "T-shirts", link: "/customer/Clothing/Men/T-shirts" },
+          { name: "Shirts", link: "/customer/Clothing/Men/Shirts" },
+          { name: "Pants", link: "/customer/Clothing/Men/Pants" },
+          { name: "Jackets", link: "/customer/Clothing/Men/Jackets" },
+          { name: "Jeans", link: "/customer/Clothing/Men/Jeans" },
+          { name: "Sweaters", link: "/customer/Clothing/Men/Sweaters" },
+          { name: "Shorts", link: "/customer/Clothing/Men/Shorts" },
+          { name: "Underwear", link: "/customer/Clothing/Men/Underwear" }
+        ]
+      },
+      Women: {
+        label: "WOMEN",
+        link: "/customer/Clothing/Women",
+        items: [
+          { name: "T-shirts", link: "/customer/Clothing/Women/T-shirts"},
+          { name: "Shirts", link: "/customer/Clothing/Women/Shirts"},
+          { name: "Dresses", link: "/customer/Clothing/Women/Dresses" },
+          { name: "Jeans", link: "/customer/Clothing/Women/Jeans" },
+          { name: "Skirts", link: "/customer/Clothing/Women/Skirts" },
+          { name: "Pants", link: "/customer/Clothing/Women/Pants" },
+          { name: "Jackets", link: "/customer/Clothing/Women/Jackets" },
+          { name: "Sweaters", link: "/customer/Clothing/Women/Sweaters" }
+        ]
+      },
+      Kids: {
+        label: "KIDS",
+        link: "/customer/Clothing/Kids",
+        items: [
+          { name: "T-shirts", link: "/customer/Clothing/Kids/T-shirts" },
+          { name: "Shirts", link: "/customer/Clothing/Kids/Shirts" },
+          { name: "Pants", link: "/customer/Clothing/Kids/Pants" },
+          { name: "jeans", link: "/customer/Clothing/Kids/Jeans" },
+          { name: "Jackets", link: "/customer/Clothing/Kids/Jackets" },
+          { name: "Sweaters", link: "/customer/Clothing/Kids/Sweaters" },
+          { name: "Shorts", link: "/customer/Clothing/Kids/Shorts" }
+        ]
       }
-    },
-    shoes: {
-      label: "Shoes",
-      type: "complex",
-      link: "/shoes",
-      submenu: {
-        men: {
-          label: "Men",
-          link: "/shoes/men",
-          items: [
-            { name: "Casual", link: "/shoes/men/casual" },
-            { name: "Formal", link: "/shoes/men/formal" },
-            { name: "Sports", link: "/shoes/men/sports" },
-            { name: "Sandals", link: "/shoes/men/sandals" },
-            { name: "Boots", link: "/shoes/men/boots" }
-          ]
-        },
-        women: {
-          label: "Women",
-          link: "/shoes/women",
-          items: [
-            { name: "Heels", link: "/shoes/women/heels" },
-            { name: "Flats", link: "/shoes/women/flats" },
-            { name: "Sneakers", link: "/shoes/women/sneakers" },
-            { name: "Boots", link: "/shoes/women/boots" },
-            { name: "Sandals", link: "/shoes/women/sandals" }
-          ]
-        },
-        kids: {
-          label: "Kids",
-          link: "/shoes/kids",
-          items: [
-            { name: "School Shoes", link: "/shoes/kids/school" },
-            { name: "Sports", link: "/shoes/kids/sports" },
-            { name: "Casual", link: "/shoes/kids/casual" },
-            { name: "Sandals", link: "/shoes/kids/sandals" }
-          ]
-        }
-      }
-    },
-    furniture: {
-      label: "Furniture",
-      type: "simple",
-      link: "/furniture",
-      submenu: [
-        { name: "Living Room", link: "/furniture/living-room" },
-        { name: "Bedroom", link: "/furniture/bedroom" },
-        { name: "Office", link: "/furniture/office" },
-        { name: "Dining", link: "/furniture/dining" },
-        { name: "Outdoor", link: "/furniture/outdoor" }
-      ]
-    },
-    decoration: {
-      label: "Decoration",
-      type: "simple",
-      link: "/decoration",
-      submenu: [
-        { name: "Wall Art", link: "/decoration/wall-art" },
-        { name: "Lighting", link: "/decoration/lighting" },
-        { name: "Textiles", link: "/decoration/textiles" },
-        { name: "Plants", link: "/decoration/plants" },
-        { name: "Mirrors", link: "/decoration/mirrors" }
-      ]
     }
-  };
+  },
+  Shoes: {
+    label: "SHOES",
+    type: "complex",
+    link: "/customer/Shoes",
+    submenu: {
+      Men: {
+        label: "MEN",
+        link: "/customer/Shoes/Men",
+        items: [
+          { name: "Sneakers", link: "/customer/Shoes/Men/Sneakers" },
+          { name: "Dress Shoes", link: "/customer/Shoes/Men/Dress Shoes" },
+          { name: "Loafers", link: "/customer/Shoes/Men/Loafers" },
+          { name: "Sandals", link: "/customer/Shoes/Men/Sandals" },
+          { name: "Athletic Shoes", link: "/customer/Shoes/Men/Athletic Shoes" }
+        ]
+      },
+      Women: {
+        label: "WOMEN",
+        link: "/customer/Shoes/Women",
+        items: [
+          { name: "Heels", link: "/customer/Shoes/Women/Heels" },
+          { name: "Casual Shoes", link: "/customer/Shoes/Women/Casual Shoes" },
+          { name: "Sneakers", link: "/customer/Shoes/Women/Sneakers" },
+          { name: "Athletic Shoes", link: "/customer/Shoes/Women/Athletic Shoes" },
+          { name: "Sandals", link: "/customer/Shoes/Women/Sandals" }
+        ]
+      },
+      Kids: {
+        label: "KIDS",
+        link: "/customer/Shoes/Kids",
+        items: [
+          { name: "School Shoes", link: "/customer/Shoes/Kids/School Shoes" },
+          { name: "Sneakers", link: "/customer/Shoes/Kids/Sneakers" },
+          { name: "Athletic Shoes", link: "/customer/Shoes/Kids/Athletic Shoes" },
+          { name: "Sandals", link: "/customer/Shoes/Kids/Sandals" }
+        ]
+      }
+    }
+  },
+  Furniture: {
+    label: "FURNITURE",
+    type: "simple",
+    link: "/customer/Furniture",
+    submenu: [
+      { name: "Sofas", link: "/customer/Furniture/Sofas" },
+      { name: "Chairs", link: "/customer/Furniture/Chairs" },
+      { name: "Tables", link: "/customer/Furniture/Tables" },
+      { name: "Beds", link: "/customer/Furniture/Beds" },
+      { name: "Cabinets", link: "/customer/Furniture/Cabinets" },
+      { name: "Wardrobes", link: "/customer/Furniture/Wardrobes" },
+      { name: "Shelving Units", link: "/customer/Furniture/Shelving Units" },
+      { name: "Dinning Sets", link: "/customer/Furniture/Dinning Sets" }
+    ]
+  },
+  Decoration: {
+    label: "DECORATION",
+    type: "simple",
+    link: "/customer/Decoration",
+    submenu: [
+      { name: "Wall Art", link: "/customer/Decoration/Wall Art" },
+      { name: "Sculptures", link: "/customer/Decoration/Sculptures" },
+      { name: "Picture Frames", link: "/customer/Decoration/Picture Frames" },
+      { name: "Mirrors", link: "/customer/Decoration/Mirrors" },
+      { name: "Candle Holders", link: "/customer/Decoration/Candle Holders" }
+    ]
+  }
+};

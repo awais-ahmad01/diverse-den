@@ -14,7 +14,6 @@ import {
   ThemeProvider,
   Dialog,
   IconButton,
-  Typography,
   Chip,
   TextField,
   DialogTitle,
@@ -23,6 +22,7 @@ import {
   DialogContentText,
   Grid,
   Divider,
+  Tooltip,
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import EditIcon from "@mui/icons-material/Edit";
@@ -32,6 +32,7 @@ import ToggleOnIcon from "@mui/icons-material/ToggleOn";
 import ToggleOffIcon from "@mui/icons-material/ToggleOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
+// Same theme as ListOrders
 const theme = createTheme({
   palette: {
     primary: {
@@ -99,12 +100,10 @@ const EventDetailsDialog = ({ open, onClose, event }) => {
         <Grid container spacing={3}>
           {/* Event Information */}
           <Grid item xs={12} md={6}>
-            <Typography variant="h6" className="font-bold mb-2">
-              Event Information
-            </Typography>
-            <Typography>Name: {event.name}</Typography>
-            <Typography>Description: {event.description}</Typography>
-            <Typography>
+            <h3 className="text-base font-bold mb-2">Event Information</h3>
+            <p>Name: {event.name}</p>
+            <p>Description: {event.description}</p>
+            <p>
               Status:{" "}
               <Chip
                 label={event.status}
@@ -117,38 +116,36 @@ const EventDetailsDialog = ({ open, onClose, event }) => {
                 }
                 size="small"
               />
-            </Typography>
+            </p>
           </Grid>
 
           {/* Discount Information */}
           <Grid item xs={12} md={6}>
-            <Typography variant="h6" className="font-bold mb-2">
-              Discount Details
-            </Typography>
-            <Typography>
+            <h3 className="text-base font-bold mb-2">Discount Details</h3>
+            <p>
               Type:{" "}
               {event.discountType === "percentage"
                 ? "Percentage"
                 : "Fixed Amount"}
-            </Typography>
-            <Typography>
+            </p>
+            <p>
               Value:{" "}
               {event.discountType === "percentage"
                 ? `${event.discountValue}%`
                 : `$${event.discountValue}`}
-            </Typography>
-            <Typography>
+            </p>
+            <p>
               Duration: {new Date(event.startDate).toLocaleDateString()} -{" "}
               {new Date(event.endDate).toLocaleDateString()}
-            </Typography>
+            </p>
           </Grid>
 
           {/* Products Table */}
           <Grid item xs={12}>
             <Divider className="my-4" />
-            <Typography variant="h6" className="font-bold mb-2">
+            <h3 className="text-base font-bold mb-2">
               Products Included ({event.productsCount})
-            </Typography>
+            </h3>
             <TableContainer>
               <Table>
                 <TableHead>
@@ -316,12 +313,9 @@ const SaleEventsList = () => {
       <div className="relative bg-gray-50 flex flex-col pt-5">
         {/* Header */}
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
-          <Typography
-            variant="h4"
-            sx={{ color: "#603F26", fontWeight: "bold" }}
-          >
+          <h1 className="text-2xl md:text-3xl font-bold text-[#603F26]">
             Sale Events
-          </Typography>
+          </h1>
         </Box>
 
         {/* Stats and Actions */}
@@ -343,10 +337,10 @@ const SaleEventsList = () => {
               borderRadius: 2,
             }}
           >
-            <Typography variant="h4" component="div">
+            <h2 className="text-2xl font-bold">
               {String(events.length).padStart(2, "0")}
-            </Typography>
-            <Typography variant="body2">Total Events</Typography>
+            </h2>
+            <p className="text-sm">Total Events</p>
           </Paper>
 
           <Box sx={{ display: "flex", gap: 2 }}>
@@ -396,126 +390,205 @@ const SaleEventsList = () => {
                 >
                   Apply Filters
                 </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    setStartDate("");
+                    setEndDate("");
+                    setFilteredEvents(events);
+                  }}
+                >
+                  Clear Filters
+                </Button>
               </Box>
             </Paper>
           </Box>
         )}
 
-        {/* Events Table */}
-        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 4 }}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead sx={{ bgcolor: "#603F26" }}>
-                <TableRow>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                    Event Name
-                  </TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                    Duration
-                  </TableCell>
-                  <TableCell sx={{ color: "white", fontWeight: "bold" }}>
-                    Discount
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Products
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Status
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", fontWeight: "bold" }}
-                    align="center"
-                  >
-                    Actions
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredEvents.map((event) => (
-                  <TableRow key={event.id}>
-                    <TableCell>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{ fontWeight: "bold" }}
-                      >
-                        {event.name}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        {event.description}
-                      </Typography>
+        {/* Events Table - Desktop View */}
+        <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
+          <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead sx={{ bgcolor: "#603F26" }}>
+                  <TableRow>
+                    <TableCell sx={{ color: "white", fontWeight: "bold", fontSize: "16px" }}>
+                      Event Name
                     </TableCell>
-                    <TableCell>
-                      {formatDate(event.startDate)} -{" "}
-                      {formatDate(event.endDate)}
+                    <TableCell sx={{ color: "white", fontWeight: "bold", fontSize: "16px" }}>
+                      Duration
                     </TableCell>
-                    <TableCell>
-                      {event.discountType === "percentage"
-                        ? `${event.discountValue}% Off`
-                        : `$${event.discountValue} Off`}
+                    <TableCell sx={{ color: "white", fontWeight: "bold", fontSize: "16px" }}>
+                      Discount
                     </TableCell>
-                    <TableCell align="center">{event.productsCount}</TableCell>
-                    <TableCell align="center">
-                      <Chip
-                        label={getStatusColor(event.status).label}
-                        color={getStatusColor(event.status).color}
-                        size="small"
-                      />
+                    <TableCell
+                      sx={{ color: "white", fontWeight: "bold", fontSize: "16px" }}
+                      align="center"
+                    >
+                      Products
                     </TableCell>
-                    <TableCell align="center">
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "center",
-                          gap: 1,
-                        }}
-                      >
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => handleViewDetails(event)}
-                        >
-                          <VisibilityIcon />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          component={Link}
-                          to={`../updateSaleEvent/${event.id}`}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          color="error"
-                          onClick={() => handleDeleteClick(event.id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                        <IconButton
-                          size="small"
-                          color="primary"
-                          onClick={() => handleToggleActive(event.id)}
-                        >
-                          {event.isActive ? (
-                            <ToggleOnIcon />
-                          ) : (
-                            <ToggleOffIcon />
-                          )}
-                        </IconButton>
-                      </Box>
+                    <TableCell
+                      sx={{ color: "white", fontWeight: "bold", fontSize: "16px" }}
+                      align="center"
+                    >
+                      Status
+                    </TableCell>
+                    <TableCell
+                      sx={{ color: "white", fontWeight: "bold", fontSize: "16px" }}
+                      align="center"
+                    >
+                      Actions
                     </TableCell>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Box>
+                </TableHead>
+                <TableBody>
+                  {filteredEvents.map((event) => (
+                    <TableRow key={event.id}>
+                      <TableCell>
+                        <div className="font-medium">{event.name}</div>
+                        <div className="text-gray-500 text-sm">
+                          {event.description}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {formatDate(event.startDate)} -{" "}
+                        {formatDate(event.endDate)}
+                      </TableCell>
+                      <TableCell>
+                        {event.discountType === "percentage"
+                          ? `${event.discountValue}% Off`
+                          : `$${event.discountValue} Off`}
+                      </TableCell>
+                      <TableCell align="center">{event.productsCount}</TableCell>
+                      <TableCell align="center">
+                        <Chip
+                          label={getStatusColor(event.status).label}
+                          color={getStatusColor(event.status).color}
+                          size="small"
+                        />
+                      </TableCell>
+                      <TableCell align="center">
+                        <div className="flex justify-center gap-2">
+                          <Tooltip title="View Details">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => handleViewDetails(event)}
+                            >
+                              <VisibilityIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Edit Event">
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              component={Link}
+                              to={`../updateSaleEvent/${event.id}`}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="Delete Event">
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => handleDeleteClick(event.id)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title={event.isActive ? "Disable Event" : "Enable Event"}>
+                            <IconButton
+                              size="small"
+                              color="primary"
+                              onClick={() => handleToggleActive(event.id)}
+                            >
+                              {event.isActive ? (
+                                <ToggleOnIcon />
+                              ) : (
+                                <ToggleOffIcon />
+                              )}
+                            </IconButton>
+                          </Tooltip>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+
+          {/* Events List - Mobile View */}
+          <div className="block xl:hidden space-y-4">
+            {filteredEvents.map((event) => (
+              <div
+                key={event.id}
+                className="bg-white p-4 rounded-lg shadow"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-bold text-base">{event.name}</h3>
+                    <p className="text-sm text-gray-600">{event.description}</p>
+                  </div>
+                  <Chip
+                    label={getStatusColor(event.status).label}
+                    color={getStatusColor(event.status).color}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-sm">
+                    Duration: {formatDate(event.startDate)} - {formatDate(event.endDate)}
+                  </p>
+                  <p className="text-sm">
+                    Discount: {event.discountType === "percentage"
+                      ? `${event.discountValue}% Off`
+                      : `$${event.discountValue} Off`}
+                  </p>
+                  <p className="text-sm">Products: {event.productsCount}</p>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleViewDetails(event)}
+                    fullWidth
+                  >
+                    View Details
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    component={Link}
+                    to={`../updateSaleEvent/${event.id}`}
+                    fullWidth
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    onClick={() => handleDeleteClick(event.id)}
+                    fullWidth
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    variant={event.isActive ? "contained" : "outlined"}
+                    color="primary"
+                    onClick={() => handleToggleActive(event.id)}
+                    fullWidth
+                  >
+                    {event.isActive ? "Active" : "Inactive"}
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Event Details Dialog */}
         <EventDetailsDialog
@@ -529,7 +602,7 @@ const SaleEventsList = () => {
           open={deleteDialogOpen}
           onClose={() => setDeleteDialogOpen(false)}
         >
-          <DialogTitle>Delete Sale Event</DialogTitle>
+          <DialogTitle className="text-red-600">Delete Sale Event</DialogTitle>
           <DialogContent>
             <DialogContentText>
               Are you sure you want to delete this sale event? This action

@@ -257,7 +257,7 @@ const Cart = () => {
                 </div>
               </div>
               <Link 
-                to='/checkout'
+                to='/customer/checkout'
               >
                 <button
                   onClick={handleCheckout}

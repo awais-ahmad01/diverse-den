@@ -7,6 +7,9 @@ import { clearSubCategoryProducts } from "../../../store/reducers/products";
 const SubCategory = () => {
   const dispatch = useDispatch();
 
+
+  console.log("subCategoryPage")
+
   const { category, subcategory, productType } = useParams();
 
   const { subCategoryProducts } = useSelector((state) => state.products);

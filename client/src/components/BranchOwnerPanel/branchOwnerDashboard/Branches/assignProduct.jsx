@@ -298,7 +298,7 @@ const ProductDetailsDialog = ({ open, onClose, product, branchCode }) => {
             <Typography>Price: ${product.price}</Typography>
             <Typography>Category: {product.category}</Typography>
             <Typography>
-              Total Quantity: {product.totalQuantity}
+              Total Quantity: {product.remainingQuantity}
             </Typography>
           </Grid>
 

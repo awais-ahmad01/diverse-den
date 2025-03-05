@@ -62,7 +62,7 @@ const Section = ({ title, categorySlug }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
         {products && products.length > 0 &&
           products.slice(0,4).map((product) => (
-          <Link to={`/productDetails/${product._id}`} key={product._id}>
+          <Link to={`/customer/productDetails/${product._id}`} key={product._id}>
             <div
               className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
             >
@@ -95,7 +95,7 @@ const Section = ({ title, categorySlug }) => {
       </div>
       <div className="text-center mb-10">
         <Link
-           to={`/${categorySlug}`}
+           to={`/customer/${categorySlug}`}
           className="bg-[#603F26] text-white text-2xl px-8 py-3 rounded shadow hover:bg-opacity-90"
         >
           View All

@@ -2,19 +2,36 @@ import React from "react";
 import { useState } from "react";
 import { FaBars } from "react-icons/fa";
 import Avatar from "@mui/material/Avatar";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { signOut } from "../../store/actions/auth";
 import { Link } from "react-router-dom";
+
+import Button from "@mui/material/Button";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 
 const AdminHeader = ({ toggleSidebar, hamburgerRef }) => {
 
   const dispatch = useDispatch()
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const handleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const user = useSelector((state) => state.auth.user);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  // const handleDropdown = () => {
+  //   setIsDropdownOpen(!isDropdownOpen);
+  // };
 
 
   const signOutUSer = ()=>{
@@ -44,26 +61,82 @@ const AdminHeader = ({ toggleSidebar, hamburgerRef }) => {
           <h1 className="text-2xl font-bold">Diverse Den</h1>
         </div>
 
-        <div className="profile-section">
-          <div
-            className="flex justify-center items-center gap-2"
-            onClick={handleDropdown}
+        <div>
+          <Button
+            id="basic-button"
+            aria-controls={open ? "basic-menu" : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? "true" : undefined}
+            onClick={handleClick}
+            // sx={{
+            //   ...buttonStyles,
+            //   "& .MuiSvgIcon-root": {
+            //     ...iconStyles,
+            //   },
+            // }}
           >
             <Avatar
               alt="Awais"
               src="/images/me.jpeg"
-              sx={{ width: 28, height: 28,  border: '1px solid white' }}
+              sx={{ width: 28, height: 28, border: "1px solid white" }}
             />
-            <div className="hidden sm:block">
-              <h1>Awais Ahmad</h1>
+            <div className="hidden sm:block text-white ml-2">
+              <h1>
+                {user.firstname} {user.lastname}
+              </h1>
             </div>
-          </div>
-          {isDropdownOpen && (
-            <div className="dropdown-menu w-[150px] sm:w-[100%] border-t-0 pt-2">
-              <Link to='branchOwnerProfile'>View Profile</Link>
-              <Link onClick={()=>signOutUSer()}>Logout</Link>
-            </div>
-          )}
+          </Button>
+          <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            MenuListProps={{
+              "aria-labelledby": "basic-button",
+            }}
+            PaperProps={{
+              style: {
+                width: "150px",
+                backgroundColor: "#603F26",
+                color: "white",
+                padding: "5px",
+              },
+            }}
+            disableScrollLock={true}
+          >
+            <MenuItem
+              onClick={handleClose}
+              sx={{
+                "&:hover": {
+                  backgroundColor: "#8e6c4f",
+                },
+                fontWeight: "bold",
+              }}
+            >
+              <Link
+                to="branchOwnerProfile"
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                View Profile
+              </Link>
+            </MenuItem>
+            <MenuItem
+              onClick={handleClose}
+              sx={{
+                "&:hover": {
+                  backgroundColor: "#8e6c4f",
+                },
+                fontWeight: "bold",
+              }}
+            >
+              <Link
+                onClick={() => signOutUSer()}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                Logout
+              </Link>
+            </MenuItem>
+          </Menu>
         </div>
       </div>
     </div>

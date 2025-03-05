@@ -104,6 +104,8 @@ const CategoryPage = () => {
 
   console.log("Product: ", products)
 
+  console.log("Category page:")
+
 
 
   useEffect(() => {

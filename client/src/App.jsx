@@ -99,6 +99,8 @@ function App() {
       <ToastContainer />
       <BrowserRouter>
         <Routes>
+          {/* Login/Signup */}
+
           <Route path="signup" element={<Signup />} />
 
           <Route
@@ -138,9 +140,15 @@ function App() {
 
               <Route path="updatebranch/:id" element={<UpdateBranch />} />
 
-              <Route path="viewbranch/:id/:name/:code" element={<ViewBranch />} />
+              <Route
+                path="viewbranch/:id/:name/:code"
+                element={<ViewBranch />}
+              />
 
-              <Route path="assignProduct/:branchCode" element={<ProductList />} />
+              <Route
+                path="assignProduct/:branchCode"
+                element={<ProductList />}
+              />
 
               <Route
                 path="viewBranchProduct/:productId/:productTitle"
@@ -208,12 +216,14 @@ function App() {
             </Route>
           </Route>
 
+          {/* Rider Panel */}
+
           <Route path="/riderPanel" element={<RiderPanel />} />
 
           {/* Cutomer  */}
 
-            <Route path="/customer" element={<CustomerPanel />}>
-              <Route index element={<HomePage />} /> {/* Default child route */}
+          <Route path="/customer" element={<CustomerPanel />}>
+              <Route index element={<HomePage />} /> 
               <Route path=":slug" element={<CategoryPage />} />
               <Route
                 path=":category?/:subcategory?/:productType?"
@@ -227,9 +237,15 @@ function App() {
               <Route path="cart" element={<Cart />} />
               <Route path="checkout" element={<Checkout />} />
             </Route>
-         
+
+
+
+
+          
 
           <Route path="addsubscription" element={<AddSubscription />} />
+
+          {/* Admin Panel */}
 
           <Route path="adminPanel" element={<AdminPanel />}>
             <Route path="manageUsers" element={<ManageUsers />} />

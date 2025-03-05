@@ -7,8 +7,6 @@ import {
   DialogContentText,
   Button,
   Paper,
-  Typography,
-  Box,
   IconButton,
   Tooltip,
   Rating,
@@ -58,16 +56,16 @@ const ReviewDetailsDialog = ({ open, onClose, productData, onDeleteReview }) => 
               className="w-24 h-24 object-cover rounded"
             />
             <div>
-              <Typography variant="h6" className="font-bold">{productData.productName}</Typography>
-              <Typography variant="body2" color="textSecondary">
+              <h3 className="text-lg font-bold">{productData.productName}</h3>
+              <p className="text-gray-500 text-sm">
                 Total Reviews: {productData.reviews.length}
-              </Typography>
+              </p>
             </div>
           </div>
 
           {/* Rating Distribution */}
           <div className="p-4 bg-gray-50 rounded-lg">
-            <Typography variant="h6" className="font-bold mb-3">Rating Distribution</Typography>
+            <h3 className="text-base font-bold mb-3">Rating Distribution</h3>
             <div className="space-y-2">
               {[5, 4, 3, 2, 1].map((rating) => {
                 const count = productData.reviews.filter(review => Math.floor(review.rating) === rating).length;
@@ -90,19 +88,19 @@ const ReviewDetailsDialog = ({ open, onClose, productData, onDeleteReview }) => 
 
           {/* Individual Reviews */}
           <div className="space-y-4">
-            <Typography variant="h6" className="font-bold">Customer Reviews</Typography>
+            <h3 className="text-base font-bold">Customer Reviews</h3>
             {productData.reviews.map((review) => (
               <Paper key={review.id} className="p-4 space-y-3">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-3">
                     <Avatar>{review.customerName[0]}</Avatar>
                     <div>
-                      <Typography variant="subtitle1" className="font-semibold">
+                      <p className="font-semibold">
                         {review.customerName}
-                      </Typography>
-                      <Typography variant="caption" color="textSecondary">
+                      </p>
+                      <p className="text-xs text-gray-500">
                         {format(new Date(review.date), 'PPP')}
-                      </Typography>
+                      </p>
                     </div>
                   </div>
                   <IconButton
@@ -116,9 +114,9 @@ const ReviewDetailsDialog = ({ open, onClose, productData, onDeleteReview }) => 
 
                 <div>
                   <Rating value={review.rating} readOnly size="small" />
-                  <Typography variant="body1" className="mt-2">
+                  <p className="mt-2">
                     {review.comment}
-                  </Typography>
+                  </p>
                 </div>
 
                 {review.images && review.images.length > 0 && (
@@ -226,8 +224,8 @@ const ProductReviews = () => {
             ]
           },
           {
-            id: 1,
-            productName: 'Leo Gray Sneaker',
+            id: 2,
+            productName: 'Leo Blue Sneaker',
             productImage: '/api/placeholder/80/80',
             averageRating: 4.5,
             reviews: [
@@ -259,8 +257,8 @@ const ProductReviews = () => {
             ]
           },
           {
-            id: 1,
-            productName: 'Leo Gray Sneaker',
+            id: 3,
+            productName: 'Leo Red Sneaker',
             productImage: '/api/placeholder/80/80',
             averageRating: 4.5,
             reviews: [
@@ -291,10 +289,13 @@ const ProductReviews = () => {
               }
             ]
           },
-          // Add more mock products as needed
         ];
-        setProducts(mockProducts);
-        setIsLoading(false);
+        
+        // Simulate network delay
+        setTimeout(() => {
+          setProducts(mockProducts);
+          setIsLoading(false);
+        }, 800);
       } catch (error) {
         console.error('Error fetching products:', error);
         setIsLoading(false);
@@ -361,11 +362,29 @@ const ProductReviews = () => {
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
         {/* Header */}
-        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
-          <Typography variant="h4" sx={{ color: "#603F26", fontWeight: "bold" }}>
+        <div className="px-4 md:px-8 lg:px-12 mb-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-[#603F26]">
             Product Reviews
-          </Typography>
-        </Box>
+          </h1>
+        </div>
+
+        {/* Stats and Actions */}
+        <div className="px-4 md:px-8 lg:px-12 mb-3 flex justify-between items-center">
+          <Paper
+            sx={{
+              bgcolor: "#603F26",
+              color: "white",
+              px: 3,
+              py: 2,
+              borderRadius: 2,
+            }}
+          >
+            <h2 className="text-2xl font-bold">
+              {String(products.length).padStart(2, "0")}
+            </h2>
+            <p className="text-sm">Total Products</p>
+          </Paper>
+        </div>
 
         {/* Content */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4">
@@ -375,9 +394,9 @@ const ProductReviews = () => {
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-12">
-              <Typography variant="h5" className="text-gray-600">
+              <h2 className="text-xl text-gray-600">
                 No products found
-              </Typography>
+              </h2>
             </div>
           ) : (
             <>
@@ -411,7 +430,7 @@ const ProductReviews = () => {
                                 alt={product.productName}
                                 className="w-12 h-12 object-cover"
                               />
-                              <span>{product.productName}</span>
+                              <span className="font-medium">{product.productName}</span>
                             </div>
                           </TableCell>
                           <TableCell>{product.reviews.length} Reviews available</TableCell>
@@ -424,7 +443,7 @@ const ProductReviews = () => {
                           <TableCell>
                             <div className="flex gap-2">
                               <Tooltip title="View Details">
-                                <IconButton onClick={() => handleViewDetails(product)} color="primary">
+                                <IconButton onClick={() => handleViewDetails(product)} color="primary" size="small">
                                   <VisibilityIcon />
                                 </IconButton>
                               </Tooltip>
@@ -432,6 +451,7 @@ const ProductReviews = () => {
                                 <IconButton
                                   onClick={() => handleDeleteProductClick(product.id)}
                                   color="error"
+                                  size="small"
                                 >
                                   <DeleteIcon />
                                 </IconButton>
@@ -457,12 +477,12 @@ const ProductReviews = () => {
                           className="w-16 h-16 object-cover"
                         />
                         <div>
-                          <Typography variant="subtitle1" className="font-bold">
+                          <h3 className="text-base font-bold">
                             {product.productName}
-                          </Typography>
-                          <Typography variant="body2" color="textSecondary">
+                          </h3>
+                          <p className="text-sm text-gray-500">
                             {product.reviews.length} Reviews available
-                          </Typography>
+                          </p>
                         </div>
                       </div>
                       <IconButton
@@ -475,18 +495,19 @@ const ProductReviews = () => {
                     
                     <div className="flex items-center gap-2 mb-3">
                       <Rating value={product.averageRating} readOnly precision={0.5} />
-                      <Typography variant="body1">{product.averageRating}</Typography>
+                      <p>{product.averageRating}</p>
                     </div>
 
                     <Button
                       variant="contained"
+                      color="primary"
                       startIcon={<VisibilityIcon />}
                       onClick={() => handleViewDetails(product)}
                       fullWidth
                     >
                       View Details
                     </Button>
-                    </Paper>
+                  </Paper>
                 ))}
               </div>
             </>
