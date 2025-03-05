@@ -9,7 +9,7 @@ import {
   Tab,
 } from "@mui/material";
 
-import { AddShoppingCart, Add, Remove, DoNotStep, ConstructionOutlined } from "@mui/icons-material";
+import { AddShoppingCart, Add, Remove } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
 import { getCustomerProductById } from "../../../store/actions/products";
 import { useDispatch, useSelector } from "react-redux";

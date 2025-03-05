@@ -40,9 +40,7 @@ export const listOrders = createAsyncThunk(
       return { data: response.data.businessOrders, metaData: response.data.meta, };
     } catch (error) {
       console.log("errro000r................");
-      // thunkAPI.dispatch(
-      //   errorGlobal(error.response?.data?.message || "Failed to get Orders")
-      // );
+    
       console.log(error);
       throw error;
     }
@@ -57,6 +55,8 @@ export const updateOrderStatus = createAsyncThunk(
   async ({orderId, status}, thunkAPI) => {
     try {
 
+      console.log("Status data:", orderId, status);
+
       const token = localStorage.getItem("token");
       console.log("myToken:", token);
 
@@ -65,7 +65,7 @@ export const updateOrderStatus = createAsyncThunk(
         return;
       }
 
-      const response = await axios.put(
+      const response = await axios.post(
         "http://localhost:3000/updateOrderStatus",
         {
           orderId,
@@ -81,12 +81,11 @@ export const updateOrderStatus = createAsyncThunk(
       );
 
       console.log("status:", response.data);
-      // return { data: response.data.businessOrders, metaData: response.data.meta, };
+      return true;
+     
     } catch (error) {
       console.log("errro000r................");
-      // thunkAPI.dispatch(
-      //   errorGlobal(error.response?.data?.message || "Failed to get Orders")
-      // );
+     
       console.log(error);
       throw error;
     }

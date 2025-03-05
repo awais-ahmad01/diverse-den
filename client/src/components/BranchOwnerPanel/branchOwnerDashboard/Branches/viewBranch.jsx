@@ -49,7 +49,8 @@ const ViewBranch = () => {
   const { branchProducts, branchMeta } = useSelector((state) => state.branches);
   
   const totalProducts = branchMeta?.totalItems || 0;
-  const { id, name, code } = useParams();
+
+ const { id, name, code } = useParams();
 
   const handleNextPage = (page) => {
     const business = user?.business;
@@ -236,7 +237,7 @@ const ViewBranch = () => {
                               <Tooltip title="View Product">
                                 <IconButton
                                   component={Link}
-                                  to={`../viewBranchProduct/${product._id}/${product.title}`}
+                                  to={`../viewBranchProduct/${product._id}/${product.title}/${code}`} 
                                   color="primary"
                                 >
                                   <VisibilityIcon />

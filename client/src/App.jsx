@@ -151,7 +151,7 @@ function App() {
               />
 
               <Route
-                path="viewBranchProduct/:productId/:productTitle"
+                path="viewBranchProduct/:productId/:productTitle/:branchCode"
                 element={<ViewBranchProduct />}
               />
 

@@ -127,6 +127,7 @@ const ProductDetailsDialog = ({ open, onClose, product, branchCode }) => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const [assignedQuantities, setAssignedQuantities] = useState({});
+  console.log('prod:', product)
   
   // This contains the remainingVariants array
   const { variants } = useSelector((state) => state.branches);

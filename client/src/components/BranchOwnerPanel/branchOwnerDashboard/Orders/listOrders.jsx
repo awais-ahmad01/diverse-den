@@ -212,23 +212,21 @@ const ListOrders = () => {
 
   const totalOrders = meta?.totalOrders || 0;
 
-  const handleStatusChange = async (orderId, newStatus) => {
-    try {
-      await dispatch(updateOrderStatus({ orderId, status: newStatus }))
+  const handleStatusChange = (orderId, newStatus) => {
+    dispatch(updateOrderStatus({ orderId, status: newStatus }))
         .unwrap()
         .then((response) => {
-          console.log(response.data);
+          
+          const business = user?.business;
+          dispatch(listOrders({ business }));
           showToast("SUCCESS", "Status Updated Successfully!!");
         })
         .catch((error) => {
-          showToast("ERROR", "Failed! to update status");
+          showToast("ERROR", "Failed! to update statussssss");
           // throw error;
         });
-      const business = user?.business;
-      dispatch(listOrders({ business }));
-    } catch (error) {
-      console.error("Failed to update order status:", error);
-    }
+      
+    
   };
 
   const handleViewDetails = (order) => {
@@ -670,8 +668,18 @@ const ListOrders = () => {
           orderNumber={deleteOrderId?.slice(-6)}
         />
       </div>
+
     </ThemeProvider>
   );
 };
 
 export default ListOrders;
+
+
+
+
+
+
+
+
+

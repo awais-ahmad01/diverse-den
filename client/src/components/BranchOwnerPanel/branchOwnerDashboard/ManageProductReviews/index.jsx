@@ -25,6 +25,7 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { format } from 'date-fns';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -538,3 +539,314 @@ const ProductReviews = () => {
 };
 
 export default ProductReviews;
+
+
+
+
+// import React, { useState, useEffect } from 'react';
+// import { useDispatch, useSelector } from 'react-redux';
+// import { Link } from 'react-router-dom';
+// import { 
+//   listProducts, 
+//   deleteProduct, 
+//   updateProductReview 
+// } from '../../../../store/actions/products';
+// import {
+//   Dialog,
+//   DialogTitle,
+//   DialogContent,
+//   DialogActions,
+//   DialogContentText,
+//   Button,
+//   Paper,
+//   IconButton,
+//   Tooltip,
+//   Rating,
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableContainer,
+//   TableHead,
+//   TableRow,
+//   Avatar,
+//   Divider,
+//   Chip,
+//   Select,
+//   MenuItem,
+//   Typography,
+//   Box
+// } from '@mui/material';
+// import DeleteIcon from '@mui/icons-material/Delete';
+// import VisibilityIcon from '@mui/icons-material/Visibility';
+// import { createTheme, ThemeProvider } from '@mui/material/styles';
+// import { Loader } from '../../../../tools';
+// import { showToast } from '../../../../tools';
+// import { format } from 'date-fns';
+
+// const theme = createTheme({
+//   palette: {
+//     primary: {
+//       main: '#603F26',
+//     },
+//   },
+// });
+
+// // Review Details Dialog Component
+// const ReviewDetailsDialog = ({ open, onClose, productData, onDeleteReview }) => {
+//   if (!productData) return null;
+
+//   return (
+//     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+//       <DialogTitle className="bg-[#603F26] text-white flex justify-between items-center">
+//         <div>Product Reviews - {productData.productName}</div>
+//         <div className="flex items-center gap-2">
+//           <Rating value={productData.averageRating} readOnly precision={0.5} size="small" />
+//           <span>({productData.averageRating})</span>
+//         </div>
+//       </DialogTitle>
+//       <DialogContent className="mt-4">
+//         {/* Existing dialog content */}
+//       </DialogContent>
+//       <DialogActions>
+//         <Button onClick={onClose} color="primary">
+//           Close
+//         </Button>
+//       </DialogActions>
+//     </Dialog>
+//   );
+// };
+
+// // Delete Confirmation Dialog
+// const DeleteConfirmationDialog = ({ open, onClose, onConfirm, itemId, itemType }) => {
+//   const isProduct = itemType === 'product';
+  
+//   return (
+//     <Dialog open={open} onClose={onClose}>
+//       <DialogTitle className="text-red-600">
+//         Delete {isProduct ? 'Product' : 'Review'}
+//       </DialogTitle>
+//       <DialogContent>
+//         <DialogContentText>
+//           Are you sure you want to delete this {isProduct ? 'product and all its reviews' : 'review'}? 
+//           This action cannot be undone.
+//         </DialogContentText>
+//       </DialogContent>
+//       <DialogActions>
+//         <Button onClick={onClose} color="primary">
+//           Cancel
+//         </Button>
+//         <Button onClick={() => onConfirm(itemId)} color="error" variant="contained">
+//           Delete
+//         </Button>
+//       </DialogActions>
+//     </Dialog>
+//   );
+// };
+
+// const ProductReviews = () => {
+//   const dispatch = useDispatch();
+//   const { user } = useSelector((state) => state.auth);
+//   const { products, isLoading, meta } = useSelector((state) => state.products);
+
+//   const [deleteReviewId, setDeleteReviewId] = useState(null);
+//   const [deleteProductId, setDeleteProductId] = useState(null);
+//   const [selectedProduct, setSelectedProduct] = useState(null);
+//   const [filteredProducts, setFilteredProducts] = useState([]);
+
+//   const totalProducts = meta?.totalProducts || 0;
+
+//   // Fetch products when component mounts
+//   useEffect(() => {
+//     const business = user?.business;
+//     dispatch(listProducts({ business }));
+//   }, [dispatch, user]);
+
+//   // Update filtered products when products change
+//   useEffect(() => {
+//     if (products) {
+//       setFilteredProducts(products);
+//     }
+//   }, [products]);
+
+//   // Handle review deletion
+//   const handleDeleteReview = (productId, reviewId) => {
+//     dispatch(updateProductReview({ 
+//       productId, 
+//       reviewId, 
+//       action: 'delete' 
+//     }))
+//     .unwrap()
+//     .then(() => {
+//       showToast("SUCCESS", "Review deleted successfully!");
+//       dispatch(listProducts({ business: user?.business }));
+//     })
+//     .catch((error) => {
+//       showToast("ERROR", "Failed to delete review");
+//     });
+//   };
+
+//   // Handle product deletion
+//   const handleDeleteProduct = (productId) => {
+//     dispatch(deleteProduct(productId))
+//     .unwrap()
+//     .then(() => {
+//       showToast("SUCCESS", "Product deleted successfully!");
+//       dispatch(listProducts({ business: user?.business }));
+//     })
+//     .catch((error) => {
+//       showToast("ERROR", "Failed to delete product");
+//     });
+//   };
+
+//   // View product details
+//   const handleViewDetails = (product) => {
+//     setSelectedProduct(product);
+//   };
+
+//   // Loading state
+//   if (isLoading) {
+//     return <Loader />;
+//   }
+
+//   return (
+//     <ThemeProvider theme={theme}>
+//       <div className="relative bg-gray-50 flex flex-col pt-5">
+//         {/* Header */}
+//         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
+//           <Typography variant="h4" sx={{ color: "#603F26", fontWeight: "bold" }}>
+//             Product Reviews
+//           </Typography>
+//         </Box>
+
+//         {/* Stats */}
+//         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
+//           <Paper
+//             sx={{
+//               bgcolor: "#603F26",
+//               color: "white",
+//               px: 3,
+//               py: 2,
+//               borderRadius: 2,
+//             }}
+//           >
+//             <Typography variant="h4" component="div">
+//               {String(totalProducts).padStart(2, "0")}
+//             </Typography>
+//             <Typography variant="body2">Total Products</Typography>
+//           </Paper>
+//         </Box>
+
+//         {/* Products Content */}
+//         <div className="w-full px-4 md:px-8 lg:px-12 mt-4">
+//           {!filteredProducts || filteredProducts.length === 0 ? (
+//             <div className="text-center py-12">
+//               <h2 className="text-xl text-gray-600">
+//                 No products found
+//               </h2>
+//             </div>
+//           ) : (
+//             <>
+//               {/* Desktop View */}
+//               <div className="hidden xl:block">
+//                 <TableContainer component={Paper}>
+//                   <Table sx={{ minWidth: 650 }} aria-label="reviews table">
+//                     <TableHead sx={{ backgroundColor: "#603F26" }}>
+//                       <TableRow>
+//                         <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+//                           Product
+//                         </TableCell>
+//                         <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+//                           Review Summary
+//                         </TableCell>
+//                         <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+//                           Average Ratings
+//                         </TableCell>
+//                         <TableCell sx={{ color: "white", fontSize: "16px", fontWeight: "bold" }}>
+//                           Actions
+//                         </TableCell>
+//                       </TableRow>
+//                     </TableHead>
+//                     <TableBody>
+//                       {filteredProducts.map((product) => (
+//                         <TableRow key={product.id}>
+//                           <TableCell>
+//                             <div className="flex items-center gap-3">
+//                               <img
+//                                 src={product.productImage}
+//                                 alt={product.productName}
+//                                 className="w-12 h-12 object-cover"
+//                               />
+//                               <span className="font-medium">{product.productName}</span>
+//                             </div>
+//                           </TableCell>
+//                           <TableCell>{product.reviews.length} Reviews available</TableCell>
+//                           <TableCell>
+//                             <div className="flex items-center gap-2">
+//                               <Rating value={product.averageRating} readOnly precision={0.5} />
+//                               <span>{product.averageRating}</span>
+//                             </div>
+//                           </TableCell>
+//                           <TableCell>
+//                             <div className="flex gap-2">
+//                               <Tooltip title="View Details">
+//                                 <IconButton onClick={() => handleViewDetails(product)} color="primary" size="small">
+//                                   <VisibilityIcon />
+//                                 </IconButton>
+//                               </Tooltip>
+//                               <Tooltip title="Delete Product">
+//                                 <IconButton
+//                                   onClick={() => setDeleteProductId(product.id)}
+//                                   color="error"
+//                                   size="small"
+//                                 >
+//                                   <DeleteIcon />
+//                                 </IconButton>
+//                               </Tooltip>
+//                             </div>
+//                           </TableCell>
+//                         </TableRow>
+//                       ))}
+//                     </TableBody>
+//                   </Table>
+//                 </TableContainer>
+//               </div>
+
+//               {/* Mobile View (similar structure to desktop view) */}
+//               <div className="block xl:hidden space-y-4">
+//                 {filteredProducts.map((product) => (
+//                   <Paper key={product.id} className="p-4">
+//                     {/* Mobile view content */}
+//                   </Paper>
+//                 ))}
+//               </div>
+//             </>
+//           )}
+//         </div>
+
+//         {/* Dialogs */}
+//         <ReviewDetailsDialog
+//           open={!!selectedProduct}
+//           onClose={() => setSelectedProduct(null)}
+//           productData={selectedProduct}
+//           onDeleteReview={(reviewId) => handleDeleteReview(selectedProduct.id, reviewId)}
+//         />
+
+//         <DeleteConfirmationDialog
+//           open={!!deleteReviewId || !!deleteProductId}
+//           onClose={() => {
+//             setDeleteReviewId(null);
+//             setDeleteProductId(null);
+//           }}
+//           onConfirm={deleteProductId 
+//             ? () => handleDeleteProduct(deleteProductId)
+//             : () => handleDeleteReview(selectedProduct.id, deleteReviewId)
+//           }
+//           itemId={deleteReviewId || deleteProductId}
+//           itemType={deleteProductId ? 'product' : 'review'}
+//         />
+//       </div>
+//     </ThemeProvider>
+//   );
+// };
+
+// export default ProductReviews;
