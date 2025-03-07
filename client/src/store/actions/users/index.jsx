@@ -7,23 +7,10 @@ export const listUsers = createAsyncThunk(
     async({pageNo=1, limit=7})=>{
         try{
 
+          console.log("List Users.....");
 
-            const token = localStorage.getItem("token"); 
-
-            console.log("Retrieved Token auth...:", token);
-            if (!token) {
-                console.log("No token found!");
-                
-                return { data:{},auth:false }; 
-            }
-
-
-            const request = await axios.get('http://localhost:3000/', 
+            const response = await axios.get('http://localhost:3000/admin/getAllUsers', 
                 {
-                    headers: {
-                      Authorization: `Bearer ${token}`, 
-                      "Content-Type": "application/json",
-                    },
                     params: {
                         pageNo,
                         limit
@@ -31,8 +18,10 @@ export const listUsers = createAsyncThunk(
                 }
              );
 
-            
-            return {data:request.data.users, metaData: response.data.meta}
+             console.log("All Users:", response.data);
+
+             
+            return {data:response.data.users, metaData: response.data.meta}
         }
         catch(error){
             
@@ -46,32 +35,18 @@ export const listUsers = createAsyncThunk(
 
 export const deleteUser = createAsyncThunk(
     'users/deleteUser',
-    async({toRemove}, {getState}) =>{
+    async(deleteUserId, {getState, dispatch}) =>{
   
       try {
         console.log("Delete USer.....");
   
-        console.log("toremove:", toRemove)
-    
-  
-  
-        const token = localStorage.getItem("token");
-        console.log("myToken:", token);
-  
-        if (!token) {
-          dispatch(errorGlobal('No token found'));
-          return;
+        const body = {
+          userId: deleteUserId
         }
-  
-  
-      
-  
-  
-        const response = await axios.post('http://localhost:3000/deleteBranch', toRemove,  {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+    
+
+        const response = await axios.post('http://localhost:3000/admin/deleteUserById', body,  {
+          
         })
   
        
@@ -81,7 +56,7 @@ export const deleteUser = createAsyncThunk(
   
         const {meta} = getState().users;
         const pageNo = meta.currentPage
-        dispatch(listUsers({ business, pageNo}))
+        dispatch(listUsers({pageNo}))
   
         return true
   

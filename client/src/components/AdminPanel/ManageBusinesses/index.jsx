@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 import { showToast } from "../../../tools";
+import {
+  listBusinesses,
+  deleteBusiness,
+} from "../../../store/actions/businesses";
 import {
   Button,
   Dialog,
@@ -28,6 +33,7 @@ import { Loader } from "../../../tools";
 import { format } from "date-fns";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import InventoryIcon from "@mui/icons-material/Inventory";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
 import RestoreIcon from "@mui/icons-material/Restore";
@@ -55,52 +61,56 @@ const BusinessDetailsDialog = ({ open, onClose, business }) => {
         <Grid container spacing={3}>
           {/* Business Information */}
           <Grid item xs={12}>
-            <h3 className="text-lg font-bold mb-2">
-              Business Information
-            </h3>
+            <h3 className="text-lg font-bold mb-2">Business Information</h3>
+            <p>Name: {business?.name}</p>
+            <p>Email: {business?.user?.email}</p>
+            <p>Phone: {business?.user?.phone || "Not provided"}</p>
+            <p>Business Description: {business?.description}</p>
             <p>
-              Name: {business.name}
+              Business Branches:
+              {business?.branches?.length > 0 ? (
+                <ul className="list-disc pl-5 mt-2">
+                  {business.branches.map((branch, index) => (
+                    <li key={index}>{branch.name}</li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="ml-2 text-gray-500">
+                  No branches available
+                </span>
+              )}
             </p>
-            <p>Email: {business.email}</p>
-            <p>Phone: {business.phone || "Not provided"}</p>
-            <p>Business Type: {business.type}</p>
           </Grid>
 
           {/* Address Information */}
-          <Grid item xs={12}>
+          {/* <Grid item xs={12}>
             <hr className="my-4" />
-            <h3 className="text-lg font-bold mb-2">
-              Address
-            </h3>
+            <h3 className="text-lg font-bold mb-2">Address</h3>
             <p>{business.address || "No address provided"}</p>
-            <p>{business.city}, {business.state} {business.zipCode}</p>
+            <p>
+              {business.city}, {business.state} {business.zipCode}
+            </p>
             <p>{business.country}</p>
-          </Grid>
+          </Grid> */}
 
           {/* Subscription Information */}
           <Grid item xs={12}>
             <hr className="my-4" />
-            <h3 className="text-lg font-bold mb-2">
-              Subscription Information
-            </h3>
-            <p>Plan: {business.subscriptionPlan}</p>
-            <p>
-              Status: 
+            <h3 className="text-lg font-bold mb-2">Subscription Information</h3>
+            <p>Plan: {business?.user?.activePlan?.name}</p>
+            {/* <p>
+              Status:
               <Chip
                 label={business.isActive ? "Active" : "Disabled"}
                 color={business.isActive ? "success" : "error"}
                 className="ml-2"
               />
-            </p>
-            <p>
-              Start Date: {format(new Date(business.subscriptionStartDate), "PPP")}
-            </p>
-            <p>
-              Expiry Date: {format(new Date(business.subscriptionEndDate), "PPP")}
-            </p>
-            {business.subscriptionEndDate < new Date() && (
+            </p> */}
+            <p>Start Date: {business?.user?.planActivation}</p>
+            <p>Expiry Date: {business?.user?.planExpiry}</p>
+            {business?.user?.planExpiry < new Date() && (
               <p className="text-red-600 font-bold mt-2">
-                Subscription expired on {format(new Date(business.subscriptionEndDate), "PPP")}
+                Subscription expired on {business?.user?.planExpiry}
               </p>
             )}
           </Grid>
@@ -108,18 +118,11 @@ const BusinessDetailsDialog = ({ open, onClose, business }) => {
           {/* Additional Information */}
           <Grid item xs={12}>
             <hr className="my-4" />
-            <h3 className="text-lg font-bold mb-2">
-              Additional Information
-            </h3>
+            <h3 className="text-lg font-bold mb-2">Additional Information</h3>
+            <p>Registration Date: {business?.createdAt}</p>
             <p>
-              Registration Date: {format(new Date(business.createdAt), "PPP")}
+              Owner: {business?.user?.firstname} {business?.user?.lastname}
             </p>
-            <p>
-              Owner: {business.ownerFirstName} {business.ownerLastName}
-            </p>
-            {business.website && (
-              <p>Website: {business.website}</p>
-            )}
           </Grid>
         </Grid>
       </DialogContent>
@@ -159,19 +162,15 @@ const DeleteConfirmationDialog = ({
   );
 };
 
-const EnableBusinessDialog = ({
-  open,
-  onClose,
-  onConfirm,
-  businessName,
-}) => {
+const EnableBusinessDialog = ({ open, onClose, onConfirm, businessName }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle className="text-green-600">Enable Business</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Are you sure you want to manually enable "{businessName}"? This will override the automatic
-          disabling due to subscription expiry. The business will still need to renew their subscription.
+          Are you sure you want to manually enable "{businessName}"? This will
+          override the automatic disabling due to subscription expiry. The
+          business will still need to renew their subscription.
         </DialogContentText>
       </DialogContent>
       <DialogActions>
@@ -189,8 +188,10 @@ const EnableBusinessDialog = ({
 const ManageBusinesses = () => {
   const dispatch = useDispatch();
   const { user: currentUser } = useSelector((state) => state.auth);
-  // Assuming these would be provided by Redux state
-  // Mock data for demonstration
+  const { businesses, isloading, meta } = useSelector(
+    (state) => state.businesses
+  );
+
   const mockBusinesses = [
     {
       _id: "b123456",
@@ -210,7 +211,7 @@ const ManageBusinesses = () => {
       createdAt: "2023-12-10T00:00:00.000Z",
       ownerFirstName: "Sarah",
       ownerLastName: "Johnson",
-      website: "www.coffeehousedelights.com"
+      website: "www.coffeehousedelights.com",
     },
     {
       _id: "b234567",
@@ -230,7 +231,7 @@ const ManageBusinesses = () => {
       createdAt: "2023-11-15T00:00:00.000Z",
       ownerFirstName: "Michael",
       ownerLastName: "Chen",
-      website: "www.techsolutions.com"
+      website: "www.techsolutions.com",
     },
     {
       _id: "b345678",
@@ -250,13 +251,18 @@ const ManageBusinesses = () => {
       createdAt: "2023-10-22T00:00:00.000Z",
       ownerFirstName: "Jessica",
       ownerLastName: "Martinez",
-      website: "www.fitnessfirstgym.com"
+      website: "www.fitnessfirstgym.com",
     },
   ];
 
-  const [businesses, setBusinesses] = useState(mockBusinesses);
-  const [isLoading, setIsLoading] = useState(false);
-  const [meta] = useState({ totalBusinesses: 3, currentPage: 1, nextPage: null, previousPage: null });
+  // const [businesses, setBusinesses] = useState(mockBusinesses);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [meta] = useState({
+  //   totalBusinesses: 3,
+  //   currentPage: 1,
+  //   nextPage: null,
+  //   previousPage: null,
+  // });
 
   const [viewBusinessDetails, setViewBusinessDetails] = useState(null);
   const [deleteBusinessId, setDeleteBusinessId] = useState(null);
@@ -283,23 +289,16 @@ const ManageBusinesses = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      // In a real implementation, this would dispatch an action
-      // await dispatch(deleteBusiness(deleteBusinessId))
-      //   .unwrap()
-      //   .then((response) => {
-      //     showToast("SUCCESS", "Business deleted successfully!");
-      //   })
-      //   .catch((error) => {
-      //     showToast("ERROR", "Failed to delete business");
-      //   });
-
-      // For demo, we'll just remove from local state
-      setBusinesses(businesses.filter(b => b._id !== deleteBusinessId));
-      setFilteredBusinesses(filteredBusinesses.filter(b => b._id !== deleteBusinessId));
-      showToast("SUCCESS", "Business deleted successfully!");
+      await dispatch(deleteBusiness(deleteBusinessId))
+        .unwrap()
+        .then((response) => {
+          showToast("SUCCESS", "User deleted successfully!");
+        })
+        .catch((error) => {
+          showToast("ERROR", "Failed to delete user");
+        });
     } catch (error) {
-      console.error("Failed to delete business:", error);
-      showToast("ERROR", "Failed to delete business");
+      console.error("Failed to delete user:", error);
     } finally {
       setDeleteBusinessId(null);
     }
@@ -318,12 +317,12 @@ const ManageBusinesses = () => {
       //   });
 
       // For demo, we'll just update local state
-      const updatedBusinesses = businesses.map(b => 
+      const updatedBusinesses = businesses.map((b) =>
         b._id === enableBusinessId ? { ...b, isActive: true } : b
       );
       setBusinesses(updatedBusinesses);
       setFilteredBusinesses(
-        filteredBusinesses.map(b => 
+        filteredBusinesses.map((b) =>
           b._id === enableBusinessId ? { ...b, isActive: true } : b
         )
       );
@@ -365,20 +364,38 @@ const ManageBusinesses = () => {
     }
   }, [businesses]);
 
+  // useEffect(() => {
+  // In a real implementation, this would dispatch an action to fetch businesses
+  // dispatch(listBusinesses());
+  // setIsLoading(true);
+  // Simulate API call
+  // setTimeout(() => {
+  //   setIsLoading(false);
+  // }, 500);
+  // }, []);
+
   useEffect(() => {
-    // In a real implementation, this would dispatch an action to fetch businesses
-    // dispatch(listBusinesses());
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-  }, []);
+    dispatch(listBusinesses({}));
+  }, [dispatch]);
+
+  const handleNextPage = (page) => {
+    if (page) {
+      dispatch(listBusinesses({ pageNo: page }));
+    }
+  };
+
+  const handlePrevPage = (page) => {
+    if (page) {
+      dispatch(listBusinesses({ pageNo: page }));
+    }
+  };
 
   // Get unique business types for filter dropdown
-  const businessTypes = [...new Set(businesses.map(business => business.type))];
+  const businessTypes = [
+    ...new Set(businesses.map((business) => business.type)),
+  ];
 
-  if (isLoading) {
+  if (isloading) {
     return <Loader />;
   }
 
@@ -426,11 +443,16 @@ const ManageBusinesses = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   InputProps={{
-                    startAdornment: <SearchIcon sx={{ color: "gray", mr: 1 }} />,
+                    startAdornment: (
+                      <SearchIcon sx={{ color: "gray", mr: 1 }} />
+                    ),
                   }}
                 />
                 <div className="min-w-[200px]">
-                  <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="status-filter"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Status
                   </label>
                   <select
@@ -445,7 +467,10 @@ const ManageBusinesses = () => {
                   </select>
                 </div>
                 <div className="min-w-[200px]">
-                  <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="type-filter"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Business Type
                   </label>
                   <select
@@ -455,8 +480,10 @@ const ManageBusinesses = () => {
                     onChange={(e) => setTypeFilter(e.target.value)}
                   >
                     <option value="">All Types</option>
-                    {businessTypes.map(type => (
-                      <option key={type} value={type}>{type}</option>
+                    {businessTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -525,7 +552,7 @@ const ManageBusinesses = () => {
                             fontWeight: "bold",
                           }}
                         >
-                          Type
+                          Business Owner
                         </TableCell>
                         <TableCell
                           sx={{
@@ -536,7 +563,7 @@ const ManageBusinesses = () => {
                         >
                           Subscription
                         </TableCell>
-                        <TableCell
+                        {/* <TableCell
                           sx={{
                             color: "white",
                             fontSize: "16px",
@@ -544,7 +571,7 @@ const ManageBusinesses = () => {
                           }}
                         >
                           Status
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell
                           sx={{
                             color: "white",
@@ -567,21 +594,24 @@ const ManageBusinesses = () => {
                     </TableHead>
                     <TableBody>
                       {filteredBusinesses.map((business) => (
-                        <TableRow key={business._id}>
-                          <TableCell>{business._id.slice(-6)}</TableCell>
-                          <TableCell>{business.name}</TableCell>
-                          <TableCell>{business.type}</TableCell>
-                          <TableCell>{business.subscriptionPlan}</TableCell>
+                        <TableRow key={business?._id}>
+                          <TableCell>{business?._id.slice(-6)}</TableCell>
+                          <TableCell>{business?.name}</TableCell>
                           <TableCell>
+                            {business?.user?.firstname}{" "}
+                            {business?.user?.lastname}
+                          </TableCell>
+                          <TableCell>
+                            {business?.user?.activePlan?.name}
+                          </TableCell>
+                          {/* <TableCell>
                             <Chip
                               label={business.isActive ? "Active" : "Disabled"}
                               color={business.isActive ? "success" : "error"}
                               size="small"
                             />
-                          </TableCell>
-                          <TableCell>
-                            {format(new Date(business.subscriptionEndDate), "PP")}
-                          </TableCell>
+                          </TableCell> */}
+                          <TableCell>{business?.user?.planExpiry}</TableCell>
                           <TableCell>
                             <div className="flex gap-2">
                               <Tooltip title="View Details">
@@ -592,19 +622,39 @@ const ManageBusinesses = () => {
                                   <VisibilityIcon />
                                 </IconButton>
                               </Tooltip>
-                              {!business.isActive && (
+                              <Tooltip title="View Products">
+                                <IconButton
+                                  component={Link}
+                                  to={`../businessProducts/${business?._id}`}
+                                  onClick={() => {
+                                    // Add your logic to handle viewing products
+                                    console.log(
+                                      "View products for business:",
+                                      business._id
+                                    );
+                                  }}
+                                   color="primary"
+                                >
+                                  <InventoryIcon />
+                                </IconButton>
+                              </Tooltip>
+                              {/* {!business.isActive && (
                                 <Tooltip title="Enable Business">
                                   <IconButton
-                                    onClick={() => handleEnableClick(business._id)}
+                                    onClick={() =>
+                                      handleEnableClick(business._id)
+                                    }
                                     color="success"
                                   >
                                     <RestoreIcon />
                                   </IconButton>
                                 </Tooltip>
-                              )}
+                              )} */}
                               <Tooltip title="Delete Business">
                                 <IconButton
-                                  onClick={() => handleDeleteClick(business._id)}
+                                  onClick={() =>
+                                    handleDeleteClick(business._id)
+                                  }
                                   color="error"
                                 >
                                   <DeleteIcon />
@@ -623,28 +673,29 @@ const ManageBusinesses = () => {
               <div className="block md:hidden space-y-4">
                 {filteredBusinesses.map((business) => (
                   <article
-                    key={business._id}
+                    key={business?._id}
                     className="bg-white p-4 rounded-lg shadow"
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <h3 className="font-bold">
-                          {business.name}
-                        </h3>
-                        <p className="text-gray-600">{business.email}</p>
+                        <h3 className="font-bold">{business?.name}</h3>
+                        {/* <p className="text-gray-600">{business?.email}</p> */}
                       </div>
-                      <Chip
+                      {/* <Chip
                         label={business.isActive ? "Active" : "Disabled"}
                         color={business.isActive ? "success" : "error"}
                         size="small"
-                      />
+                      /> */}
                     </div>
 
                     <div className="space-y-2">
-                      <p>ID: {business._id.slice(-6)}</p>
-                      <p>Type: {business.type}</p>
-                      <p>Plan: {business.subscriptionPlan}</p>
-                      <p>Expires: {format(new Date(business.subscriptionEndDate), "PP")}</p>
+                      <p>ID: {business?._id.slice(-6)}</p>
+                      <p>
+                        Business Owner: {business?.user?.firstname}{" "}
+                        {business?.user?.lastname}
+                      </p>
+                      <p>Plan: {business?.user?.activePlan?.name}</p>
+                      <p>Expires: {business?.user?.planExpiry}</p>
                     </div>
 
                     <div className="mt-4 flex gap-2">
@@ -654,14 +705,20 @@ const ManageBusinesses = () => {
                       >
                         View Details
                       </button>
-                      {!business.isActive && (
+                      <button
+                        className="bg-[#603F26] text-white py-2 px-4 rounded-md flex-1 hover:bg-[#4a3019] transition-colors"
+                        onClick={() => handleViewDetails(business)}
+                      >
+                        View Products
+                      </button>
+                      {/* {!business.isActive && (
                         <button
                           className="bg-green-600 text-white py-2 px-4 rounded-md flex-1 hover:bg-green-700 transition-colors"
                           onClick={() => handleEnableClick(business._id)}
                         >
                           Enable
                         </button>
-                      )}
+                      )} */}
                       <button
                         className="bg-red-600 text-white py-2 px-4 rounded-md flex-1 hover:bg-red-700 transition-colors"
                         onClick={() => handleDeleteClick(business._id)}
@@ -682,10 +739,16 @@ const ManageBusinesses = () => {
             <ul className="inline-flex items-center -space-x-px text-sm">
               {meta?.previousPage && (
                 <>
-                  <li className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer">
+                  <li
+                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer"
+                  >
                     Previous
                   </li>
-                  <li className="px-4 py-2 border hover:bg-gray-100 cursor-pointer">
+                  <li
+                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
+                  >
                     {meta?.previousPage}
                   </li>
                 </>
@@ -695,10 +758,16 @@ const ManageBusinesses = () => {
               </li>
               {meta?.nextPage && (
                 <>
-                  <li className="px-4 py-2 border hover:bg-gray-100 cursor-pointer">
+                  <li
+                    onClick={() => handleNextPage(meta?.nextPage)}
+                    className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
+                  >
                     {meta?.nextPage}
                   </li>
-                  <li className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer">
+                  <li
+                    onClick={() => handleNextPage(meta?.nextPage)}
+                    className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer"
+                  >
                     Next
                   </li>
                 </>
@@ -720,7 +789,8 @@ const ManageBusinesses = () => {
           onClose={() => setDeleteBusinessId(null)}
           onConfirm={handleDeleteConfirm}
           businessName={
-            businesses.find(business => business._id === deleteBusinessId)?.name
+            businesses.find((business) => business._id === deleteBusinessId)
+              ?.name
           }
         />
 
@@ -730,7 +800,8 @@ const ManageBusinesses = () => {
           onClose={() => setEnableBusinessId(null)}
           onConfirm={handleEnableConfirm}
           businessName={
-            businesses.find(business => business._id === enableBusinessId)?.name
+            businesses.find((business) => business._id === enableBusinessId)
+              ?.name
           }
         />
       </main>

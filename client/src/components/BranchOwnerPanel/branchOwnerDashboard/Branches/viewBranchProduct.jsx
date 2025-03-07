@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getProductByID } from "../../../../store/actions/products";
 import { Loader } from "../../../../tools";
+import { getBranchProductDetails } from "../../../../store/actions/branches";
 
 import {
   Box,
@@ -47,6 +48,8 @@ const ViewBranchProduct = () => {
   const dispatch = useDispatch();
   const { productById, isLoading } = useSelector((state) => state.products);
 
+  const { branchProductDetails } = useSelector((state) => state.branches);
+
   const { productId, productTitle, branchCode } = useParams();
 
   const [tabValue, setTabValue] = useState(0);
@@ -67,15 +70,19 @@ const ViewBranchProduct = () => {
     setOpen(false);
   };
 
+
   useEffect(() => {
     if (productId) {
       dispatch(getProductByID(productId));
+
+      dispatch(getBranchProductDetails({ productId, branchCode }));
+
     }
-  }, [productId, dispatch]);
+  }, [productId, branchCode, dispatch]);
 
   useEffect(() => {
-    if (productById?.variants) {
-      const allColors = productById.variants.reduce((colors, variant) => {
+    if (branchProductDetails?.variants) {
+      const allColors = branchProductDetails.variants.reduce((colors, variant) => {
         if (variant.colors) {
           variant.colors.forEach((colorObj) => {
             if (colorObj.color) {
@@ -88,7 +95,7 @@ const ViewBranchProduct = () => {
 
       setUniqueColorsData(Array.from(allColors));
     }
-  }, [productById]);
+  }, [branchProductDetails]);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -114,7 +121,7 @@ const ViewBranchProduct = () => {
               }}
               
             >
-              {productById?.title || "Untitled Product"}
+              {branchProductDetails?.product?.title || "Untitled Product"}
             </Typography>
             <Typography
               variant="subtitle1"
@@ -122,11 +129,11 @@ const ViewBranchProduct = () => {
                 color: "#603F26",
               }}
             >
-              SKU: {productById?.sku || "N/A"}
+              SKU: {branchProductDetails?.product?.sku || "N/A"}
             </Typography>
           </Box>
           <Chip
-            label={`Total Quantity: ${productById?.totalQuantity}`}
+            label={`Total Quantity: ${branchProductDetails?.totalBranchQuantity}`}
             // color="primary"
             variant="outlined"
             size="large"
@@ -172,9 +179,9 @@ const ViewBranchProduct = () => {
                     gap: 2,
                   }}
                 >
-                  {productById?.imagePath &&
-                  productById.imagePath.length > 0 ? (
-                    productById.imagePath.map((img, index) => (
+                  {branchProductDetails?.product?.imagePath &&
+                  branchProductDetails?.product?.imagePath?.length > 0 ? (
+                    branchProductDetails?.product?.imagePath.map((img, index) => (
                       <CardMedia
                         key={index}
                         component="img"
@@ -249,21 +256,21 @@ const ViewBranchProduct = () => {
                     sx={{ display: "flex", justifyContent: "space-between" }}
                   >
                     <Typography variant="subtitle1">Category:</Typography>
-                    <Typography>{productById?.category || "N/A"}</Typography>
+                    <Typography>{branchProductDetails?.product?.category || "N/A"}</Typography>
                   </Box>
                   <Divider />
                   <Box
                     sx={{ display: "flex", justifyContent: "space-between" }}
                   >
                     <Typography variant="subtitle1">Subcategory:</Typography>
-                    <Typography>{productById?.subCategory || "N/A"}</Typography>
+                    <Typography>{branchProductDetails?.product?.subCategory || "N/A"}</Typography>
                   </Box>
                   <Divider />
                   <Box
                     sx={{ display: "flex", justifyContent: "space-between" }}
                   >
                     <Typography variant="subtitle1">Product Type:</Typography>
-                    <Typography>{productById?.productType || "N/A"}</Typography>
+                    <Typography>{branchProductDetails?.product?.productType || "N/A"}</Typography>
                   </Box>
                   <Divider />
                   <Box
@@ -271,7 +278,7 @@ const ViewBranchProduct = () => {
                   >
                     <Typography variant="subtitle1">Base Price:</Typography>
                     <Typography>
-                      ${productById?.price?.toFixed(2) || "0.00"}
+                      ${branchProductDetails?.product?.price?.toFixed(2) || "0.00"}
                     </Typography>
                   </Box>
                   <Divider />
@@ -280,7 +287,7 @@ const ViewBranchProduct = () => {
                       Description:
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {productById?.description || "No description available"}
+                      {branchProductDetails?.product?.description || "No description available"}
                     </Typography>
                   </Box>
                 </Box>
@@ -317,7 +324,7 @@ const ViewBranchProduct = () => {
                           Sizes:
                         </Typography>
                         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                          {productById?.variants?.map((variant, index) => (
+                          {branchProductDetails?.variants?.map((variant, index) => (
                             <Chip
                               key={index}
                               label={variant.size || "N/A"}
@@ -329,8 +336,8 @@ const ViewBranchProduct = () => {
                             </Typography>
                           )}
 
-                          {(!productById?.variants ||
-                            productById?.variants.every(
+                          {(!branchProductDetails?.variants ||
+                            branchProductDetails?.variants.every(
                               (variant) => !variant?.size?.length
                             )) && (
                             <Typography color="text.secondary">
@@ -365,7 +372,7 @@ const ViewBranchProduct = () => {
                           Material:
                         </Typography>
                         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                          {productById?.variants?.map(
+                          {branchProductDetails?.variants?.map(
                             (variant, index) =>
                               variant?.material?.length > 0 && (
                                 <Chip
@@ -380,8 +387,8 @@ const ViewBranchProduct = () => {
                             </Typography>
                           )}
 
-                          {(!productById?.variants ||
-                            productById?.variants.every(
+                          {(!branchProductDetails?.variants ||
+                            branchProductDetails?.variants.every(
                               (variant) => !variant?.material?.length
                             )) && (
                             <Typography color="text.secondary">
@@ -397,8 +404,8 @@ const ViewBranchProduct = () => {
                     <Box
                       sx={{ display: "flex", flexDirection: "column", gap: 1 }}
                     >
-                      {productById?.variants?.length > 0 ? (
-                        productById.variants.map((variant, variantIndex) => {
+                      {branchProductDetails?.variants?.length > 0 ? (
+                        branchProductDetails.variants.map((variant, variantIndex) => {
                           if (variant.colors?.length > 0) {
                             return variant.colors.map((color, colorIndex) => (
                               <Paper

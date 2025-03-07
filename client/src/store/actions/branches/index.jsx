@@ -285,6 +285,43 @@ export const getBranchProducts = createAsyncThunk(
 );
 
 
+
+export const getBranchProductDetails = createAsyncThunk(
+  'branches/getBranchProductDetails',
+  async ({branchCode, productId}, thunkAPI) => {
+    try {
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal('No token found'));
+        return;
+      }
+
+      const response = await axios.get('http://localhost:3000/branchOwner/viewBranchProductsDetail', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        params: {
+         branchCode,
+         productId
+        },
+      })
+
+      console.log("Branch Products details: ", response.data)
+      
+      return { data: response.data.productDetails};
+    } catch (error) {
+      
+      console.log(error)
+      throw error;
+    }
+  }
+);
+
+
 export const getVariantRemainings = createAsyncThunk(
   'branches/getVariantRemainings',
   async (productId, thunkAPI) => {

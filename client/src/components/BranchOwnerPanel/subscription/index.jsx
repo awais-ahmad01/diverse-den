@@ -3,9 +3,10 @@ import { useState } from "react";
 import { Button } from "@mui/material";
 import StripeCheckout from "react-stripe-checkout";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../../../tools";
+import { verifyBusiness } from "../../../store/actions/businesses";
 
 
 
@@ -14,9 +15,13 @@ const SubscriptionPlans = () => {
 
   const navigate = useNavigate()
 
+  const dispatch = useDispatch();
+
   const userData = useSelector(state => state.auth)
 
-  // console.log("User", userData)
+  const { businessVerify } = useSelector((state) => state.businesses);
+
+  console.log("User", userData)
 
   const {_id:userId} = userData.user
 
@@ -42,6 +47,11 @@ const SubscriptionPlans = () => {
   // const [selectedPlan, setSelectedPlan] = useState(null);
 
   // console.log("selected Plan: ", selectedPlan )
+
+  useEffect(() => {
+    const businessId = userData?.user?.business;
+    dispatch(verifyBusiness(businessId));
+  }, [dispatch, userData?.user?.business]);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -114,7 +124,13 @@ const SubscriptionPlans = () => {
       .then((response) => {
         console.log(response.data)
         showToast("SUCCESS", 'Plan added successfully.')
-        navigate('../business_setup')
+        if(businessVerify.length === 0){
+          navigate('../business_setup')
+        }
+        else{
+          navigate('../branchOwnerDashboard');
+        }
+        
       })
       .catch((error) => {
         throw error;

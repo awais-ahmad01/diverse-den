@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getBranches, getAllBranches, getBranchProducts, getVariantRemainings } from "../../actions/branches";
+import { getBranches, getAllBranches, getBranchProducts, getVariantRemainings, getBranchProductDetails } from "../../actions/branches";
 
 let default_state = {
   isloading: false,
@@ -7,6 +7,7 @@ let default_state = {
   allBranches: [],
   branchProducts: [],
   variants: [],
+  branchProductDetails:[]
   
 };
 
@@ -70,6 +71,20 @@ export const branchesSlice = createSlice({
         
       })
       .addCase(getVariantRemainings.rejected, (state) => {
+        state.isloading = false;
+      })
+
+
+
+      .addCase(getBranchProductDetails.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getBranchProductDetails.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.branchProductDetails = action.payload.data;
+        
+      })
+      .addCase(getBranchProductDetails.rejected, (state) => {
         state.isloading = false;
       })
 

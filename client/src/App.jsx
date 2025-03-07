@@ -66,6 +66,7 @@ import ChatSection from "./components/BranchOwnerPanel/salespersonDashboard/mana
 import SalespersonOrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/manageOrders/index.jsx";
 import ProductList from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/assignProduct.jsx";
 import LandingPage from "./components/LandingPage/index.jsx";
+import BusinessProducts from "./components/AdminPanel/ManageBusinesses/businessProducts.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -121,9 +122,10 @@ function App() {
           <Route
             path="/branchOwnerPanel"
             element={
-              <AuthGuard>
-                <BranchOwnerPanel />
-              </AuthGuard>
+              // <AuthGuard allowedRoles={["Branch Owner"]}>
+              //   <BranchOwnerPanel />
+              // </AuthGuard>
+              <BranchOwnerPanel/>
             }
           >
             <Route path="subscription" element={<SubscriptionPlans />} />
@@ -132,7 +134,12 @@ function App() {
 
             <Route
               path="branchOwnerDashboard"
-              element={<BranchOwnerDashboard />}
+              element={
+              // <BranchOwnerDashboard />
+              <AuthGuard allowedRoles={["Branch Owner"]}>
+              <BranchOwnerDashboard />
+            </AuthGuard>
+            }
             >
               <Route path="branchesList" element={<ListBranches />} />
 
@@ -203,9 +210,15 @@ function App() {
               <Route path="manageProductReviews" element={<ProductReviews />} />
             </Route>
 
+            {/* Salesperson Dashboard */}
+
             <Route
               path="salespersonDashboard"
-              element={<SalespersonDashboard />}
+              element={
+                <AuthGuard allowedRoles={["Salesperson"]}>
+                  <SalespersonDashboard />
+                </AuthGuard>
+              }
             >
               <Route
                 path="manageOrders"
@@ -218,37 +231,48 @@ function App() {
 
           {/* Rider Panel */}
 
-          <Route path="/riderPanel" element={<RiderPanel />} />
+          <Route
+            path="/riderPanel"
+            element={
+              <AuthGuard allowedRoles={["Rider"]}>
+                <RiderPanel />
+              </AuthGuard>
+            }
+          />
 
           {/* Cutomer  */}
 
           <Route path="/customer" element={<CustomerPanel />}>
-              <Route index element={<HomePage />} /> 
-              <Route path=":slug" element={<CategoryPage />} />
-              <Route
-                path=":category?/:subcategory?/:productType?"
-                element={<SubCategory />}
-              />
-              <Route
-                path="productDetails/:productId"
-                element={<ProductDetails />}
-              />
-              <Route path="searchedProduct" element={<SearchedProduct />} />
-              <Route path="cart" element={<Cart />} />
-              <Route path="checkout" element={<Checkout />} />
-            </Route>
-
-
-
-
-          
+            <Route index element={<HomePage />} />
+            <Route path=":slug" element={<CategoryPage />} />
+            <Route
+              path=":category?/:subcategory?/:productType?"
+              element={<SubCategory />}
+            />
+            <Route
+              path="productDetails/:productId"
+              element={<ProductDetails />}
+            />
+            <Route path="searchedProduct" element={<SearchedProduct />} />
+            <Route path="cart" element={<Cart />} />
+            <Route path="checkout" element={<Checkout />} />
+          </Route>
 
           <Route path="addsubscription" element={<AddSubscription />} />
 
           {/* Admin Panel */}
 
-          <Route path="adminPanel" element={<AdminPanel />}>
+          <Route
+            path="adminPanel"
+            element={
+              <AuthGuard allowedRoles={["Admin"]}>
+                <AdminPanel />
+              </AuthGuard>
+            }
+          >
             <Route path="manageUsers" element={<ManageUsers />} />
+
+            <Route path="businessProducts/:businessId" element={<BusinessProducts />} />
 
             <Route path="manageBusinesses" element={<ManageBusinesses />} />
 

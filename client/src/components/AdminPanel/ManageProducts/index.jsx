@@ -1,9 +1,12 @@
+
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { getBranches, removeBranch } from "../../../../store/actions/branches";
-import { Loader, showToast } from "../../../../tools";
+import { getProducts, removeProduct } from "../../../../store/actions/products";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { Loader } from "../../../../tools";
 
+// Material UI Components
 import {
   Button,
   Dialog,
@@ -20,14 +23,12 @@ import {
   Paper,
   Typography,
   Box,
-  Chip,
   IconButton,
-  Tooltip,
-  Grid
+  Tooltip
 } from "@mui/material";
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 // Icons
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
@@ -41,32 +42,35 @@ const theme = createTheme({
   },
 });
 
-const ListBranches = () => {
+const ListProducts = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { branches, meta, isloading } = useSelector((state) => state.branches);
-
-  const totalBranches = meta?.totalItems || 0;
+  const { products, meta, isloading } = useSelector((state) => state.products);
+  
+  const totalProducts = meta?.totalItems || 0;
 
   const handleNextPage = (page) => {
     const business = user?.business;
     if (business && page) {
-      dispatch(getBranches({ business, pageNo: page }));
+      console.log("Next Page:", page);
+      dispatch(getProducts({ business, pageNo: page }));
     }
   };
 
   const handlePrevPage = (page) => {
     const business = user?.business;
     if (business && page) {
-      dispatch(getBranches({ business, pageNo: page }));
+      console.log("Previous Page:", page);
+      dispatch(getProducts({ business, pageNo: page }));
     }
   };
 
   const [open, setOpen] = useState(false);
   const [toRemove, setToRemove] = useState(null);
 
-  const handleClickOpen = (branchCode) => {
-    setToRemove(branchCode);
+  const handleClickOpen = (productId) => {
+    console.log("Open:code:", productId);
+    setToRemove(productId);
     setOpen(true);
   };
 
@@ -76,39 +80,35 @@ const ListBranches = () => {
 
   const handleDelete = () => {
     const business = user?.business;
-    dispatch(removeBranch({ toRemove, business }))
+    console.log("dlete:code:", toRemove);
+    dispatch(removeProduct({toRemove, business}))
       .unwrap()
-      .then(() => {
-        showToast("SUCCESS", "Branch deleted successfully!");
-      })
-      .catch(() => {
-        showToast("ERROR", "Failed to delete branch!");
-      })
       .finally(() => {
         setOpen(false);
         setToRemove(null);
-      });
+      }); 
   };
 
   useEffect(() => {
+    console.log("getting products.....");
     const business = user?.business;
-    dispatch(getBranches({ business }));
+    dispatch(getProducts({ business }));
   }, [dispatch, user]);
 
-  if (isloading) {
-    return <Loader />;
+  if(isloading){
+    return <Loader/>
   }
 
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
         {/* Header */}
-        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
-          <Typography
-            variant="h4"
-            sx={{ color: "#603F26", fontWeight: "bold" }}
-          >
-            Branches
+        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
+          {/* <IconButton component={Link} to="../dashboard" color="primary">
+            <ArrowBackIcon />
+          </IconButton> */}
+          <Typography variant="h4" sx={{ color: "#603F26", fontWeight: "bold" }}>
+            Products
           </Typography>
         </Box>
 
@@ -133,9 +133,9 @@ const ListBranches = () => {
               }}
             >
               <Typography variant="h4" component="div">
-                {String(totalBranches).padStart(2, "0")}
+                {String(totalProducts).padStart(2, "0")}
               </Typography>
-              <Typography variant="body2">Total Branches</Typography>
+              <Typography variant="body2">Total Products</Typography>
             </Paper>
           </Box>
 
@@ -145,25 +145,25 @@ const ListBranches = () => {
               color="primary"
               startIcon={<AddCircleIcon />}
               component={Link}
-              to="../addBranch"
+              to="../addProduct"
             >
-              Add Branch
+              Add Product
             </Button>
           </Box>
         </Box>
 
-        {/* Branches Content */}
+        {/* Products Content */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
-          {!branches || branches.length === 0 ? (
+          {!products || products.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
-              No Branches found
+              No Products found
             </div>
           ) : (
             <>
               {/* Desktop View */}
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
                 <TableContainer component={Paper}>
-                  <Table sx={{ minWidth: 650 }} aria-label="branches table">
+                  <Table sx={{ minWidth: 650 }} aria-label="products table">
                     <TableHead sx={{ backgroundColor: "#603F26" }}>
                       <TableRow>
                         <TableCell
@@ -173,7 +173,7 @@ const ListBranches = () => {
                             fontWeight: "bold",
                           }}
                         >
-                          Code
+                          Product
                         </TableCell>
                         <TableCell
                           sx={{
@@ -182,7 +182,7 @@ const ListBranches = () => {
                             fontWeight: "bold",
                           }}
                         >
-                          Name
+                          Branch
                         </TableCell>
                         <TableCell
                           sx={{
@@ -191,7 +191,7 @@ const ListBranches = () => {
                             fontWeight: "bold",
                           }}
                         >
-                          City
+                          Category
                         </TableCell>
                         <TableCell
                           sx={{
@@ -200,7 +200,7 @@ const ListBranches = () => {
                             fontWeight: "bold",
                           }}
                         >
-                          Address
+                          Price
                         </TableCell>
                         <TableCell
                           sx={{
@@ -209,7 +209,7 @@ const ListBranches = () => {
                             fontWeight: "bold",
                           }}
                         >
-                          Contact
+                          Quantity
                         </TableCell>
                         <TableCell
                           sx={{
@@ -217,69 +217,48 @@ const ListBranches = () => {
                             fontSize: "16px",
                             fontWeight: "bold",
                           }}
-                        >
-                          Email
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Salesperson
-                        </TableCell>
-                        <TableCell
-                          sx={{
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                          }}
+                          align="center"
                         >
                           Actions
                         </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {branches.map((branch, index) => (
+                      {products.map((product, index) => (
                         <TableRow
                           key={index}
                           sx={{
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
                         >
-                          <TableCell>{branch.branchCode}</TableCell>
-                          <TableCell>{branch.name}</TableCell>
-                          <TableCell>{branch.city}</TableCell>
-                          <TableCell>{branch.address}</TableCell>
-                          <TableCell>{branch.contactNo}</TableCell>
-                          <TableCell>{branch.emailAddress}</TableCell>
+                          <TableCell>{product.title}</TableCell>
+                          <TableCell>{product?.branch ? product?.branch : 'Not Assigned'}</TableCell>
+                          <TableCell>{product.category}</TableCell>
+                          <TableCell>{product.price}</TableCell>
+                          <TableCell>{product.totalQuantity}</TableCell>
                           <TableCell>
-                            {branch?.salesperson?.name || "Not Assigned"}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2">
-                              <Tooltip title="View Branch">
+                            <div className="flex justify-center gap-2">
+                              <Tooltip title="View Product">
                                 <IconButton
                                   component={Link}
-                                  to={`../viewbranch/${branch._id}/${branch.name}/${branch.branchCode}`}
+                                  to={`../viewProduct/${product._id}/${product.title}`}
                                   color="primary"
                                 >
                                   <VisibilityIcon />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Edit Branch">
+                              <Tooltip title="Edit Product">
                                 <IconButton
                                   component={Link}
-                                  to={`../updatebranch/${branch._id}`}
+                                  to={`../updateProduct/${product._id}`}
                                   color="primary"
                                 >
                                   <EditIcon />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Delete Branch">
+                              <Tooltip title="Delete Product">
                                 <IconButton
-                                  onClick={() => handleClickOpen(branch.branchCode)}
+                                  onClick={() => handleClickOpen(product._id)}
                                   color="error"
                                 >
                                   <DeleteIcon />
@@ -296,42 +275,33 @@ const ListBranches = () => {
 
               {/* Mobile View */}
               <div className="block xl:hidden space-y-4">
-                {branches.map((branch, index) => (
+                {products.map((product, index) => (
                   <div
                     key={index}
                     className="bg-white p-4 rounded-lg shadow"
                   >
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <p className="font-bold">{branch.branchCode}</p>
-                        <p>{branch.name}</p>
-                      </div>
-                      <Chip
-                        label={branch.city}
-                        color="primary"
-                      />
-                    </div>
-
                     <div className="space-y-2">
-                      <p>Address: {branch.address}</p>
-                      <p>Contact: {branch.contactNo}</p>
-                      <p>Email: {branch.emailAddress}</p>
-                      <p>Salesperson: {branch?.salesperson?.name || "Not Assigned"}</p>
+                      <p className="font-bold">{product.title}</p>
+                      <p>Branch: {product?.branch ? product?.branch : 'Not Assigned'}</p>
+                      <p>Category: {product.category}</p>
+                      <p>Price: {product.price}</p>
+                      <p>Quantity: {product.totalQuantity}</p>
                     </div>
 
                     <div className="mt-4 flex gap-2">
                       <Button
                         variant="contained"
                         component={Link}
-                        to={`../viewbranch/${branch._id}/${branch.name}/${branch.branchCode}`}
+                        to={`../viewProduct/${product._id}/${product.title}`}
                         fullWidth
                       >
                         View
                       </Button>
                       <Button
                         variant="contained"
+                        color="primary"
                         component={Link}
-                        to={`../updatebranch/${branch._id}`}
+                        to={`../updateProduct/${product._id}`}
                         fullWidth
                       >
                         Edit
@@ -339,7 +309,7 @@ const ListBranches = () => {
                       <Button
                         variant="contained"
                         color="error"
-                        onClick={() => handleClickOpen(branch.branchCode)}
+                        onClick={() => handleClickOpen(product._id)}
                         fullWidth
                       >
                         Delete
@@ -402,10 +372,10 @@ const ListBranches = () => {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          <DialogTitle className="text-red-600">Delete Branch</DialogTitle>
+          <DialogTitle className="text-red-600">Delete Product</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Are you sure you want to delete this branch? This action cannot be undone.
+              Are you sure you want to delete this product? This action cannot be undone.
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -422,7 +392,7 @@ const ListBranches = () => {
   );
 };
 
-export default ListBranches;
+export default ListProducts;
 
 
 

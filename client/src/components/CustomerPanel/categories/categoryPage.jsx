@@ -153,7 +153,7 @@ if(loading){
       <h1 className="text-center font-bold text-3xl my-10">{slug.toUpperCase()}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
         {products.map((product) => (
-          <Link to={`/productDetails/${product._id}`} key={product._id}>
+          <Link to={`/customer/productDetails/${product._id}`} key={product._id}>
             <div
             key={product._id}
             className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"

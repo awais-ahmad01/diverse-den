@@ -70,7 +70,7 @@ const UpdateProduct = () => {
       otherwise: (schema) => schema.notRequired(),
     }),
     productType: yup.string().required("Product type is required"),
-    branch: yup.string().required("Branch assignment is required"),
+  
     price: yup.number().required("Price is required"),
     sku: yup.string().required("SKU is required"),
     media: yup.mixed().required("At least one image is required"),
@@ -246,7 +246,6 @@ const UpdateProduct = () => {
         category: productById.category,
         subCategory: productById.subCategory,
         productType: productById.productType,
-        branch: productById.branch,
         price: productById.price,
         sku: productById.sku,
         variants: productById.variants,
@@ -338,14 +337,6 @@ const UpdateProduct = () => {
     setSelectedImage(image.url);
     setOpen(true);
   };
-
- 
-
-
-
-
-
-
 
 
 
@@ -613,36 +604,7 @@ const UpdateProduct = () => {
                 </FormControl>
               </div>
             )}
-            <div className="mb-4">
-              <FormControl sx={{ width: "100%" }}>
-                <InputLabel>Branch</InputLabel>
-                <Controller
-                  name="branch"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      {...field}
-                      label="Branch"
-                      error={!!errors.branch}
-                      MenuProps={{
-                        disableScrollLock: true,
-                      }}
-                    >
-                      {allBranches.map((branch, index) => (
-                        <MenuItem key={index} value={branch.branchCode}>
-                          {branch.branchCode}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  )}
-                />
-                {errors.branch && (
-                  <FormHelperText error={true}>
-                    {errors.branch.message}
-                  </FormHelperText>
-                )}
-              </FormControl>
-            </div>
+            
             <div className="mb-4">
               <Controller
                 name="price"

@@ -7,7 +7,9 @@ import {
   searchProduct,
   getSubCategoryProducts,
   getCustomerProductById,
-  getCartItems
+  getCartItems,
+  getProductReviews,
+
 } from "../../actions/products";
 
 const default_State = {
@@ -16,7 +18,9 @@ const default_State = {
   branchProducts: [],
   searchedProducts:[],
   subCategoryProducts:[],
-  cartItems:[]
+  cartItems:[],
+  productReviews:[],
+
   
 };
 
@@ -127,6 +131,23 @@ export const addProductSlice = createSlice({
       .addCase(getCartItems.rejected, (state) => {
         state.isloading = false;
       })
+
+
+
+      .addCase(getProductReviews.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getProductReviews.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.productReviews = action.payload.data;
+      })
+      .addCase(getProductReviews.rejected, (state) => {
+        state.isloading = false;
+      })
+
+
+
+  
  
  
  

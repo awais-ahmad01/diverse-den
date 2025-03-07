@@ -67,15 +67,18 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
       activePaths:[
         '/branchOwnerPanel/branchOwnerDashboard/productsList',
         '/branchOwnerPanel/branchOwnerDashboard/addProduct',
-        '/branchOwnerPanel/branchOwnerDashboard/viewProduct'
+        '/branchOwnerPanel/branchOwnerDashboard/viewProduct',
+        '/branchOwnerPanel/branchOwnerDashboard/updateProduct'
       ]
      },
      
      { to: 'ordersList', label: 'Manage Orders', 
       activePaths:[
         '/branchOwnerPanel/branchOwnerDashboard/ordersList',
+        '/branchOwnerPanel/branchOwnerDashboard/OrdersPaymentHistory'
       ]
      },
+
      { to: 'saleEventsList', label: 'Manage Sale Events', 
       activePaths:[
         '/branchOwnerPanel/branchOwnerDashboard/saleEventsList', 

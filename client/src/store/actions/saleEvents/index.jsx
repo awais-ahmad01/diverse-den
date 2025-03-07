@@ -4,7 +4,7 @@ import axios from 'axios'
 
 export const listSaleEvents = createAsyncThunk(
     'saleEvents/listSaleEvents',
-    async({business, pageNo=1, limit=7})=>{
+    async({business, pageNo=1, limit=5})=>{
         try{
 
 
@@ -18,22 +18,25 @@ export const listSaleEvents = createAsyncThunk(
             }
 
 
-            const request = await axios.get('http://localhost:3000/', 
+            const request = await axios.get('http://localhost:3000/branchOwner/viewSaleEvents', 
                 {
                     headers: {
                       Authorization: `Bearer ${token}`, 
                       "Content-Type": "application/json",
                     },
                     params: {
-                        business,
+                        businessId:business,
                         pageNo,
-                        limit
+                        limit                        
                       },
                 }
              );
 
+             console.log("SaleEvents data:", request.data)
+
             
-            return {data:request.data.saleEVents, metaData: response.data.meta}
+            return {data:request.data.events, metaData: request.data.meta
+            }
         }
         catch(error){
             
@@ -45,9 +48,10 @@ export const listSaleEvents = createAsyncThunk(
 
 
 
-export const createSaleEvent = createAsyncThunk(
-    'saleEvents/createSaleEvent',
-    async({eventData})=>{
+
+export const getSaleEventById = createAsyncThunk(
+    'saleEvents/getSaleEventById',
+    async(eventId)=>{
         try{
 
 
@@ -61,7 +65,102 @@ export const createSaleEvent = createAsyncThunk(
             }
 
 
-            const request = await axios.post('http://localhost:3000/', eventData ,
+            const request = await axios.get('http://localhost:3000/branchOwner/viewSaleEventById', 
+                {
+                    headers: {
+                      Authorization: `Bearer ${token}`, 
+                      "Content-Type": "application/json",
+                    },
+                    params: {
+                        eventId
+                        
+                      },
+                }
+             );
+
+             console.log("SaleEvent by Id:", request.data)
+
+            
+            return {data:request.data, 
+                // metaData: response.data.meta
+            }
+        }
+        catch(error){
+            
+            throw error;
+        }
+    }
+
+)
+
+
+
+
+
+
+
+
+export const getSalesProducts = createAsyncThunk(
+    'saleEvents/getSalesProducts',
+    async(business)=>{
+        try{
+
+
+            const token = localStorage.getItem("token"); 
+
+            console.log("Retrieved Token auth...:", token);
+            if (!token) {
+                console.log("No token found!");
+                
+                return { data:{},auth:false }; 
+            }
+
+
+            const request = await axios.get('http://localhost:3000/branchOwner/viewBusinessProductsbyIdWithoutPagination', 
+                {
+                    headers: {
+                      Authorization: `Bearer ${token}`, 
+                      "Content-Type": "application/json",
+                    },
+                    params: {
+                        business,
+                      },
+                }
+             );
+
+             console.log("Products:", request.data)
+
+            
+            return {data:request.data.businessProducts}
+        }
+        catch(error){            
+            throw error;
+        }
+    }
+
+)
+
+
+
+export const createSaleEvent = createAsyncThunk(
+    'saleEvents/createSaleEvent',
+    async(eventData)=>{
+        try{
+
+            console.log("Event DAta:", eventData)
+
+            const token = localStorage.getItem("token"); 
+
+            console.log("Retrieved Token auth...:", token);
+            if (!token) {
+                console.log("No token found!");
+                
+                return { data:{},auth:false }; 
+            }
+
+
+
+            const request = await axios.post('http://localhost:3000/branchOwner/createSaleEvent', eventData ,
                 {
                     headers: {
                       Authorization: `Bearer ${token}`, 
@@ -130,7 +229,7 @@ export const updateSaleEvent = createAsyncThunk(
 
 export const deleteSaleEvent = createAsyncThunk(
     'saleEvent/deleteSaleEvent',
-    async({business, eventId}, {getState}) =>{
+    async({business,eventId}, {getState, dispatch}) =>{
   
       try {
         console.log("Delete USer.....");
@@ -148,7 +247,7 @@ export const deleteSaleEvent = createAsyncThunk(
         }
 
         const body = {
-            business,
+          
             eventId
         }
   
@@ -156,7 +255,7 @@ export const deleteSaleEvent = createAsyncThunk(
       
   
   
-        const response = await axios.post('http://localhost:3000/deleteBranch', body,  {
+        const response = await axios.post('http://localhost:3000/branchOwner/deleteSaleEvent', body,  {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

@@ -578,6 +578,90 @@ export const placeOrder = createAsyncThunk(
 
 
 
+// Product Reviews
+
+
+export const SubmitProductReviews = createAsyncThunk(
+  "products/SubmitProductReviews",
+  async (body, thunkAPI) => {
+    try {
+
+      console.log('Reviews:', body)
+    
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+    
+
+      const response = await axios.post(
+        "http://localhost:3000/customer/addProductReview",
+        body,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log(" Add Review:", response.data);
+
+
+      return true;
+    } catch (error) {
+      console.log("errro000r................");
+    
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+
+
+
+export const getProductReviews = createAsyncThunk(
+  "products/getProductReviews",
+  async (productId, thunkAPI) => {
+    try {
+    
+
+      const response = await axios.get(
+        "http://localhost:3000/customer/viewProductReviews",
+        {
+          params: {
+            productId
+          },
+        }
+      );
+
+      console.log("Reviewss:", response.data);
+
+
+      return { data: response.data };
+    } catch (error) {
+      console.log("errro000r................");
+    
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+
+
+
+
+
+
+
+
+
+
 
 
 

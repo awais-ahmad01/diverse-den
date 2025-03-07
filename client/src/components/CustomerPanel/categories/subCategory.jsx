@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getSubCategoryProducts } from "../../../store/actions/products";
 import { clearSubCategoryProducts } from "../../../store/reducers/products";
 
@@ -68,7 +68,8 @@ const SubCategory = () => {
         {sortedProducts && sortedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             {sortedProducts.map((product) => (
-              <div
+              <Link to={`/customer/productDetails/${sortedProducts._id}`}>
+                <div
                 key={product?._id}
                 className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
               >
@@ -91,6 +92,7 @@ const SubCategory = () => {
                   </div>
                 </div>
               </div>
+              </Link>
             ))}
           </div>
         ) : (

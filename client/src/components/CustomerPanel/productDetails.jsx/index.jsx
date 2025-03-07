@@ -11,33 +11,38 @@ import {
 
 import { AddShoppingCart, Add, Remove } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCustomerProductById } from "../../../store/actions/products";
+import {
+  getCustomerProductById,
+  SubmitProductReviews,
+  getProductReviews
+} from "../../../store/actions/products";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../../tools";
 
+
 const ProductDetails = () => {
+  const { user, isauthenticated } = useSelector((state) => state.auth);
 
-  const {user, isauthenticated} = useSelector(state => state.auth)
+  const business = user?.business;
 
-  const {productId} = useParams()
+  const { productId } = useParams();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const {customerProduct} = useSelector(state => state.products);
+  const { customerProduct, productReviews } = useSelector((state) => state.products);
 
-  console.log("pr: ", customerProduct)
-
-
-  useEffect(()=>{
-
-    dispatch(getCustomerProductById(productId))
-
-
-  },[productId])
+  console.log("pr: ", customerProduct);
 
 
 
+  useEffect(() => {
+
+    dispatch(getCustomerProductById(productId));
+
+    dispatch(getProductReviews(productId));
+
+  }, [productId]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,14 +60,12 @@ const ProductDetails = () => {
     rating: 5,
     comment: "",
   });
-  
 
   const [viewImage, setViewImage] = useState(null);
 
   const [uniqueColorsData, setUniqueColorsData] = useState([]);
   const [checkVariants, setCheckVariants] = useState(null);
 
- 
   const getColorsBySelectedSize = (selectedSize) => {
     const variantsWithSelectedSize = customerProduct?.variants.filter(
       (variant) => variant.size === selectedSize
@@ -96,9 +99,11 @@ const ProductDetails = () => {
     setCheckVariants(variantAvailability);
 
     const defaultVariant = customerProduct?.variants[0];
-    const initialSize = variantAvailability.hasSize ? defaultVariant.size : null;
+    const initialSize = variantAvailability.hasSize
+      ? defaultVariant.size
+      : null;
     const initialColors = getColorsBySelectedSize(initialSize);
-    
+
     setSelectedVariant({
       size: initialSize,
       color: initialColors.length > 0 ? initialColors[0] : null,
@@ -112,9 +117,7 @@ const ProductDetails = () => {
     setLoading(false);
   }, [customerProduct]);
 
-
   useEffect(() => {
-
     if (selectedVariant.size) {
       const filteredColors = getColorsBySelectedSize(selectedVariant.size);
       setUniqueColorsData(filteredColors);
@@ -122,7 +125,7 @@ const ProductDetails = () => {
       if (filteredColors.length > 0) {
         setSelectedVariant((prev) => ({
           ...prev,
-          color: filteredColors[0]
+          color: filteredColors[0],
         }));
       }
     }
@@ -133,50 +136,46 @@ const ProductDetails = () => {
   }, []);
 
   const handleAddToCart = async () => {
+    console.log("variant: ", selectedVariant.size);
 
-    console.log('variant: ', selectedVariant.size)
+    console.log(`quantity: ${quantity} variant: ${selectedVariant}`);
 
-    console.log(`quantity: ${quantity} variant: ${selectedVariant}`)
-
-    if(!isauthenticated){
-      navigate('/signin')
-      return
+    if (!isauthenticated) {
+      navigate("/signin");
+      return;
     }
 
-
-
     try {
-
       const token = localStorage.getItem("token");
       console.log("myToken:", token);
 
       if (!token) {
-        showToast("ERROR", "Please Login first")
+        showToast("ERROR", "Please Login first");
         return;
       }
 
-      const response = await axios.post("http://localhost:3000/customer/addToCart", {
-        userId: user._id,
-        productId: customerProduct._id,
-        quantity: quantity,
-        selectedVariant: selectedVariant,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      const response = await axios.post(
+        "http://localhost:3000/customer/addToCart",
+        {
+          userId: user._id,
+          productId: customerProduct._id,
+          quantity: quantity,
+          selectedVariant: selectedVariant,
         },
-       
-      }  
-    
-    );
-      
-      console.log('res:', response.data)
-      showToast("SUCCESS", 'Product added to cart successfully!')
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("res:", response.data);
+      showToast("SUCCESS", "Product added to cart successfully!");
       window.location.reload();
     } catch (err) {
-      console.log('err:', err);
-      showToast("ERROR", 'Failed to Add Product!!')
+      console.log("err:", err);
+      showToast("ERROR", "Failed to Add Product!!");
       setError("Failed to add to cart");
     }
   };
@@ -185,19 +184,34 @@ const ProductDetails = () => {
     setTabValue(newValue);
   };
 
-    const handleReviewSubmit = async (e) => {
+  const handleReviewSubmit = (e) => {
     e.preventDefault();
-    console.log(`rating: ${newReview.rating} comment: ${newReview.comment}`)
-    try {
-      await axios.post(`/api/products/${productId}/reviews`, {
-        rating: newReview.rating,
-        comment: newReview.comment
+    console.log(`rating: ${newReview.rating} comment: ${newReview.comment}`);
+
+    const body = {
+      userData: user,
+      businessId: business,
+      productId,
+      rating: newReview.rating,
+      comment: newReview.comment,
+    };
+
+    dispatch(SubmitProductReviews(body))
+      .unwrap()
+      .then((response) => {
+        showToast("SUCCESS", "Review Submitted Successfully!!");
+        dispatch(getProductReviews(productId));
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed! to Submit Review");
+        // throw error;
       });
-      setNewReview({ rating: 5, comment: '' });
-    } catch (err) {
-      setError('Failed to submit review');
-    }
   };
+
+
+
+
+
 
   const variantRender = () => {
     return (
@@ -206,29 +220,34 @@ const ProductDetails = () => {
           <div className="mb-4">
             <span className="block mb-2 font-semibold">Size</span>
             <div className="flex space-x-2">
-              {customerProduct.variants.map((variant, index) => (
-                variant?.size?.length > 0 && (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      
-                      const filteredColors = getColorsBySelectedSize(variant.size);
-                      setSelectedVariant((prev) => ({
-                        ...prev,
-                        size: variant.size,
-                        color: filteredColors.length > 0 ? filteredColors[0] : null,
-                      }));
-                    }}
-                    className={`flex items-center space-x-2 px-3 py-1 rounded ${
-                      selectedVariant.size === variant.size
-                        ? "ring-2 ring-[#603f26] bg-gray-100"
-                        : "ring-1 ring-gray-300"
-                    }`}
-                  >
-                    {variant.size}
-                  </button>
-                )
-              ))}
+              {customerProduct.variants.map(
+                (variant, index) =>
+                  variant?.size?.length > 0 && (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        const filteredColors = getColorsBySelectedSize(
+                          variant.size
+                        );
+                        setSelectedVariant((prev) => ({
+                          ...prev,
+                          size: variant.size,
+                          color:
+                            filteredColors.length > 0
+                              ? filteredColors[0]
+                              : null,
+                        }));
+                      }}
+                      className={`flex items-center space-x-2 px-3 py-1 rounded ${
+                        selectedVariant.size === variant.size
+                          ? "ring-2 ring-[#603f26] bg-gray-100"
+                          : "ring-1 ring-gray-300"
+                      }`}
+                    >
+                      {variant.size}
+                    </button>
+                  )
+              )}
             </div>
           </div>
         )}
@@ -237,26 +256,27 @@ const ProductDetails = () => {
           <div className="mb-4">
             <span className="block mb-2 font-semibold">Material</span>
             <div className="flex space-x-2">
-              {customerProduct.variants.map((variant, index) => (
-                variant?.material?.length > 0 && (
-                  <button
-                    key={index}
-                    onClick={() =>
-                      setSelectedVariant((prev) => ({
-                        ...prev,
-                        material: variant.material,
-                      }))
-                    }
-                    className={`px-3 py-1 border rounded ${
-                      selectedVariant.material === variant.material
-                        ? "ring-2 ring-[#603f26] bg-gray-100"
-                        : "ring-1 ring-gray-300"
-                    }`}
-                  >
-                    {variant.material}
-                  </button>
-                )
-              ))}
+              {customerProduct.variants.map(
+                (variant, index) =>
+                  variant?.material?.length > 0 && (
+                    <button
+                      key={index}
+                      onClick={() =>
+                        setSelectedVariant((prev) => ({
+                          ...prev,
+                          material: variant.material,
+                        }))
+                      }
+                      className={`px-3 py-1 border rounded ${
+                        selectedVariant.material === variant.material
+                          ? "ring-2 ring-[#603f26] bg-gray-100"
+                          : "ring-1 ring-gray-300"
+                      }`}
+                    >
+                      {variant.material}
+                    </button>
+                  )
+              )}
             </div>
           </div>
         )}
@@ -291,10 +311,6 @@ const ProductDetails = () => {
   };
 
  
-  // const handleCloseSnackbar = () => {
-  //   setSubmitSuccess(false);
-  //   setError(null);
-  // };
 
   if (loading) {
     return (
@@ -306,32 +322,9 @@ const ProductDetails = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
- 
-      {/* <Snackbar
-        open={submitSuccess}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          Product added to cart successfully!
-        </Alert>
-      </Snackbar>
-
-      <Snackbar
-        open={!!error}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity="error" sx={{ width: '100%' }}>
-          {error}
-        </Alert>
-      </Snackbar> */}
+     
 
       <div className="grid md:grid-cols-2 gap-8">
-     
-     
         <div>
           <div className="mb-4">
             <img
@@ -372,12 +365,14 @@ const ProductDetails = () => {
             </span>
             <div className="flex items-center">
               <Rating
-                value={calculateAverageRating(customerProduct?.reviews)}
+                value={productReviews.averageRating}
                 precision={0.1}
                 readOnly
               />
               <span className="ml-2 text-sm">
-                ({customerProduct?.reviews ? customerProduct?.reviews.length : 0} reviews)
+                (
+                {productReviews?.productReviews ? productReviews?.productReviews.length : 0}{" "}
+                reviews)
               </span>
             </div>
           </div>
@@ -415,7 +410,6 @@ const ProductDetails = () => {
             </button>
           </div>
 
-   
           <div>
             <Tabs
               value={tabValue}
@@ -429,14 +423,16 @@ const ProductDetails = () => {
 
             {tabValue === "reviews" && (
               <div className="p-4">
-                {customerProduct?.reviews && customerProduct?.reviews.length > 0 ? (
-                  customerProduct?.reviews.map((review, index) => (
+                {productReviews?.productReviews &&
+                productReviews?.productReviews.length > 0 ? (
+                  productReviews?.productReviews.map((review, index) => (
                     <div key={index} className="border-b pb-4 mb-4">
                       <Rating value={review.rating} readOnly />
                       <p className="mt-2">{review.comment}</p>
                       <p className="text-sm text-gray-500 mt-1">
-                        {review.author} -{" "}
-                        {new Date(review.date).toLocaleDateString()}
+                        {review.customerName} -{" "}
+                        {(review.reviewDate)}
+                        
                       </p>
                     </div>
                   ))
@@ -486,16 +482,8 @@ const ProductDetails = () => {
 };
 
 
-const calculateAverageRating = (reviews) => {
-  if (!reviews || reviews.length === 0) return 0;
-  const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
-  return totalRating / reviews.length;
-};
 
 export default ProductDetails;
-
-
-
 
 
 

@@ -8,6 +8,7 @@ import ordersReducer from "./reducers/orders";
 import usersReducer from "./reducers/users";
 import businessesReducer from "./reducers/businesses";
 import subscriptionPlansReducer from "./reducers/subscriptionPlans";
+import saleEventsReducer from "./reducers/saleEvents";
 
 const store = configureStore({
     reducer: {
@@ -19,7 +20,9 @@ const store = configureStore({
         orders: ordersReducer,
         users: usersReducer,
         businesses: businessesReducer,
-        subscriptionPlans: subscriptionPlansReducer
+        subscriptionPlans: subscriptionPlansReducer,
+        saleEvents: saleEventsReducer,
+
     },
 });
 

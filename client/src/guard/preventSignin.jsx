@@ -17,6 +17,10 @@ const PreventSignin = (props) => {
 
             const userRole = user?.role;
 
+            if(userRole === 'Admin'){
+                return <Navigate to='/adminPanel' state={{from:location}} replace/>
+            }
+
             if(userRole === 'Branch Owner'){
 
                 if(user.activePlan){
@@ -25,12 +29,16 @@ const PreventSignin = (props) => {
                 return <Navigate to='/branchOwnerPanel/subscription' state={{from:location}} replace/>
             }
 
+            if(userRole === 'Salesperson'){
+                return <Navigate to='/branchOwnerPanel/salespersonDashboard' state={{from:location}} replace/>
+            }
+
             if(userRole === 'Rider'){
                 return <Navigate to='/riderPanel' state={{from:location}} replace/>
             }
 
             if(userRole === 'Customer'){
-                return <Navigate to='/' state={{from:location}} replace/>
+                return <Navigate to='/customer' state={{from:location}} replace/>
             }
 
             

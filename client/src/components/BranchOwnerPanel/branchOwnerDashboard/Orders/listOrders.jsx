@@ -58,7 +58,7 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
       </DialogTitle>
       <DialogContent className="mt-4">
         <Grid container spacing={3}>
-          {/* Customer Information */}
+         
           <Grid item xs={12} md={6}>
             <Typography variant="h6" className="font-bold mb-2">
               Customer Information
@@ -70,12 +70,12 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
             <Typography>Phone: {order.userInfo?.phone}</Typography>
           </Grid>
 
-          {/* Shipping Information */}
+      
           <Grid item xs={12} md={6}>
             <Typography>{order.userInfo?.address}</Typography>
           </Grid>
 
-          {/* Order Summary */}
+       
           <Grid item xs={12}>
             <Divider className="my-4" />
             <Typography variant="h6" className="font-bold mb-2">
@@ -127,7 +127,6 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
             </TableContainer>
           </Grid>
 
-          {/* Payment Information */}
           <Grid item xs={12} md={6}>
             <Typography variant="h6" className="font-bold mb-2">
               Payment Information
@@ -137,7 +136,7 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
             <Typography>Transaction ID: {order.transactionId}</Typography>
           </Grid>
 
-          {/* Order Status */}
+       
           <Grid item xs={12} md={6}>
             <Typography variant="h6" className="font-bold mb-2">
               Order Status
@@ -308,7 +307,7 @@ const ListOrders = () => {
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
-        {/* Header */}
+       
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
           <Typography
             variant="h4"
@@ -318,7 +317,6 @@ const ListOrders = () => {
           </Typography>
         </Box>
 
-        {/* Stats and Actions */}
         <Box
           sx={{
             px: { xs: 2, md: 4, lg: 6 },
@@ -366,7 +364,8 @@ const ListOrders = () => {
             </Button>
           </Box>
         </Box>
-        {/* Filters */}
+       
+
         {showFilters && (
           <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
             <Paper sx={{ p: 3 }}>
@@ -413,7 +412,6 @@ const ListOrders = () => {
           </Box>
         )}
 
-        {/* Orders Content */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!filteredOrders || filteredOrders.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
@@ -421,7 +419,8 @@ const ListOrders = () => {
             </div>
           ) : (
             <>
-              {/* Desktop View */}
+            
+            {/* Desktop view */}
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
                 <TableContainer component={Paper}>
                   <Table sx={{ minWidth: 650 }} aria-label="orders table">
@@ -653,14 +652,14 @@ const ListOrders = () => {
           </nav>
         ) : null}
 
-        {/* Order Details Dialog */}
+      
         <OrderDetailsDialog
           open={!!viewOrderDetails}
           onClose={() => setViewOrderDetails(null)}
           order={viewOrderDetails}
         />
 
-        {/* Delete Confirmation Dialog */}
+     
         <DeleteConfirmationDialog
           open={!!deleteOrderId}
           onClose={() => setDeleteOrderId(null)}
