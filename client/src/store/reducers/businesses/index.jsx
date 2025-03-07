@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { listBusinesses, getBusinessProductReviews, verifyBusiness } from "../../actions/businesses";
+import { listBusinesses, getBusinessProductReviews, verifyBusiness, getBusinessProducts } from "../../actions/businesses";
 
 let default_state = {
   isloading: false,
   businesses: [],
   businessProductReviews: [],
+  businessProducts:[]
   
 };
 
@@ -39,6 +40,19 @@ export const businessesSlice = createSlice({
         state.reviewsMeta = action.payload.metaData;
       })
       .addCase(getBusinessProductReviews.rejected, (state) => {
+        state.isloading = false;
+      })
+
+
+      .addCase(getBusinessProducts.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getBusinessProducts.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.businessProducts = action.payload.data;
+        state.productsMeta = action.payload.metaData;
+      })
+      .addCase(getBusinessProducts.rejected, (state) => {
         state.isloading = false;
       })
 

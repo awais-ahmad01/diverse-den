@@ -70,8 +70,8 @@ const BusinessDetailsDialog = ({ open, onClose, business }) => {
               Business Branches:
               {business?.branches?.length > 0 ? (
                 <ul className="list-disc pl-5 mt-2">
-                  {business.branches.map((branch, index) => (
-                    <li key={index}>{branch.name}</li>
+                  {business?.branches.map((branch, index) => (
+                    <li key={index}>{branch}</li>
                   ))}
                 </ul>
               ) : (
@@ -292,10 +292,10 @@ const ManageBusinesses = () => {
       await dispatch(deleteBusiness(deleteBusinessId))
         .unwrap()
         .then((response) => {
-          showToast("SUCCESS", "User deleted successfully!");
+          showToast("SUCCESS", "Business deleted successfully!");
         })
         .catch((error) => {
-          showToast("ERROR", "Failed to delete user");
+          showToast("ERROR", "Failed to delete Business");
         });
     } catch (error) {
       console.error("Failed to delete user:", error);
@@ -527,15 +527,7 @@ const ManageBusinesses = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="businesses table">
                     <TableHead sx={{ backgroundColor: "#603F26" }}>
                       <TableRow>
-                        <TableCell
-                          sx={{
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          ID
-                        </TableCell>
+                        
                         <TableCell
                           sx={{
                             color: "white",
@@ -563,7 +555,7 @@ const ManageBusinesses = () => {
                         >
                           Subscription
                         </TableCell>
-                        {/* <TableCell
+                        <TableCell
                           sx={{
                             color: "white",
                             fontSize: "16px",
@@ -571,7 +563,7 @@ const ManageBusinesses = () => {
                           }}
                         >
                           Status
-                        </TableCell> */}
+                        </TableCell>
                         <TableCell
                           sx={{
                             color: "white",
@@ -595,7 +587,7 @@ const ManageBusinesses = () => {
                     <TableBody>
                       {filteredBusinesses.map((business) => (
                         <TableRow key={business?._id}>
-                          <TableCell>{business?._id.slice(-6)}</TableCell>
+                          
                           <TableCell>{business?.name}</TableCell>
                           <TableCell>
                             {business?.user?.firstname}{" "}
@@ -604,13 +596,13 @@ const ManageBusinesses = () => {
                           <TableCell>
                             {business?.user?.activePlan?.name}
                           </TableCell>
-                          {/* <TableCell>
+                          <TableCell>
                             <Chip
-                              label={business.isActive ? "Active" : "Disabled"}
-                              color={business.isActive ? "success" : "error"}
+                              label={business?.status?.charAt(0).toUpperCase() + business?.status?.slice(1)}
+                              color={business?.status === "active" ? "success" : "error"}
                               size="small"
                             />
-                          </TableCell> */}
+                          </TableCell>
                           <TableCell>{business?.user?.planExpiry}</TableCell>
                           <TableCell>
                             <div className="flex gap-2">
@@ -681,11 +673,11 @@ const ManageBusinesses = () => {
                         <h3 className="font-bold">{business?.name}</h3>
                         {/* <p className="text-gray-600">{business?.email}</p> */}
                       </div>
-                      {/* <Chip
-                        label={business.isActive ? "Active" : "Disabled"}
-                        color={business.isActive ? "success" : "error"}
+                      <Chip
+                        label={business?.status?.charAt(0).toUpperCase() + business?.status?.slice(1)}
+                        color={business?.status === "active" ? "success" : "error"}
                         size="small"
-                      /> */}
+                      />
                     </div>
 
                     <div className="space-y-2">

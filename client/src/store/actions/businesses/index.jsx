@@ -50,17 +50,17 @@ export const deleteBusiness = createAsyncThunk(
           dispatch(errorGlobal('No token found'));
           return;
         }
+
+        const body = {
+          businessId: deleteBusinessId
+        }
   
   
       
   
   
-        const response = await axios.post('http://localhost:3000/deleteBranch', deleteBusinessId,  {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
+        const response = await axios.post('http://localhost:3000/admin/deleteBusinessById', body,  
+        )
   
        
   
@@ -158,6 +158,58 @@ export const disableBusiness = createAsyncThunk(
     }
 
 )
+
+
+
+
+
+
+export const getBusinessProducts = createAsyncThunk(
+  "businesses/getBusinessProducts",
+  async ({businessId, pageNo=1, limit=7}, thunkAPI) => {
+    try {
+
+      console.log("BusinessID:", businessId)
+
+      const token = localStorage.getItem("token"); 
+
+            console.log("Retrieved Token auth...:", token);
+            if (!token) {
+                console.log("No token found!");
+                
+                return { data:{},auth:false }; 
+            }
+    
+
+      const response = await axios.get(
+        "http://localhost:3000/branchOwner/viewBusinessProductsReviews",
+      
+        {
+          
+          headers: {
+            Authorization: `Bearer ${token}`, 
+            "Content-Type": "application/json",
+          },
+          params: {
+            businessId, 
+            pageNo,
+            limit
+          },
+        }
+      );
+
+      console.log("business Reviewss:", response.data);
+
+      return { data: response.data.products, metaData: response.data.meta };
+    } catch (error) {
+      console.log("errro000r................");
+    
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
 
 
 
