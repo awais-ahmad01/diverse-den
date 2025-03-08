@@ -56,17 +56,19 @@ const AdminSideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburge
     { to: 'manageBusinesses', label: 'Manage Businesses', 
       activePaths:[
         '/adminPanel/manageBusinesses',
+        '/adminPanel/businessProducts',
+        '/adminPanel/viewProduct'
        
       ]
      },
-    { to: 'productsList', label: 'Manage Products', 
+    // { to: 'productsList', label: 'Manage Products', 
 
-      activePaths:[
-        '/branchOwnerPanel/branchOwnerDashboard/productsList',
-        '/branchOwnerPanel/branchOwnerDashboard/addProduct',
-        '/branchOwnerPanel/branchOwnerDashboard/viewProduct'
-      ]
-     },
+    //   activePaths:[
+    //     '/branchOwnerPanel/branchOwnerDashboard/productsList',
+    //     '/branchOwnerPanel/branchOwnerDashboard/addProduct',
+    //     '/branchOwnerPanel/branchOwnerDashboard/viewProduct'
+    //   ]
+    //  },
      { to: 'manageSubscriptionPlans', label: 'Manage Subscriptions', 
       activePaths:[
         '/adminPanel/manageSubscriptionPlans', 

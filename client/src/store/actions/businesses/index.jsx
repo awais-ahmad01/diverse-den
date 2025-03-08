@@ -182,7 +182,7 @@ export const getBusinessProducts = createAsyncThunk(
     
 
       const response = await axios.get(
-        "http://localhost:3000/branchOwner/viewBusinessProductsReviews",
+        "http://localhost:3000/branchOwner/viewBusinessProductsById",
       
         {
           
@@ -191,16 +191,16 @@ export const getBusinessProducts = createAsyncThunk(
             "Content-Type": "application/json",
           },
           params: {
-            businessId, 
+            business: businessId, 
             pageNo,
             limit
           },
         }
       );
 
-      console.log("business Reviewss:", response.data);
+      console.log("business products:", response.data);
 
-      return { data: response.data.products, metaData: response.data.meta };
+      return { data: response.data.businessProducts, metaData: response.data.meta };
     } catch (error) {
       console.log("errro000r................");
     
@@ -209,6 +209,57 @@ export const getBusinessProducts = createAsyncThunk(
     }
   }
 );
+
+
+
+export const deleteBusinessProduct = createAsyncThunk(
+  "businesses/deleteBusinessProduct ",
+  async ({ toRemove, business }, { dispatch, getState }) => {
+    try {
+      console.log("Delete Product.....");
+
+      console.log("toremove:", toRemove);
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      const body = {
+        productId: toRemove,
+      };
+
+      const response = await axios.post(
+        "http://localhost:3000/branchOwner/deleteProductById",
+        body,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+
+      console.log("product Deleted: ", response.data);
+
+      const { productsMeta } = getState().businesses;
+      const pageNo = productsMeta.currentPage;
+      dispatch(getBusinessProducts({ businessId: business, pageNo }));
+
+      return true;
+    } catch (error) {
+      console.log("Errrorrr...");
+
+      console.log(error.response.data.message);
+      throw error;
+    }
+  }
+);
+
 
 
 

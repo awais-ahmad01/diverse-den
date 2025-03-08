@@ -8,7 +8,6 @@ export const getSubscriptionPlans = createAsyncThunk(
     async()=>{
         try{
 
-
             const token = localStorage.getItem("token"); 
 
             console.log("Retrieved Token auth...:", token);
@@ -31,13 +30,40 @@ export const getSubscriptionPlans = createAsyncThunk(
             console.log("Plansss:", request.data)
 
             
-            return {data:request.data.allplans}
+            return {data:request.data.plans}
         }
         catch(error){
             
             throw error;
         }
     }
+
+)
+
+
+
+export const getPlanSubscribers = createAsyncThunk(
+  'subscriptionPlans/getPlanSubscribers',
+  async()=>{
+      try{
+
+          
+
+          const request = await axios.get("http://localhost:3000/admin/getPlanSubscribers", 
+          
+          );
+
+
+          console.log("Plansss:", request.data)
+
+          
+          return {data:request.data.allplans}
+      }
+      catch(error){
+          
+          throw error;
+      }
+  }
 
 )
 
@@ -96,31 +122,9 @@ export const addSubscriptionPlan = createAsyncThunk(
     'subscriptionPlans/addSubscriptionPlan',
     async(body) =>{
   
-      try {
-        console.log("Delete USer.....");
+      try { 
   
-        console.log("toremove:", body)
-    
-  
-  
-        const token = localStorage.getItem("token");
-        console.log("myToken:", token);
-  
-        if (!token) {
-          dispatch(errorGlobal('No token found'));
-          return;
-        }
-  
-  
-      
-  
-  
-        const response = await axios.post('http://localhost:3000/', body,  {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
+        const response = await axios.post('http://localhost:3000/admin/addSubscriptionPlan', body)
 
         console.log("subs added: ", response.data)   
   
@@ -137,34 +141,24 @@ export const addSubscriptionPlan = createAsyncThunk(
 
   export const updateSubscriptionPlan = createAsyncThunk(
     'subscriptionPlans/addSubscriptionPlan',
-    async(body) =>{
+    async({planId, formData}) =>{
   
       try {
-        console.log("Delete USer.....");
+        
+        const body = {
+          planId,
+          ...formData
+        }   
+        
+        console.log("Update subscription.....");
   
-        console.log("toremove:", body)
-    
-  
-  
-        const token = localStorage.getItem("token");
-        console.log("myToken:", token);
-  
-        if (!token) {
-          dispatch(errorGlobal('No token found'));
-          return;
-        }
+        console.log("body:", body)
   
   
-      
-  
-  
-        const response = await axios.post('http://localhost:3000/', body,  {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
+        const response = await axios.post('http://localhost:3000/admin/updateSubscriptionPlan', body)
 
+
+        console.log("subs updated: ")  
         console.log("subs updated: ", response.data)   
   
         return true
@@ -182,40 +176,21 @@ export const addSubscriptionPlan = createAsyncThunk(
 
 export const deleteSubscriptionPlan = createAsyncThunk(
     'subscriptionPlans/deleteSubscriptionPlan',
-    async({toRemove}, {getState}) =>{
+    async(planId, {getState, dispatch}) =>{
   
       try {
-        console.log("Delete USer.....");
-  
-        console.log("toremove:", toRemove)
-    
-  
-  
-        const token = localStorage.getItem("token");
-        console.log("myToken:", token);
-  
-        if (!token) {
-          dispatch(errorGlobal('No token found'));
-          return;
-        }
-  
-  
-      
-  
-  
-        const response = await axios.post('http://localhost:3000/', toRemove,  {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
+
+        console.log("Delete subscription.....", planId);
+
+        const response = await axios.post('http://localhost:3000/admin/deleteSubscriptionPlan', {planId})
 
         console.log("subs Deleted: ", response.data)   
+
   
         return true
   
       } catch (error) {
-        console.log(error.response.data.message)
+        console.log("errrrr",error.response.data.message)
         throw error;
       }    
   

@@ -2,9 +2,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useParams } from "react-router-dom";
-import { getBusinessProducts } from "../../../store/actions/businesses";
+import { getBusinessProducts, deleteBusinessProduct } from "../../../store/actions/businesses";
+
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Loader } from "../../../tools";
+import { Loader, showToast } from "../../../tools";
+
 
 // Material UI Components
 import {
@@ -45,7 +47,7 @@ const theme = createTheme({
 const BusinessProducts = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { BusinessProducts, productsMeta, isloading } = useSelector((state) => state.businesses);
+  const { businessProducts, productsMeta, isloading } = useSelector((state) => state.businesses);
 
   const { businessId } = useParams();
   
@@ -80,21 +82,29 @@ const BusinessProducts = () => {
   };
 
   const handleDelete = () => {
-    const business = user?.business;
+   
     console.log("dlete:code:", toRemove);
-    dispatch(removeProduct({toRemove, business}))
+    dispatch(deleteBusinessProduct({toRemove, business:businessId}))
       .unwrap()
+      .then(() => {
+          showToast("SUCCESS", "Product deleted successfully!");
+      })
+      .catch(() => {
+          showToast("ERROR", "Failed to delete product!");
+      })
       .finally(() => {
         setOpen(false);
         setToRemove(null);
       }); 
   };
 
+
+
   useEffect(() => {
     console.log("getting products.....");
-    const business = user?.business;
-    dispatch(getProducts({ business }));
-  }, [dispatch, user]);
+   
+    dispatch(getBusinessProducts({ businessId }));
+  }, [dispatch]);
 
   if(isloading){
     return <Loader/>
@@ -140,7 +150,7 @@ const BusinessProducts = () => {
             </Paper>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 2 }}>
+          {/* <Box sx={{ display: "flex", gap: 2 }}>
             <Button
               variant="contained"
               color="primary"
@@ -150,12 +160,12 @@ const BusinessProducts = () => {
             >
               Add Product
             </Button>
-          </Box>
+          </Box> */}
         </Box>
 
         {/* Products Content */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
-          {!BusinessProducts || BusinessProducts .length === 0 ? (
+          {!businessProducts || businessProducts .length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
               No Products found
             </div>
@@ -225,7 +235,7 @@ const BusinessProducts = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {BusinessProducts .map((product, index) => (
+                      {businessProducts .map((product, index) => (
                         <TableRow
                           key={index}
                           sx={{
@@ -248,7 +258,7 @@ const BusinessProducts = () => {
                                   <VisibilityIcon />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Edit Product">
+                              {/* <Tooltip title="Edit Product">
                                 <IconButton
                                   component={Link}
                                   to={`../updateProduct/${product._id}`}
@@ -256,7 +266,7 @@ const BusinessProducts = () => {
                                 >
                                   <EditIcon />
                                 </IconButton>
-                              </Tooltip>
+                              </Tooltip> */}
                               <Tooltip title="Delete Product">
                                 <IconButton
                                   onClick={() => handleClickOpen(product._id)}
@@ -276,7 +286,7 @@ const BusinessProducts = () => {
 
               {/* Mobile View */}
               <div className="block xl:hidden space-y-4">
-                {BusinessProducts .map((product, index) => (
+                {businessProducts .map((product, index) => (
                   <div
                     key={index}
                     className="bg-white p-4 rounded-lg shadow"
@@ -298,7 +308,7 @@ const BusinessProducts = () => {
                       >
                         View
                       </Button>
-                      <Button
+                      {/* <Button
                         variant="contained"
                         color="primary"
                         component={Link}
@@ -306,7 +316,7 @@ const BusinessProducts = () => {
                         fullWidth
                       >
                         Edit
-                      </Button>
+                      </Button> */}
                       <Button
                         variant="contained"
                         color="error"
@@ -324,38 +334,38 @@ const BusinessProducts = () => {
         </div>
 
         {/* Pagination */}
-        {meta?.nextPage || meta?.previousPage ? (
+        {productsMeta?.nextPage || productsMeta?.previousPage ? (
           <nav className="w-full flex justify-center items-center my-16">
             <ul className="inline-flex items-center -space-x-px text-sm">
-              {meta?.previousPage && (
+              {productsMeta?.previousPage && (
                 <>
                   <li 
-                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    onClick={() => handlePrevPage(productsMeta?.previousPage)}
                     className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer"
                   >
                     Previous
                   </li>
                   <li 
-                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    onClick={() => handlePrevPage(productsMeta?.previousPage)}
                     className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
                   >
-                    {meta?.previousPage}
+                    {productsMeta?.previousPage}
                   </li>
                 </>
               )}
               <li className="px-4 py-2 bg-[#603F26] text-white border">
-                {meta?.currentPage}
+                {productsMeta?.currentPage}
               </li>
-              {meta?.nextPage && (
+              {productsMeta?.nextPage && (
                 <>
                   <li 
-                    onClick={() => handleNextPage(meta?.nextPage)}
+                    onClick={() => handleNextPage(productsMeta?.nextPage)}
                     className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
                   >
-                    {meta?.nextPage}
+                    {productsMeta?.nextPage}
                   </li>
                   <li 
-                    onClick={() => handleNextPage(meta?.nextPage)}
+                    onClick={() => handleNextPage(productsMeta?.nextPage)}
                     className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer"
                   >
                     Next

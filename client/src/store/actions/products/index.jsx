@@ -223,7 +223,6 @@ export const removeProduct = createAsyncThunk(
         }
       );
 
-      dispatch(successGlobal("Product deteled Successfully!!"));
 
       console.log("product Deleted: ", response.data);
 

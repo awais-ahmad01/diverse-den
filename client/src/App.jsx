@@ -67,6 +67,7 @@ import SalespersonOrderManagement from "./components/BranchOwnerPanel/salesperso
 import ProductList from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/assignProduct.jsx";
 import LandingPage from "./components/LandingPage/index.jsx";
 import BusinessProducts from "./components/AdminPanel/ManageBusinesses/businessProducts.jsx";
+import DealsPage from "./components/CustomerPanel/deals/dealsProducts.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -256,6 +257,11 @@ function App() {
             <Route path="searchedProduct" element={<SearchedProduct />} />
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
+
+
+            <Route path="deals" element={<DealsPage />} />
+
+
           </Route>
 
           <Route path="addsubscription" element={<AddSubscription />} />
@@ -272,9 +278,16 @@ function App() {
           >
             <Route path="manageUsers" element={<ManageUsers />} />
 
-            <Route path="businessProducts/:businessId" element={<BusinessProducts />} />
+            
 
             <Route path="manageBusinesses" element={<ManageBusinesses />} />
+
+            <Route path="businessProducts/:businessId" element={<BusinessProducts />} />
+
+            <Route
+                path="viewProduct/:productId/:productTitle"
+                element={<ViewProduct />}
+              />
 
             <Route
               path="manageSubscriptionPlans"

@@ -9,6 +9,7 @@ const SubCategory = () => {
 
 
   console.log("subCategoryPage")
+  
 
   const { category, subcategory, productType } = useParams();
 
@@ -53,7 +54,8 @@ const SubCategory = () => {
           {productType ? productType.toUpperCase() : subcategory.toUpperCase()}
         </h1>
 
-        <div className="flex justify-end mb-4">
+        {sortedProducts && sortedProducts.length > 0 ? (
+          <div className="flex justify-end mb-4">
           <select
             className="bg-white border border-gray-300 rounded-lg py-2 px-4"
             value={filterOption}
@@ -64,6 +66,10 @@ const SubCategory = () => {
             <option value="highToLow">Price: High to Low</option>
           </select>
         </div>
+        ):
+        null}
+
+        
 
         {sortedProducts && sortedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">

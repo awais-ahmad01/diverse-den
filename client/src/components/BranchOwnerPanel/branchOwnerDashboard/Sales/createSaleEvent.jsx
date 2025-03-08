@@ -1,10 +1,13 @@
+
 // import React, { useState, useEffect } from 'react';
-// import { Link } from "react-router-dom";
+// import { Link, useNavigate } from "react-router-dom";
+// import { useDispatch, useSelector } from "react-redux";
 // import SaveIcon from '@mui/icons-material/Save';
 // import SendIcon from '@mui/icons-material/Send';
 // import FilterListIcon from '@mui/icons-material/FilterList';
-// import EventIcon from '@mui/icons-material/Event';
 // import { TextField, Select, MenuItem, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Paper, Checkbox, ThemeProvider, createTheme } from '@mui/material';
+// import { Loader, showToast } from "../../../../tools";
+// import { createSaleEvent, getSalesProducts } from '../../../../store/actions/saleEvents';
 
 // // Define the theme
 // const theme = createTheme({
@@ -16,6 +19,11 @@
 // });
 
 // const CreateSaleEvent = () => {
+//   const dispatch = useDispatch();
+//   const navigate = useNavigate();
+//   const { user } = useSelector((state) => state.auth);
+//   const { salesProducts, isLoading } = useSelector((state) => state.saleEvents);
+
 //   const [saleEvent, setSaleEvent] = useState({
 //     name: '',
 //     description: '',
@@ -28,12 +36,19 @@
 
 //   const [showFilters, setShowFilters] = useState(true);
 
-//   const [availableProducts] = useState([
-//     { id: 1, name: 'Product 1', price: 99.99, category: 'Electronics' },
-//     { id: 2, name: 'Product 2', price: 149.99, category: 'Fashion' },
-//     { id: 3, name: 'Product 3', price: 199.99, category: 'Home' },
-//     // ... other products
-//   ]);
+//   // Fetch available products when component mounts
+//   useEffect(() => {
+//     const business = user?.business;
+//     dispatch(getSalesProducts(business))
+//       // .unwrap()
+//       // .then(response => {
+//       //   console.log("Available products loaded successfully");
+//       // })
+//       // .catch(error => {
+//       //   showToast("ERROR", "Failed to load available products");
+//       //   console.error("Failed to load available products:", error);
+//       // });
+//   }, [dispatch, user]);
 
 //   const handleInputChange = (e) => {
 //     const { name, value } = e.target;
@@ -45,12 +60,12 @@
 
 //   const handleProductToggle = (product) => {
 //     setSaleEvent(prev => {
-//       const isSelected = prev.products.some(p => p.id === product.id);
+//       const isSelected = prev.products.some(p => p._id === product._id);
       
 //       if (isSelected) {
 //         return {
 //           ...prev,
-//           products: prev.products.filter(p => p.id !== product.id)
+//           products: prev.products.filter(p => p._id !== product._id)
 //         };
 //       } else {
 //         const calculatedPrice = prev.discountType === 'percentage' 
@@ -60,7 +75,7 @@
 //         const productWithDiscount = {
 //           ...product,
 //           originalPrice: product.price,
-//           discountedPrice: Math.max(0, calculatedPrice).toFixed(2)
+//           discountedPrice: Math.max(0, calculatedPrice)
 //         };
 
 //         return {
@@ -82,7 +97,7 @@
 
 //           return {
 //             ...product,
-//             discountedPrice: Math.max(0, calculatedPrice).toFixed(2)
+//             discountedPrice: Math.max(0, calculatedPrice)
 //           };
 //         })
 //       }));
@@ -90,12 +105,74 @@
 //   }, [saleEvent.discountType, saleEvent.discountValue]);
 
 //   const handlePublish = () => {
-//     console.log('Publishing new sale event:', saleEvent);
+//     if (!validateForm()) return;
+
+//     const business = user?.business;
+//     const eventData = {
+//       ...saleEvent,
+//       businessId: business,
+//       status: 'Active'
+//     };
+
+//     dispatch(createSaleEvent(eventData))
+//       .unwrap()
+//       .then(() => {
+//         showToast("SUCCESS", "Sale event published successfully");
+//         // navigate("../saleEvents");
+//       })
+//       .catch(error => {
+//         showToast("ERROR", "Failed to publish sale event");
+//         console.error("Failed to publish sale event:", error);
+//       });
 //   };
 
 //   const handleSave = () => {
-//     console.log('Saving draft sale event:', saleEvent);
+//     const business = user?.business;
+//     const eventData = {
+//       ...saleEvent,
+//       business,
+//       status: 'Draft'
+//     };
+
+//     dispatch(saveDraftSaleEvent(eventData))
+//       .unwrap()
+//       .then(() => {
+//         showToast("SUCCESS", "Sale event saved as draft");
+//         navigate("../saleEvents");
+//       })
+//       .catch(error => {
+//         showToast("ERROR", "Failed to save draft");
+//         console.error("Failed to save draft:", error);
+//       });
 //   };
+
+//   const validateForm = () => {
+//     if (!saleEvent.name) {
+//       showToast("ERROR", "Event name is required");
+//       return false;
+//     }
+//     if (!saleEvent.startDate) {
+//       showToast("ERROR", "Start date is required");
+//       return false;
+//     }
+//     if (!saleEvent.endDate) {
+//       showToast("ERROR", "End date is required");
+//       return false;
+//     }
+//     if (saleEvent.products.length === 0) {
+//       showToast("ERROR", "At least one product must be selected");
+//       return false;
+//     }
+//     if (!saleEvent.discountValue) {
+//       showToast("ERROR", "Discount value is required");
+//       return false;
+//     }
+//     return true;
+//   };
+
+//   if (isLoading) {
+//     return <Loader />;
+//   }
 
 //   return (
 //     <ThemeProvider theme={theme}>
@@ -137,6 +214,7 @@
 //                   onChange={handleInputChange}
 //                   fullWidth
 //                   color="primary"
+//                   required
 //                 />
 //                 <TextField
 //                   label="Description"
@@ -159,6 +237,7 @@
 //                   }}
 //                   fullWidth
 //                   color="primary"
+//                   required
 //                 />
 //                 <TextField
 //                   label="End Date"
@@ -171,6 +250,7 @@
 //                   }}
 //                   fullWidth
 //                   color="primary"
+//                   required
 //                 />
 //                 <Select
 //                   label="Discount Type"
@@ -191,6 +271,7 @@
 //                   onChange={handleInputChange}
 //                   fullWidth
 //                   color="primary"
+//                   required
 //                 />
 //               </div>
 //             </div>
@@ -222,21 +303,22 @@
 //                   </TableRow>
 //                 </TableHead>
 //                 <TableBody>
-//                   {availableProducts.map((product) => {
-//                     const isSelected = saleEvent.products.some(p => p.id === product.id);
-//                     const selectedProduct = saleEvent.products.find(p => p.id === product.id);
+//                   {salesProducts && salesProducts.map((product) => {
+//                     const isSelected = saleEvent.products.some(p => p._id === product?._id);
+//                     const selectedProduct = saleEvent.products.find(p => p._id === product?._id);
                     
 //                     return (
+
 //                       <TableRow
-//                         key={product.id}
+//                         key={product?._id}
 //                         className={`hover:bg-gray-50 cursor-pointer ${
 //                           isSelected ? 'bg-[#603F26]/10' : ''
 //                         }`}
 //                         onClick={() => handleProductToggle(product)}
 //                       >
-//                         <TableCell>{product.name}</TableCell>
-//                         <TableCell>{product.category}</TableCell>
-//                         <TableCell align="right">${product.price.toFixed(2)}</TableCell>
+//                         <TableCell>{product?.title}</TableCell>
+//                         <TableCell>{product?.category}</TableCell>
+//                         <TableCell align="right">${product?.price.toFixed(2)}</TableCell>
 //                         <TableCell align="right">
 //                           {isSelected ? `$${selectedProduct.discountedPrice}` : '-'}
 //                         </TableCell>
@@ -258,13 +340,13 @@
 
 //         {/* Products Cards - Mobile View */}
 //         <div className="px-4 md:px-8 lg:px-12 xl:hidden space-y-4">
-//           {availableProducts.map((product) => {
-//             const isSelected = saleEvent.products.some(p => p.id === product.id);
-//             const selectedProduct = saleEvent.products.find(p => p.id === product.id);
+//           {salesProducts && salesProducts.map((product) => {
+//             const isSelected = saleEvent.products.some(p => p._id === product?._id);
+//             const selectedProduct = saleEvent.products.find(p => p._id === product?._id);
 
 //             return (
 //               <div
-//                 key={product.id}
+//                 key={product?._id}
 //                 className={`bg-white p-4 rounded-lg shadow cursor-pointer ${
 //                   isSelected ? 'bg-[#603F26]/10' : ''
 //                 }`}
@@ -273,9 +355,9 @@
 //                 <div className="flex flex-col gap-2">
 //                   <div className="flex justify-between items-start">
 //                     <div>
-//                       <h3 className="font-bold text-lg">{product.name}</h3>
+//                       <h3 className="font-bold text-lg">{product?.title}</h3>
 //                       <span className="inline-block px-2 py-1 bg-gray-100 text-sm rounded mt-1">
-//                         {product.category}
+//                         {product?.category}
 //                       </span>
 //                     </div>
 //                     <Checkbox
@@ -285,7 +367,7 @@
 //                     />
 //                   </div>
 //                   <div className="flex justify-between mt-2">
-//                     <span>Original Price: ${product.price.toFixed(2)}</span>
+//                     <span>Original Price: ${product?.price?.toFixed(2)}</span>
 //                     <span>
 //                       Discounted: {isSelected ? `$${selectedProduct.discountedPrice}` : '-'}
 //                     </span>
@@ -324,13 +406,16 @@
 
 
 
+
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import SaveIcon from '@mui/icons-material/Save';
 import SendIcon from '@mui/icons-material/Send';
 import FilterListIcon from '@mui/icons-material/FilterList';
-import { TextField, Select, MenuItem, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Paper, Checkbox, ThemeProvider, createTheme } from '@mui/material';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import { TextField, Select, MenuItem, Table, TableContainer, TableHead, TableBody, TableRow, TableCell, Paper, Checkbox, ThemeProvider, createTheme, Button, IconButton, FormHelperText, InputLabel, FormControl } from '@mui/material';
 import { Loader, showToast } from "../../../../tools";
 import { createSaleEvent, getSalesProducts } from '../../../../store/actions/saleEvents';
 
@@ -347,8 +432,9 @@ const CreateSaleEvent = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-  const { salesProducts, isLoading } = useSelector((state) => state.saleEvents);
+  const { salesProducts, isloading } = useSelector((state) => state.saleEvents);
 
+  // Form state
   const [saleEvent, setSaleEvent] = useState({
     name: '',
     description: '',
@@ -357,22 +443,27 @@ const CreateSaleEvent = () => {
     discountType: 'percentage',
     discountValue: '',
     products: [],
+    image: null,
+    imagePreview: null,
+  });
+
+  // Form error state
+  const [formErrors, setFormErrors] = useState({
+    name: false,
+    description: false,
+    startDate: false,
+    endDate: false,
+    discountValue: false,
+    products: false,
   });
 
   const [showFilters, setShowFilters] = useState(true);
+  const [formTouched, setFormTouched] = useState(false);
 
   // Fetch available products when component mounts
   useEffect(() => {
     const business = user?.business;
-    dispatch(getSalesProducts(business))
-      // .unwrap()
-      // .then(response => {
-      //   console.log("Available products loaded successfully");
-      // })
-      // .catch(error => {
-      //   showToast("ERROR", "Failed to load available products");
-      //   console.error("Failed to load available products:", error);
-      // });
+    dispatch(getSalesProducts(business));
   }, [dispatch, user]);
 
   const handleInputChange = (e) => {
@@ -381,6 +472,50 @@ const CreateSaleEvent = () => {
       ...prev,
       [name]: value
     }));
+    
+    // Mark form as touched
+    setFormTouched(true);
+    
+    // Clear error for this field
+    setFormErrors(prev => ({
+      ...prev,
+      [name]: false
+    }));
+  };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        showToast("ERROR", "Image size should be less than 5MB");
+        return;
+      }
+
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        showToast("ERROR", "Only JPEG, PNG, GIF, and WEBP formats are supported");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        setSaleEvent(prev => ({
+          ...prev,
+          image: file,
+          imagePreview: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setSaleEvent(prev => ({
+      ...prev,
+      image: null,
+      imagePreview: null
+    }));
   };
 
   const handleProductToggle = (product) => {
@@ -388,11 +523,25 @@ const CreateSaleEvent = () => {
       const isSelected = prev.products.some(p => p._id === product._id);
       
       if (isSelected) {
+        // Clear product error if we still have products after removing this one
+        if (prev.products.length > 1) {
+          setFormErrors(prevErrors => ({
+            ...prevErrors,
+            products: false
+          }));
+        }
+        
         return {
           ...prev,
           products: prev.products.filter(p => p._id !== product._id)
         };
       } else {
+        // Clear products error as soon as at least one product is selected
+        setFormErrors(prevErrors => ({
+          ...prevErrors,
+          products: false
+        }));
+        
         const calculatedPrice = prev.discountType === 'percentage' 
           ? product.price * (1 - (Number(prev.discountValue) / 100))
           : product.price - Number(prev.discountValue);
@@ -409,8 +558,12 @@ const CreateSaleEvent = () => {
         };
       }
     });
+    
+    // Mark form as touched
+    setFormTouched(true);
   };
-
+  
+  // Update product prices when discount changes
   useEffect(() => {
     if (saleEvent.products.length > 0 && (saleEvent.discountType || saleEvent.discountValue)) {
       setSaleEvent(prev => ({
@@ -429,21 +582,81 @@ const CreateSaleEvent = () => {
     }
   }, [saleEvent.discountType, saleEvent.discountValue]);
 
-  const handlePublish = () => {
-    if (!validateForm()) return;
+  const validateForm = () => {
+    const errors = {
+      name: !saleEvent.name.trim(),
+      description: !saleEvent.description.trim(),
+      startDate: !saleEvent.startDate,
+      endDate: !saleEvent.endDate,
+      discountValue: !saleEvent.discountValue || isNaN(Number(saleEvent.discountValue)) || Number(saleEvent.discountValue) <= 0,
+      products: saleEvent.products.length === 0
+    };
+    
+    setFormErrors(errors);
+    
+    // Check if dates are valid and end date is after start date
+    if (!errors.startDate && !errors.endDate) {
+      const start = new Date(saleEvent.startDate);
+      const end = new Date(saleEvent.endDate);
+      
+      if (end <= start) {
+        showToast("ERROR", "End date must be after start date");
+        setFormErrors(prev => ({ ...prev, endDate: true }));
+        return false;
+      }
+    }
+    
+    // Check if the form has any errors
+    return !Object.values(errors).some(error => error);
+  };
 
-    const business = user?.business;
-    const eventData = {
-      ...saleEvent,
-      businessId: business,
-      status: 'Active'
+  const handlePublish = () => {
+    if (!validateForm()) {
+      showToast("ERROR", "Please fill all the fields correctly");
+      return;
+    }
+
+      
+    const formDataObject = {
+      name: saleEvent.name, 
+      description: saleEvent.description, 
+      startDate: saleEvent.startDate,
+      endDate: saleEvent.endDate, 
+      discountType: saleEvent.discountType, 
+      discountValue: saleEvent.discountValue, 
+      businessId: user?.business,
+      image: saleEvent.image, 
+      products: saleEvent.products 
+      
     };
 
-    dispatch(createSaleEvent(eventData))
+    console.log('formDataObject',formDataObject);
+
+
+    const formData = new FormData();
+    formData.append('name', saleEvent.name);
+    formData.append('description', saleEvent.description);
+    formData.append('startDate', saleEvent.startDate);
+    formData.append('endDate', saleEvent.endDate);
+    formData.append('discountType', saleEvent.discountType);
+    formData.append('discountValue', saleEvent.discountValue);
+    formData.append('businessId', business);
+    
+
+    if (saleEvent.image) {
+      formData.append('image', saleEvent.image);
+    }
+    
+    formData.append('products', JSON.stringify(saleEvent.products));
+
+
+
+
+    dispatch(createSaleEvent(formData))
       .unwrap()
       .then(() => {
         showToast("SUCCESS", "Sale event published successfully");
-        // navigate("../saleEvents");
+        navigate("../saleEventsList");
       })
       .catch(error => {
         showToast("ERROR", "Failed to publish sale event");
@@ -451,51 +664,18 @@ const CreateSaleEvent = () => {
       });
   };
 
-  const handleSave = () => {
-    const business = user?.business;
-    const eventData = {
-      ...saleEvent,
-      business,
-      status: 'Draft'
-    };
-
-    dispatch(saveDraftSaleEvent(eventData))
-      .unwrap()
-      .then(() => {
-        showToast("SUCCESS", "Sale event saved as draft");
-        navigate("../saleEvents");
-      })
-      .catch(error => {
-        showToast("ERROR", "Failed to save draft");
-        console.error("Failed to save draft:", error);
-      });
+  
+  // Check if the form is valid
+  const isFormValid = () => {
+    return saleEvent.name && 
+      saleEvent.description && 
+      saleEvent.startDate && 
+      saleEvent.endDate && 
+      saleEvent.discountValue && 
+      saleEvent.products.length > 0;
   };
 
-  const validateForm = () => {
-    if (!saleEvent.name) {
-      showToast("ERROR", "Event name is required");
-      return false;
-    }
-    if (!saleEvent.startDate) {
-      showToast("ERROR", "Start date is required");
-      return false;
-    }
-    if (!saleEvent.endDate) {
-      showToast("ERROR", "End date is required");
-      return false;
-    }
-    if (saleEvent.products.length === 0) {
-      showToast("ERROR", "At least one product must be selected");
-      return false;
-    }
-    if (!saleEvent.discountValue) {
-      showToast("ERROR", "Discount value is required");
-      return false;
-    }
-    return true;
-  };
-
-  if (isLoading) {
+  if (isloading) {
     return <Loader />;
   }
 
@@ -516,6 +696,11 @@ const CreateSaleEvent = () => {
               {String(saleEvent.products.length).padStart(2, '0')}
             </h2>
             <p className="text-sm">Selected Products</p>
+            {formTouched && formErrors.products && (
+              <p className="text-sm text-yellow-300 mt-1">
+                At least one product must be selected
+              </p>
+            )}
           </div>
 
           <button
@@ -540,6 +725,8 @@ const CreateSaleEvent = () => {
                   fullWidth
                   color="primary"
                   required
+                  error={formTouched && formErrors.name}
+                  helperText={formTouched && formErrors.name ? "Event name is required" : ""}
                 />
                 <TextField
                   label="Description"
@@ -550,6 +737,9 @@ const CreateSaleEvent = () => {
                   rows={4}
                   fullWidth
                   color="primary"
+                  required
+                  error={formTouched && formErrors.description}
+                  helperText={formTouched && formErrors.description ? "Description is required" : ""}
                 />
                 <TextField
                   label="Start Date"
@@ -563,6 +753,8 @@ const CreateSaleEvent = () => {
                   fullWidth
                   color="primary"
                   required
+                  error={formTouched && formErrors.startDate}
+                  helperText={formTouched && formErrors.startDate ? "Start date is required" : ""}
                 />
                 <TextField
                   label="End Date"
@@ -576,18 +768,24 @@ const CreateSaleEvent = () => {
                   fullWidth
                   color="primary"
                   required
+                  error={formTouched && formErrors.endDate}
+                  helperText={formTouched && formErrors.endDate ? "End date is required" : ""}
                 />
-                <Select
-                  label="Discount Type"
-                  name="discountType"
-                  value={saleEvent.discountType}
-                  onChange={handleInputChange}
-                  fullWidth
-                  color="primary"
-                >
-                  <MenuItem value="percentage">Percentage Off</MenuItem>
-                  <MenuItem value="fixed">Fixed Amount Off</MenuItem>
-                </Select>
+                <FormControl fullWidth error={formTouched && formErrors.discountType}>
+                  <InputLabel id="discount-type-label">Discount Type</InputLabel>
+                  <Select
+                    labelId="discount-type-label"
+                    label="Discount Type"
+                    name="discountType"
+                    value={saleEvent.discountType}
+                    onChange={handleInputChange}
+                    fullWidth
+                    color="primary"
+                  >
+                    <MenuItem value="percentage">Percentage Off</MenuItem>
+                    <MenuItem value="fixed">Fixed Amount Off</MenuItem>
+                  </Select>
+                </FormControl>
                 <TextField
                   label={saleEvent.discountType === 'percentage' ? 'Percentage Off' : 'Amount Off'}
                   type="number"
@@ -597,8 +795,69 @@ const CreateSaleEvent = () => {
                   fullWidth
                   color="primary"
                   required
+                  error={formTouched && formErrors.discountValue}
+                  helperText={formTouched && formErrors.discountValue ? 
+                    "Valid discount value is required" : ""}
+                  InputProps={{ inputProps: { min: 0 } }}
                 />
+                
+                {/* Image Upload Section */}
+                <div className="md:col-span-2 border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <div className="text-center">
+                    <h3 className="text-lg font-medium text-[#603F26] mb-2">Sale Event Image</h3>
+                    
+                    {/* Image Preview */}
+                    {saleEvent.imagePreview ? (
+                      <div className="relative mb-4 mx-auto max-w-xs">
+                        <img 
+                          src={saleEvent.imagePreview} 
+                          alt="Event preview" 
+                          className="rounded-lg max-h-48 mx-auto object-contain"
+                        />
+                        <button
+                          onClick={handleRemoveImage}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                          title="Remove image"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <AddPhotoAlternateIcon style={{ fontSize: 48, color: '#603F26' }} />
+                        <p className="text-sm text-gray-500">
+                          Upload an image for your sale event (Max: 5MB, Format: JPEG, PNG, GIF, WEBP)
+                        </p>
+                        <Button
+                          variant="contained"
+                          component="label"
+                          color="primary"
+                          startIcon={<AddPhotoAlternateIcon />}
+                        >
+                          Upload Image
+                          <input
+                            type="file"
+                            accept="image/jpeg, image/png, image/gif, image/webp"
+                            hidden
+                            onChange={handleImageUpload}
+                          />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Products Error Message */}
+        {formTouched && formErrors.products && (
+          <div className="px-4 md:px-8 lg:px-12 mb-4">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              Please select at least one product for the sale event.
             </div>
           </div>
         )}
@@ -633,7 +892,6 @@ const CreateSaleEvent = () => {
                     const selectedProduct = saleEvent.products.find(p => p._id === product?._id);
                     
                     return (
-
                       <TableRow
                         key={product?._id}
                         className={`hover:bg-gray-50 cursor-pointer ${
@@ -645,7 +903,7 @@ const CreateSaleEvent = () => {
                         <TableCell>{product?.category}</TableCell>
                         <TableCell align="right">${product?.price.toFixed(2)}</TableCell>
                         <TableCell align="right">
-                          {isSelected ? `$${selectedProduct.discountedPrice}` : '-'}
+                          {isSelected ? `$${selectedProduct.discountedPrice.toFixed(2)}` : '-'}
                         </TableCell>
                         <TableCell align="center">
                           <Checkbox
@@ -694,7 +952,7 @@ const CreateSaleEvent = () => {
                   <div className="flex justify-between mt-2">
                     <span>Original Price: ${product?.price?.toFixed(2)}</span>
                     <span>
-                      Discounted: {isSelected ? `$${selectedProduct.discountedPrice}` : '-'}
+                      Discounted: {isSelected ? `$${selectedProduct.discountedPrice.toFixed(2)}` : '-'}
                     </span>
                   </div>
                 </div>
@@ -705,17 +963,22 @@ const CreateSaleEvent = () => {
 
         {/* Action Buttons */}
         <div className="px-4 md:px-8 lg:px-12 mt-6 mb-8 flex flex-col sm:flex-row gap-4 justify-end">
+          <Link to={`../saleEventsList`}> 
           <button
-            onClick={handleSave}
+            // onClick={handleSave}
             className="w-full sm:w-auto px-6 py-2 border-2 border-[#603F26] text-[#603F26] rounded-lg flex items-center justify-center gap-2 hover:bg-[#603F26] hover:text-white transition-colors"
           >
-            <SaveIcon />
-            Save Draft
+            
+            Cancel
           </button>
+          </Link>
           <button
             onClick={handlePublish}
-            disabled={!saleEvent.name || !saleEvent.startDate || !saleEvent.endDate || saleEvent.products.length === 0}
-            className="w-full sm:w-auto px-6 py-2 bg-[#603F26] text-white rounded-lg flex items-center justify-center gap-2 hover:bg-[#4a3019] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className={`w-full sm:w-auto px-6 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors ${
+              isFormValid() 
+                ? 'bg-[#603F26] text-white hover:bg-[#4a3019]' 
+                : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+            }`}
           >
             <SendIcon />
             Publish Event

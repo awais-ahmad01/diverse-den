@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getSubscriptionPlans, viewActiveSubscriptionPlan } from "../../actions/subscriptionPlans";
+import { getSubscriptionPlans, viewActiveSubscriptionPlan, getPlanSubscribers } from "../../actions/subscriptionPlans";
 
 let default_state = {
   isloading: false,
   subscriptionPlans: [],
-  activeSubscriptionPlan:[]
+  activeSubscriptionPlan:[],
+  planSubscribers:[]
   
 };
 
@@ -40,6 +41,20 @@ export const subscriptionPlansSlice = createSlice({
       .addCase(viewActiveSubscriptionPlan.rejected, (state) => {
         state.isloading = false;
         state.activeSubscriptionPlan = [];
+      })
+
+
+
+      .addCase(getPlanSubscribers.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getPlanSubscribers.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.planSubscribers = action.payload.data;
+      })
+      .addCase(getPlanSubscribers.rejected, (state) => {
+        state.isloading = false;
+        state.planSubscribers = [];
       })
 
 

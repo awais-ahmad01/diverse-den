@@ -78,7 +78,6 @@ const SubscriptionPlans = () => {
         setPlans(plans_response.data.allplans);
 
         
-        
       } catch(error) {
         throw error;
       }

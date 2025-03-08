@@ -144,10 +144,10 @@ export const getSalesProducts = createAsyncThunk(
 
 export const createSaleEvent = createAsyncThunk(
     'saleEvents/createSaleEvent',
-    async(eventData)=>{
+    async(form)=>{
         try{
 
-            console.log("Event DAta:", eventData)
+           
 
             const token = localStorage.getItem("token"); 
 
@@ -159,8 +159,7 @@ export const createSaleEvent = createAsyncThunk(
             }
 
 
-
-            const request = await axios.post('http://localhost:3000/branchOwner/createSaleEvent', eventData ,
+            const request = await axios.post('http://localhost:3000/branchOwner/createSaleEvent', formData ,
                 {
                     headers: {
                       Authorization: `Bearer ${token}`, 
