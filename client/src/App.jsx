@@ -68,6 +68,7 @@ import ProductList from "./components/BranchOwnerPanel/branchOwnerDashboard/Bran
 import LandingPage from "./components/LandingPage/index.jsx";
 import BusinessProducts from "./components/AdminPanel/ManageBusinesses/businessProducts.jsx";
 import DealsPage from "./components/CustomerPanel/deals/dealsProducts.jsx";
+import ManageGiftCards from "./components/BranchOwnerPanel/branchOwnerDashboard/ManageGiftCards/index.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -209,6 +210,9 @@ function App() {
               />
 
               <Route path="manageProductReviews" element={<ProductReviews />} />
+
+
+              <Route path="manageGiftCards" element={<ManageGiftCards />} />
             </Route>
 
             {/* Salesperson Dashboard */}

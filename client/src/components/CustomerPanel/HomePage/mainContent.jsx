@@ -72,6 +72,7 @@ const Section = ({ title, categorySlug }) => {
                   alt={product.title}
                   className="object-cover w-full h-full"
                 />
+                
               </div>
               <div className="p-4">
                 <h2 className="text-lg font-semibold text-gray-800 truncate">

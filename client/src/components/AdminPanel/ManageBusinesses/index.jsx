@@ -401,7 +401,7 @@ const ManageBusinesses = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <main className="relative bg-gray-50 flex flex-col pt-5">
+      <main className="relative bg-gray-50 flex flex-col pt-5 pb-10">
         {/* Header */}
         <header className="px-4 md:px-6 lg:px-12 mb-6">
           <h1 className="text-3xl font-bold text-[#603F26]">

@@ -626,7 +626,7 @@ const CreateSaleEvent = () => {
       discountValue: saleEvent.discountValue, 
       businessId: user?.business,
       image: saleEvent.image, 
-      products: saleEvent.products 
+      products: saleEvent.products
       
     };
 
@@ -640,7 +640,7 @@ const CreateSaleEvent = () => {
     formData.append('endDate', saleEvent.endDate);
     formData.append('discountType', saleEvent.discountType);
     formData.append('discountValue', saleEvent.discountValue);
-    formData.append('businessId', business);
+    formData.append('businessId', user?.business);
     
 
     if (saleEvent.image) {
@@ -648,6 +648,8 @@ const CreateSaleEvent = () => {
     }
     
     formData.append('products', JSON.stringify(saleEvent.products));
+
+    logFormData(formData);
 
 
 
@@ -663,6 +665,16 @@ const CreateSaleEvent = () => {
         console.error("Failed to publish sale event:", error);
       });
   };
+
+
+
+  const logFormData = (formData) => {
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+  };
+  
+  
 
   
   // Check if the form is valid

@@ -51,47 +51,47 @@ export const listSaleEvents = createAsyncThunk(
 
 export const getSaleEventById = createAsyncThunk(
     'saleEvents/getSaleEventById',
-    async(eventId)=>{
-        try{
-
-
-            const token = localStorage.getItem("token"); 
-
-            console.log("Retrieved Token auth...:", token);
-            if (!token) {
-                console.log("No token found!");
-                
-                return { data:{},auth:false }; 
-            }
-
-
-            const request = await axios.get('http://localhost:3000/branchOwner/viewSaleEventById', 
-                {
-                    headers: {
-                      Authorization: `Bearer ${token}`, 
-                      "Content-Type": "application/json",
-                    },
-                    params: {
-                        eventId
-                        
-                      },
-                }
-             );
-
-             console.log("SaleEvent by Id:", request.data)
-
-            
-            return {data:request.data, 
-                // metaData: response.data.meta
-            }
+    async(eventId, { rejectWithValue }) => {
+      try {
+        const token = localStorage.getItem("token"); 
+        console.log("Fetching sale event with ID:", eventId);
+        console.log("Retrieved Token auth:", token);
+        
+        if (!token) {
+          console.log("No token found!");
+          return rejectWithValue("Authentication required");
         }
-        catch(error){
-            
-            throw error;
+  
+        const response = await axios.get('http://localhost:3000/branchOwner/viewSaleEventById', 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            params: {
+              eventId
+            },
+          }
+        );
+  
+        console.log("SaleEvent by Id response:", response);
+        
+        // Check if the response data has the expected structure
+        if (!response.data) {
+          console.error("API response missing data");
+          return rejectWithValue("Invalid API response");
         }
+        
+        return {
+          data: response.data
+        };
+      }
+      catch(error) {
+        console.error("Error fetching sale event:", error);
+        return rejectWithValue(error.message || "Failed to fetch sale event");
+      }
     }
-
-)
+  );
 
 
 
@@ -144,10 +144,10 @@ export const getSalesProducts = createAsyncThunk(
 
 export const createSaleEvent = createAsyncThunk(
     'saleEvents/createSaleEvent',
-    async(form)=>{
+    async(formData)=>{
         try{
 
-           
+            console.log("Form Data:", formData)
 
             const token = localStorage.getItem("token"); 
 
@@ -163,7 +163,7 @@ export const createSaleEvent = createAsyncThunk(
                 {
                     headers: {
                       Authorization: `Bearer ${token}`, 
-                      "Content-Type": "application/json",
+                      "Content-Type": "multipart/form-data",
                     },
                     
                 }

@@ -507,15 +507,15 @@ const ProductList = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {products.map((product) => (
+                    {products?.map((product) => (
                       <TableRow
-                        key={product._id}
+                        key={product?._id}
                         className="cursor-pointer hover:bg-gray-100"
                       >
-                        <TableCell>{product.title}</TableCell>
-                        <TableCell>${product.price}</TableCell>
-                        <TableCell>{product.category}</TableCell>
-                        <TableCell>{product.remainingQuantity}</TableCell>
+                        <TableCell>{product?.title}</TableCell>
+                        <TableCell>${product?.price}</TableCell>
+                        <TableCell>{product?.category}</TableCell>
+                        <TableCell>{product?.remainingQuantity}</TableCell>
                         <TableCell>
                           <Tooltip title="View Details">
                             <IconButton
@@ -537,7 +537,7 @@ const ProductList = () => {
 
         {/* Product Cards (Mobile) */}
         <div className="block xl:hidden space-y-4">
-          {products.map((product) => (
+          {products?.map((product) => (
             <Paper key={product._id} className="p-4 rounded-lg shadow">
               <div className="flex justify-between items-start mb-3">
                 <div>
