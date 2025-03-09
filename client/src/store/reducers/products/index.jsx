@@ -9,6 +9,7 @@ import {
   getCustomerProductById,
   getCartItems,
   getProductReviews,
+  getSaleProductById
 
 } from "../../actions/products";
 
@@ -20,6 +21,7 @@ const default_State = {
   subCategoryProducts:[],
   cartItems:[],
   productReviews:[],
+  saleProduct:[]
 
   
 };
@@ -119,6 +121,18 @@ export const addProductSlice = createSlice({
         state.isloading = false;
       })
 
+
+
+      .addCase(getSaleProductById.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getSaleProductById.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.saleProduct = action.payload.data;
+      })
+      .addCase(getSaleProductById.rejected, (state) => {
+        state.isloading = false;
+      })
 
 
       .addCase(getCartItems.pending, (state) => {

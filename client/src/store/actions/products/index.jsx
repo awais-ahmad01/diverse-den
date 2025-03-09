@@ -476,6 +476,38 @@ export const getCustomerProductById = createAsyncThunk(
 
 
 
+export const getSaleProductById = createAsyncThunk(
+  "products/getSaleProductById",
+  async ({productId, eventId}, thunkAPI) => {
+    try {
+
+      console.log("Get Sale Product by Id.....");
+      console.log("product Id:", productId);
+      console.log("eventId:", eventId);
+    
+
+      const response = await axios.get(
+        "http://localhost:3000/customer/getSaleEventProducts",
+        {
+          params: {
+            productId,
+            eventId          },
+        }
+      );
+
+      console.log("Sale Product by Id data:", response.data);
+
+      return { data: response.data.productDetails };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+
+
+
 export const getCartItems = createAsyncThunk(
   "products/getCartItems",
   async (userId, thunkAPI) => {

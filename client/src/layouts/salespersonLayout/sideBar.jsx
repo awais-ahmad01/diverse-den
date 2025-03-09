@@ -178,6 +178,25 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
       ],
     },
     {
+      to: 'businessInventory',
+      label: 'Business Inventory',
+      icon: <FaBoxOpen className="text-xl" />,
+      activePaths: [
+        '/branchOwnerPanel/salespersonDashboard/businessInventory',
+        '/branchOwnerPanel/salespersonDashboard/viewProduct'
+      ],
+    },
+    {
+      to: 'branchesInventory',
+      label: 'Branches Inventory',
+      icon: <FaBoxOpen className="text-xl" />,
+      activePaths: [
+        '/branchOwnerPanel/salespersonDashboard/branchesInventory',
+        '/branchOwnerPanel/salespersonDashboard/viewBranchProduct',
+        '/branchOwnerPanel/salespersonDashboard/viewBranchProducts'
+      ],
+    },
+    {
       to: 'manageChats',
       label: 'Chats',
       icon: <FaComments className="text-xl" />,

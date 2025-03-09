@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -23,6 +24,7 @@ import { useSelector } from "react-redux";
 import { getCartItems } from "../../../store/actions/products";
 import { showToast } from "../../../tools";
 import { placeOrder } from "../../../store/actions/products";
+import { emptyCart } from "../../../store/actions/cart";
 
 const checkoutSchema = yup.object().shape({
   firstName: yup
@@ -62,6 +64,7 @@ const Checkout = () => {
   const { user, isauthenticated } = useSelector((state) => state.auth);
   const { cartItems, isloading } = useSelector((state) => state.products);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [error, setError] = useState(null);
   const [orderSuccess, setOrderSuccess] = useState(false);
   const [isPayment, setIsPayment] = useState(false);
@@ -154,6 +157,18 @@ const Checkout = () => {
       .unwrap()
       .then(() => {
         showToast("SUCCESS", "Order Placed Successfully!");
+        const userId = user?._id;
+        dispatch(emptyCart(userId))
+          .unwrap()
+          .then(() => {
+            navigate("/customer");
+            window.location.reload();
+            
+          })
+          .catch(() => {
+            showToast("ERROR", "Failed to empty cart");
+          });
+
       })
       .catch(() => {
         showToast("ERROR", "Failed to place Order");
@@ -392,7 +407,7 @@ const Checkout = () => {
             <Typography variant="h5" className="font-bold pb-6 text-gray-900">
               Order Summary
             </Typography>
-            {cartItems.length > 0 && (
+            {cartItems?.length > 0 && (
               <div className="space-y-4">
                 {cartItems.map((item) => (
                   <div

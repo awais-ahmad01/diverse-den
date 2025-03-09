@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Loader } from "../../../tools";
+import { useDispatch, useSelector } from "react-redux";
+import { getSaleEventByIdWithProductDetails } from "../../../store/actions/saleEvents";
 
 const DealsPage = () => {
   const [products, setProducts] = useState([]);
@@ -9,7 +11,18 @@ const DealsPage = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [loading, setLoading] = useState(true);
 
-  
+  const {saleEventsWithProductDetails, isloading} = useSelector((state) => state.saleEvents);
+
+  console.log('saleEventsWithProductDetails:', saleEventsWithProductDetails);
+
+  const dispatch = useDispatch();
+
+  const {eventId} = useParams();
+
+  useEffect(() => {
+    dispatch(getSaleEventByIdWithProductDetails(eventId));
+  }, []);
+
   // Mock deals products data
   const mockDealsProducts = [
     {
@@ -116,24 +129,24 @@ const DealsPage = () => {
     setSelectedBrand(e.target.value);
   };
 
-  if (loading) {
+  if (isloading) {
     return <Loader />;
   }
 
   return (
     <div className="pt-5 px-4 md:px-10 pb-16">
-      <h1 className="text-center font-bold text-3xl my-8">SPECIAL DEALS</h1>
+      <h1 className="text-center font-bold text-3xl my-8">{saleEventsWithProductDetails?.name}</h1>
       
       {/* Filter and Product Count Row */}
       <div className="flex flex-wrap items-center justify-between mb-6">
         <div className="w-full md:w-auto mb-4 md:mb-0">
           <p className="text-gray-500">
-            Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
-            {selectedBrand && ` for ${selectedBrand}`}
+            Showing {saleEventsWithProductDetails?.products?.length} {saleEventsWithProductDetails?.products?.length === 1 ? 'product' : 'products'}
+            {/* {selectedBrand && ` for ${selectedBrand}`} */}
           </p>
         </div>
         
-        <div className="w-full md:w-auto flex items-center">
+        {/* <div className="w-full md:w-auto flex items-center">
           <label htmlFor="brandSelect" className="mr-3 font-medium text-gray-700">
             Brand:
           </label>
@@ -150,42 +163,42 @@ const DealsPage = () => {
               </option>
             ))}
           </select>
-        </div>
-      </div>
+        </div> */}
+      </div> 
       
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <Link to={`/customer/productDetails/${product._id}`} key={product._id}>
+        {saleEventsWithProductDetails?.products?.length > 0 ? (
+          saleEventsWithProductDetails?.products?.map((product) => (
+            <Link to={`/customer/saleProductDetails/${product?.productId}/${eventId}`} key={product?.productId}>
               <div
                 className="bg-white shadow-md rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
               >
                 {/* Discount badge */}
                 <div className="relative h-64 bg-gray-100">
                   <div className="absolute top-0 right-0 bg-red-600 text-white px-3 py-1 font-semibold z-10 rounded-bl-lg">
-                    {product.discountPercentage}% OFF
+                    {saleEventsWithProductDetails?.discountValue}% OFF
                   </div>
                   <img
-                    src={product.imagePath[0]}
-                    alt={product.title}
+                    src={product?.images[0]}
+                    alt={product?.name}
                     className="object-cover w-full h-full"
                   />
                 </div>
                 <div className="p-4">
                   <h2 className="text-lg font-semibold text-gray-800 truncate">
-                    {product.title}
+                    {product?.name}
                   </h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {product.brand}
-                  </p>
+                  {/* <p className="text-sm text-gray-500 mt-1">
+                    {product?.brand}
+                  </p> */}
                   <div className="flex items-center justify-between mt-4">
                     <div>
                       <span className="text-lg font-bold text-[#603F26]">
-                        Rs {product.price.toFixed(2)}
+                        Rs {product?.discountedPrice?.toFixed(2)}
                       </span>
                       <span className="text-sm text-gray-500 line-through ml-2">
-                        Rs {product.originalPrice.toFixed(2)}
+                        Rs {product?.originalPrice?.toFixed(2)}
                       </span>
                     </div>
                   </div>

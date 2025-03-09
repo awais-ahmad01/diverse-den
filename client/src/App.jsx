@@ -69,6 +69,11 @@ import LandingPage from "./components/LandingPage/index.jsx";
 import BusinessProducts from "./components/AdminPanel/ManageBusinesses/businessProducts.jsx";
 import DealsPage from "./components/CustomerPanel/deals/dealsProducts.jsx";
 import ManageGiftCards from "./components/BranchOwnerPanel/branchOwnerDashboard/ManageGiftCards/index.jsx";
+import SaleProductDetails from "./components/CustomerPanel/productDetails.jsx/saleProductDetails.jsx";
+import BusinessInventory from "./components/BranchOwnerPanel/salespersonDashboard/businessInventoy/index.jsx";
+import BranchesInventory from "./components/BranchOwnerPanel/salespersonDashboard/branchesInventory/index.jsx";
+import ViewBranchProducts from "./components/BranchOwnerPanel/salespersonDashboard/branchesInventory/viewBranchProducts.jsx";
+import ManageInventory from "./components/BranchOwnerPanel/salespersonDashboard/manageInventory/index.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -127,7 +132,7 @@ function App() {
               // <AuthGuard allowedRoles={["Branch Owner"]}>
               //   <BranchOwnerPanel />
               // </AuthGuard>
-              <BranchOwnerPanel/>
+              <BranchOwnerPanel />
             }
           >
             <Route path="subscription" element={<SubscriptionPlans />} />
@@ -137,11 +142,11 @@ function App() {
             <Route
               path="branchOwnerDashboard"
               element={
-              // <BranchOwnerDashboard />
-              <AuthGuard allowedRoles={["Branch Owner"]}>
-              <BranchOwnerDashboard />
-            </AuthGuard>
-            }
+                // <BranchOwnerDashboard />
+                <AuthGuard allowedRoles={["Branch Owner"]}>
+                  <BranchOwnerDashboard />
+                </AuthGuard>
+              }
             >
               <Route path="branchesList" element={<ListBranches />} />
 
@@ -211,7 +216,6 @@ function App() {
 
               <Route path="manageProductReviews" element={<ProductReviews />} />
 
-
               <Route path="manageGiftCards" element={<ManageGiftCards />} />
             </Route>
 
@@ -228,6 +232,33 @@ function App() {
               <Route
                 path="manageOrders"
                 element={<SalespersonOrderManagement />}
+              />
+
+              <Route path="businessInventory" element={<BusinessInventory />} />
+
+              <Route
+                path="viewProduct/:productId/:productTitle"
+                element={<ViewProduct />}
+              />
+
+              <Route path="branchesInventory" element={<BranchesInventory />} />
+
+              <Route
+                path="viewBranchProducts/:id/:name/:code"
+                element={<ViewBranchProducts />}
+              />
+
+              <Route
+                path="viewBranchProduct/:productId/:productTitle/:branchCode"
+                element={<ViewBranchProduct />}
+              />
+
+              <Route path="manageInventory" element={<ManageInventory />} />
+
+
+              <Route
+                path="assignProduct/:branchCode"
+                element={<ProductList />}
               />
 
               <Route path="manageChats" element={<ChatSection />} />
@@ -258,14 +289,17 @@ function App() {
               path="productDetails/:productId"
               element={<ProductDetails />}
             />
+
+            <Route
+              path="saleProductDetails/:productId/:eventId"
+              element={<SaleProductDetails />}
+            />
+
             <Route path="searchedProduct" element={<SearchedProduct />} />
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
 
-
-            <Route path="deals" element={<DealsPage />} />
-
-
+            <Route path="events/:eventId" element={<DealsPage />} />
           </Route>
 
           <Route path="addsubscription" element={<AddSubscription />} />
@@ -282,16 +316,17 @@ function App() {
           >
             <Route path="manageUsers" element={<ManageUsers />} />
 
-            
-
             <Route path="manageBusinesses" element={<ManageBusinesses />} />
 
-            <Route path="businessProducts/:businessId" element={<BusinessProducts />} />
+            <Route
+              path="businessProducts/:businessId"
+              element={<BusinessProducts />}
+            />
 
             <Route
-                path="viewProduct/:productId/:productTitle"
-                element={<ViewProduct />}
-              />
+              path="viewProduct/:productId/:productTitle"
+              element={<ViewProduct />}
+            />
 
             <Route
               path="manageSubscriptionPlans"

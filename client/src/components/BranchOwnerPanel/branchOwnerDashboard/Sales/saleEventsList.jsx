@@ -270,6 +270,7 @@ const SaleEventsList = () => {
     setSelectedEventId(eventId);
     setDeleteDialogOpen(true);
   };
+  
 
   const handleDeleteConfirm = () => {
     const business = user?.business;

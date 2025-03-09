@@ -280,3 +280,57 @@ export const deleteSaleEvent = createAsyncThunk(
     }
   )
 
+
+
+
+
+
+export const getAllSaleEvents = createAsyncThunk(
+    'saleEvents/getAllSaleEvents',
+    async()=>{
+        try{
+
+
+            const request = await axios.get('http://localhost:3000/branchOwner/viewAllSaleEvents');
+
+             console.log("sale events:", request.data)
+
+            
+            return {data:request.data}
+        }
+        catch(error){            
+            throw error;
+        }
+    }
+
+)
+
+
+
+
+export const getSaleEventByIdWithProductDetails = createAsyncThunk(
+  'saleEvents/getSaleEventByIdWithProductDetails',
+  async(eventId)=>{
+      try{
+
+
+          const request = await axios.get('http://localhost:3000/branchOwner/viewSaleEventByIdWithProductDetails',
+            {
+              params: {
+                eventId,
+              },
+            }
+          );
+
+           console.log("sale events in details:", request.data)
+
+          
+          return {data:request.data}
+      }
+      catch(error){            
+          throw error;
+      }
+  }
+
+)
+

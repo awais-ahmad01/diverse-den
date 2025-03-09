@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Chip } from "@mui/material";
 import axios from "axios"; 
+import { Loader } from "../../../tools";
 
 import { showToast } from "../../../tools";
 
@@ -42,9 +43,10 @@ const Section = ({ title, categorySlug }) => {
 
   if (loading) {
     return (
-      <div className="text-center my-10">
-        <p>Loading products...</p>
-      </div>
+      // <div className="text-center my-10">
+      //   <p>Loading products...</p>
+      // </div>
+      <Loader />
     );
   }
 

@@ -468,18 +468,18 @@ const Cart = () => {
       : null;
   };
 
-  const handleCheckout = async () => {
-    try {
-      const response = await axios.post("/api/checkout", {
-        items: cartItems,
-        total: calculateSubtotal(),
-      });
+  // const handleCheckout = async () => {
+  //   try {
+  //     const response = await axios.post("/api/checkout", {
+  //       items: cartItems,
+  //       total: calculateSubtotal(),
+  //     });
 
-      window.location.href = response.data.redirectUrl;
-    } catch (err) {
-      showToast("ERROR", "Checkout failed. Please try again.");
-    }
-  };
+  //     window.location.href = response.data.redirectUrl;
+  //   } catch (err) {
+  //     showToast("ERROR", "Checkout failed. Please try again.");
+  //   }
+  // };
 
   if (isloading) {
     return (
@@ -597,7 +597,7 @@ const Cart = () => {
                 to='/customer/checkout'
               >
                 <button
-                  onClick={handleCheckout}
+                  // onClick={handleCheckout}
                   className="w-full bg-[#603f26] text-white py-2 rounded hover:bg-opacity-85"
                   disabled={cartItems?.length === 0}
                 >
