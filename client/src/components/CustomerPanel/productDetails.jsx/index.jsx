@@ -983,11 +983,11 @@ const ProductDetails = () => {
                 productReviews?.productReviews.length > 0 ? (
                   productReviews?.productReviews.map((review, index) => (
                     <div key={index} className="border-b pb-4 mb-4">
-                      <Rating value={review.rating} readOnly />
-                      <p className="mt-2">{review.comment}</p>
+                      <Rating value={review?.rating  || 0} readOnly />
+                      <p className="mt-2">{review?.comment}</p>
                       <p className="text-sm text-gray-500 mt-1">
-                        {review.customerName} -{" "}
-                        {(review.reviewDate)}
+                        {review?.customerName} -{" "}
+                        {(review?.reviewDate)}
                       </p>
                     </div>
                   ))
@@ -1002,7 +1002,7 @@ const ProductDetails = () => {
                 <div>
                   <span className="block mb-2">Your Rating</span>
                   <Rating
-                    value={newReview.rating}
+                    value={newReview.rating || 0}
                     onChange={(event, newValue) => {
                       setNewReview((prev) => ({ ...prev, rating: newValue }));
                     }}

@@ -50,8 +50,14 @@ const ViewBranchProduct = () => {
 
   const { branchProductDetails } = useSelector((state) => state.branches);
 
+  console.log('branchProductDetails:', branchProductDetails)
+
+
   const { productId, productTitle, branchCode } = useParams();
 
+  console.log('code:', branchCode)
+
+  
   const [tabValue, setTabValue] = useState(0);
   const [uniqueColorsData, setUniqueColorsData] = useState([]);
 
@@ -73,7 +79,7 @@ const ViewBranchProduct = () => {
 
   useEffect(() => {
     if (productId) {
-      dispatch(getProductByID(productId));
+      // dispatch(getProductByID(productId));
 
       dispatch(getBranchProductDetails({ productId, branchCode }));
 
@@ -278,7 +284,7 @@ const ViewBranchProduct = () => {
                   >
                     <Typography variant="subtitle1">Base Price:</Typography>
                     <Typography>
-                      ${branchProductDetails?.product?.price?.toFixed(2) || "0.00"}
+                      Rs {branchProductDetails?.product?.price?.toFixed(2) || "0.00"}
                     </Typography>
                   </Box>
                   <Divider />

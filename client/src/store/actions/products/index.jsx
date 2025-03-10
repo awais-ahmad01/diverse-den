@@ -49,7 +49,7 @@ export const addProduct = createAsyncThunk(
       thunkAPI.dispatch(
         errorGlobal(error.response?.data?.message || "Failed to add product")
       );
-      console.log(error);
+      console.log(error.response.data.message);
       throw error;
     }
   }
@@ -179,7 +179,7 @@ export const getProductByID = createAsyncThunk(
         }
       );
 
-      console.log("Product by Id data:", response.data);
+      console.log("Product by Id dataaaa:", response.data);
 
       return { data: response.data.product };
     } catch (error) {

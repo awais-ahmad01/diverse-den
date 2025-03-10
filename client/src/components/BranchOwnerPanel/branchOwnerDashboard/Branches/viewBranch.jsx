@@ -47,10 +47,18 @@ const ViewBranch = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { branchProducts, branchMeta } = useSelector((state) => state.branches);
+
+  
   
   const totalProducts = branchMeta?.totalItems || 0;
 
- const { id, name, code } = useParams();
+ const { id, name, branchcode } = useParams();
+
+//  const decodedBranchCode = decodeURIComponent(branchcode);
+
+
+ console.log("Data:", id, name , branchcode);
+ 
 
   const handleNextPage = (page) => {
     const business = user?.business;
@@ -95,6 +103,7 @@ const ViewBranch = () => {
     dispatch(getBranchProducts({ branchId: id }));
   }, [dispatch, id]);
 
+
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
@@ -128,6 +137,7 @@ const ViewBranch = () => {
                 borderRadius: 2,
               }}
             >
+
               <Typography variant="h4" component="div">
                 {String(totalProducts).padStart(2, "0")}
               </Typography>
@@ -141,7 +151,7 @@ const ViewBranch = () => {
               color="primary"
               startIcon={<AddCircleIcon />}
               component={Link}
-              to={`../assignProduct/${code}`}
+            to={`../assignProduct/${branchcode}`}
             >
               Add Product
             </Button>
@@ -227,17 +237,17 @@ const ViewBranch = () => {
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
                         >
-                          <TableCell>{product.title}</TableCell>
-                          <TableCell>{product.branch}</TableCell>
-                          <TableCell>{product.category}</TableCell>
-                          <TableCell>{product.price}</TableCell>
-                          <TableCell>{product.totalBranchQuantity}</TableCell>
+                          <TableCell>{product?.title}</TableCell>
+                          <TableCell>{product?.branch}</TableCell>
+                          <TableCell>{product?.category}</TableCell>
+                          <TableCell>{product?.price}</TableCell>
+                          <TableCell>{product?.totalBranchQuantity}</TableCell>
                           <TableCell>
                             <div className="flex justify-center gap-2">
                               <Tooltip title="View Product">
                                 <IconButton
                                   component={Link}
-                                  to={`../viewBranchProduct/${product._id}/${product.title}/${code}`} 
+                                  to={`../viewBranchProduct/${product?._id}/${product?.title}/${branchcode}`} 
                                   color="primary"
                                 >
                                   <VisibilityIcon />
@@ -245,7 +255,7 @@ const ViewBranch = () => {
                               </Tooltip>
                               <Tooltip title="Delete Product">
                                 <IconButton
-                                  onClick={() => handleClickOpen(product._id)}
+                                  onClick={() => handleClickOpen(product?._id)}
                                   color="error"
                                 >
                                   <DeleteIcon />
@@ -262,24 +272,24 @@ const ViewBranch = () => {
 
               {/* Mobile View */}
               <div className="block xl:hidden space-y-4">
-                {branchProducts.map((product, index) => (
+                {branchProducts?.map((product, index) => (
                   <div
                     key={index}
                     className="bg-white p-4 rounded-lg shadow"
                   >
                     <div className="space-y-2">
-                      <p className="font-bold">{product.title}</p>
-                      <p>Branch: {product.branch}</p>
-                      <p>Category: {product.category}</p>
-                      <p>Price: {product.price}</p>
-                      <p>Quantity: {product.totalBranchQuantity}</p>
+                      <p className="font-bold">{product?.title}</p>
+                      <p>Branch: {product?.branch}</p>
+                      <p>Category: {product?.category}</p>
+                      <p>Price: {product?.price}</p>
+                      <p>Quantity: {product?.totalBranchQuantity}</p>
                     </div>
 
                     <div className="mt-4 flex gap-2">
                       <Button
                         variant="contained"
                         component={Link}
-                        to={`../viewBranchProduct/${product._id}/${product.title}`}
+                        to={`../viewBranchProduct/${product?._id}/${product?.title}/${branchcode}`}
                         fullWidth
                       >
                         View
@@ -287,7 +297,7 @@ const ViewBranch = () => {
                       <Button
                         variant="contained"
                         color="error"
-                        onClick={() => handleClickOpen(product._id)}
+                        onClick={() => handleClickOpen(product?._id)}
                         fullWidth
                       >
                         Delete
@@ -350,6 +360,7 @@ const ViewBranch = () => {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
+
           <DialogTitle className="text-red-600">Delete Product</DialogTitle>
           <DialogContent>
             <DialogContentText>

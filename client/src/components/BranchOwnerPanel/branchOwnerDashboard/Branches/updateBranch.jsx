@@ -98,6 +98,7 @@ const UpdateBranch = () => {
 
   const onSubmit = async (data) => {
     const business = user?.business;
+    console.log("Branch Data:", data);
     dispatch(updateBranch({ business, data }));
 
     navigate('../branchesList')

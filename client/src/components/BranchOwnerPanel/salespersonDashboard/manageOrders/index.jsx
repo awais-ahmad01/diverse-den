@@ -860,56 +860,179 @@ const SalespersonOrderManagement = () => {
   const [tabValue, setTabValue] = useState(0);
   const [showInStoreOrderDialog, setShowInStoreOrderDialog] = useState(false);
   const [selectedOrderForReceipt, setSelectedOrderForReceipt] = useState(null);
-
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
-
-  const totalOrders = meta?.totalOrders || 0;
-  const totalOnlineOrders =
-    orders?.filter((o) => o.orderType === "Online").length || 0;
-  const totalInStoreOrders =
-    orders?.filter((o) => o.orderType === "In-Store").length || 0;
+  
+  // Store the original dummy data
+  const [allOrders, setAllOrders] = useState([]);
 
   useEffect(() => {
-    const business = user?.business;
-    dispatch(listOrders({ business }));
-  }, [dispatch, user]);
+    // Dummy data for online and in-store orders
+    const dummyOrders = [
+      {
+        _id: "order1",
+        userInfo: {
+          firstname: "John",
+          lastname: "Doe",
+          email: "john.doe@example.com",
+          phone: "123-456-7890",
+          address: "123 Main St, City, Country",
+          paymentMethod: "Credit Card",
+        },
+        items: [
+          { title: "Product 1", price: 29.99, totalQuantity: 2 },
+          { title: "Product 2", price: 39.99, totalQuantity: 1 },
+        ],
+        subtotal: 99.97,
+        shippingCost: 10.0,
+        totalAmount: 109.97,
+        status: "Processing",
+        orderType: "Online",
+        createdAt: new Date().toISOString(),
+        cartItemCount: 3,
+      },
+      {
+        _id: "order2",
+        userInfo: {
+          firstname: "Jane",
+          lastname: "Smith",
+          email: "jane.smith@example.com",
+          phone: "987-654-3210",
+          address: "456 Elm St, City, Country",
+          paymentMethod: "Cash",
+        },
+        items: [
+          { title: "Product 3", price: 19.99, totalQuantity: 5 },
+        ],
+        subtotal: 99.95,
+        shippingCost: 0.0,
+        totalAmount: 99.95,
+        status: "Delivered",
+        orderType: "In-Store",
+        createdAt: new Date().toISOString(),
+        cartItemCount: 5,
+      },
+      {
+        _id: "order3",
+        userInfo: {
+          firstname: "Alice",
+          lastname: "Johnson",
+          email: "alice.johnson@example.com",
+          phone: "555-123-4567",
+          address: "789 Oak St, City, Country",
+          paymentMethod: "Debit Card",
+        },
+        items: [
+          { title: "Product 4", price: 49.99, totalQuantity: 1 },
+          { title: "Product 5", price: 9.99, totalQuantity: 3 },
+        ],
+        subtotal: 89.96,
+        shippingCost: 5.0,
+        totalAmount: 94.96,
+        status: "Shipped",
+        orderType: "Online",
+        createdAt: new Date().toISOString(),
+        cartItemCount: 4,
+      },
+      {
+        _id: "order4",
+        userInfo: {
+          firstname: "Michael",
+          lastname: "Brown",
+          email: "michael.brown@example.com",
+          phone: "222-333-4444",
+          address: "101 Pine St, City, Country",
+          paymentMethod: "Mobile Payment",
+        },
+        items: [
+          { title: "Product 6", price: 14.99, totalQuantity: 2 },
+          { title: "Product 7", price: 24.99, totalQuantity: 1 },
+        ],
+        subtotal: 54.97,
+        shippingCost: 0.0,
+        totalAmount: 54.97,
+        status: "Pending",
+        orderType: "In-Store",
+        createdAt: new Date().toISOString(),
+        cartItemCount: 3,
+      },
+      {
+        _id: "order5",
+        userInfo: {
+          firstname: "Emily",
+          lastname: "Davis",
+          email: "emily.davis@example.com",
+          phone: "777-888-9999",
+          address: "202 Maple St, City, Country",
+          paymentMethod: "Credit Card",
+        },
+        items: [
+          { title: "Product 8", price: 79.99, totalQuantity: 1 },
+        ],
+        subtotal: 79.99,
+        shippingCost: 7.50,
+        totalAmount: 87.49,
+        status: "Shipped",
+        orderType: "Online",
+        createdAt: new Date().toISOString(),
+        cartItemCount: 1,
+      },
+    ];
+  
+    // Set both the all orders and filtered orders
+    setAllOrders(dummyOrders);
+    setFilteredOrders(dummyOrders);
+  }, []);
 
-  useEffect(() => {
-    if (orders) {
-      setFilteredOrders(orders);
-    }
-  }, [orders]);
+  // Calculate stats based on filtered orders
+  const totalOrders = filteredOrders.length || 0;
+  const totalOnlineOrders = allOrders.filter(o => o.orderType === "Online").length || 0;
+  const totalInStoreOrders = allOrders.filter(o => o.orderType === "In-Store").length || 0;
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
-
+  
+    // Apply filters based on tab selection
     if (newValue === 0) {
-      setFilteredOrders(orders);
+      // All Orders tab
+      setFilteredOrders(allOrders);
       setOrderTypeFilter("");
     } else if (newValue === 1) {
-      setFilteredOrders(orders.filter((o) => o.orderType === "Online"));
+      // Online Orders tab
+      setFilteredOrders(allOrders.filter(order => order.orderType === "Online"));
       setOrderTypeFilter("Online");
     } else if (newValue === 2) {
-      setFilteredOrders(orders.filter((o) => o.orderType === "In-Store"));
+      // In-Store Orders tab
+      setFilteredOrders(allOrders.filter(order => order.orderType === "In-Store"));
       setOrderTypeFilter("In-Store");
     }
   };
-
+  
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await dispatch(updateOrderStatus({ orderId, status: newStatus }))
-        .unwrap()
-        .then((response) => {
-          showToast("SUCCESS", "Status Updated Successfully!!");
-        })
-        .catch((error) => {
-          showToast("ERROR", "Failed to update status");
-        });
-
-      const business = user?.business;
-      dispatch(listOrders({ business }));
+      // Update the status in our local state
+      const updatedOrders = allOrders.map(order => {
+        if (order._id === orderId) {
+          return { ...order, status: newStatus };
+        }
+        return order;
+      });
+      
+      setAllOrders(updatedOrders);
+      
+      // Re-apply current tab filter
+      if (tabValue === 0) {
+        setFilteredOrders(updatedOrders);
+      } else if (tabValue === 1) {
+        setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
+      } else if (tabValue === 2) {
+        setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
+      }
+      
+      // Show success toast (commented out for now)
+      // showToast("SUCCESS", "Status Updated Successfully!!");
     } catch (error) {
       console.error("Failed to update order status:", error);
+      // showToast("ERROR", "Failed to update status");
     }
   };
 
@@ -923,19 +1046,24 @@ const SalespersonOrderManagement = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await dispatch(deleteOrder(deleteOrderId))
-        .unwrap()
-        .then((response) => {
-          showToast("SUCCESS", "Order deleted Successfully!!");
-        })
-        .catch((error) => {
-          showToast("ERROR", "Failed to delete order");
-        });
-
-      const business = user?.business;
-      dispatch(listOrders({ business }));
+      // Delete the order from our local state
+      const updatedOrders = allOrders.filter(order => order._id !== deleteOrderId);
+      setAllOrders(updatedOrders);
+      
+      // Re-apply current tab filter
+      if (tabValue === 0) {
+        setFilteredOrders(updatedOrders);
+      } else if (tabValue === 1) {
+        setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
+      } else if (tabValue === 2) {
+        setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
+      }
+      
+      // Show success toast (commented out for now)
+      // showToast("SUCCESS", "Order deleted Successfully!!");
     } catch (error) {
       console.error("Failed to delete order:", error);
+      // showToast("ERROR", "Failed to delete order");
     } finally {
       setDeleteOrderId(null);
     }
@@ -943,19 +1071,37 @@ const SalespersonOrderManagement = () => {
 
   const handlePlaceInStoreOrder = async (orderData) => {
     try {
-      await dispatch(placeInStoreOrder(orderData))
-        .unwrap()
-        .then((response) => {
-          showToast("SUCCESS", "In-store order placed successfully!!");
-        })
-        .catch((error) => {
-          showToast("ERROR", "Failed to place in-store order");
-        });
-
-      const business = user?.business;
-      dispatch(listOrders({ business }));
+      // Add new in-store order to our local state
+      const newOrder = {
+        _id: `order${allOrders.length + 1}`,
+        userInfo: orderData.userInfo,
+        items: orderData.items,
+        subtotal: orderData.subtotal,
+        shippingCost: 0,
+        totalAmount: orderData.totalAmount,
+        status: "Pending",
+        orderType: "In-Store",
+        createdAt: new Date().toISOString(),
+        cartItemCount: orderData.items.reduce((total, item) => total + item.totalQuantity, 0)
+      };
+      
+      const updatedOrders = [...allOrders, newOrder];
+      setAllOrders(updatedOrders);
+      
+      // Re-apply current tab filter
+      if (tabValue === 0) {
+        setFilteredOrders(updatedOrders);
+      } else if (tabValue === 1) {
+        setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
+      } else if (tabValue === 2) {
+        setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
+      }
+      
+      // Show success toast (commented out for now)
+      // showToast("SUCCESS", "In-store order placed successfully!!");
     } catch (error) {
       console.error("Failed to place in-store order:", error);
+      // showToast("ERROR", "Failed to place in-store order");
     }
   };
 
@@ -969,26 +1115,94 @@ const SalespersonOrderManagement = () => {
     setSelectedOrderForReceipt(null);
   };
 
-  const applyFilters = () => {
-    let filtered = [...orders];
 
-    if (orderTypeFilter) {
-      filtered = filtered.filter(
-        (order) => order.orderType === orderTypeFilter
-      );
+
+  // Step 1: Add state for branches and a way to identify the main salesperson
+// Add this to your existing useState declarations:
+const [selectedBranch, setSelectedBranch] = useState("");
+const [branchList, setBranchList] = useState([
+  { id: "branch1", name: "Downtown Branch" },
+  { id: "branch2", name: "North Side Branch" },
+  { id: "branch3", name: "West Mall Branch" },
+  { id: "branch4", name: "East Side Branch" }
+]);
+
+// Add a function to check if the current user is the main salesperson
+const isMainSalesperson = () => {
+  // Replace "main-salesperson-id" with the actual ID of your main salesperson
+  // return user && user.id === "main-salesperson-id";
+  return true
+};
+
+// Step 2: Add a function to handle branch selection for an order
+const handleBranchChange = (orderId, branchId) => {
+  const updatedOrders = allOrders.map(order => {
+    if (order._id === orderId) {
+      return { ...order, assignedBranch: branchId };
     }
+    return order;
+  });
+  
+  setAllOrders(updatedOrders);
+  
+  // Re-apply current tab filter
+  if (tabValue === 0) {
+    setFilteredOrders(updatedOrders);
+  } else if (tabValue === 1) {
+    setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
+  } else if (tabValue === 2) {
+    setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
+  }
+  
+  // You could add an API call here to update the order in your backend
+  console.log(`Order ${orderId} assigned to branch ${branchId}`);
+};
 
+// Step 3: Modify the desktop table view to add branch dropdown for online orders
+// Find this section in the TableRow mapping and add this cell after the Status cell:
+
+  const applyFilters = () => {
+    // Start with the correct base set of orders based on current tab
+    let baseOrders;
+    if (tabValue === 0) {
+      baseOrders = [...allOrders];
+    } else if (tabValue === 1) {
+      baseOrders = allOrders.filter(order => order.orderType === "Online");
+    } else if (tabValue === 2) {
+      baseOrders = allOrders.filter(order => order.orderType === "In-Store");
+    }
+    
+    // Apply additional filters
+    let filtered = [...baseOrders];
+  
+    // Apply order number filter
     if (orderNumber) {
       filtered = filtered.filter((order) =>
         order._id.slice(-6).toLowerCase().includes(orderNumber.toLowerCase())
       );
     }
-
+  
+    // Apply status filter
     if (statusFilter) {
       filtered = filtered.filter((order) => order.status === statusFilter);
     }
-
+  
+    // Update the filtered orders
     setFilteredOrders(filtered);
+  };
+  
+  const clearFilters = () => {
+    setOrderNumber("");
+    setStatusFilter("");
+    
+    // Reset to correct tab view
+    if (tabValue === 0) {
+      setFilteredOrders(allOrders);
+    } else if (tabValue === 1) {
+      setFilteredOrders(allOrders.filter(o => o.orderType === "Online"));
+    } else if (tabValue === 2) {
+      setFilteredOrders(allOrders.filter(o => o.orderType === "In-Store"));
+    }
   };
 
   const getStatusColor = (status) => {
@@ -1176,15 +1390,7 @@ const SalespersonOrderManagement = () => {
                 <Button
                   variant="outlined"
                   color="primary"
-                  onClick={() => {
-                    setOrderNumber("");
-                    setStatusFilter("");
-                    setFilteredOrders(
-                      orderTypeFilter
-                        ? orders.filter((o) => o.orderType === orderTypeFilter)
-                        : orders
-                    );
-                  }}
+                  onClick={clearFilters}
                 >
                   Clear Filters
                 </Button>
@@ -1281,8 +1487,28 @@ const SalespersonOrderManagement = () => {
                             fontWeight: "bold",
                           }}
                         >
+                          Type
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
                           Status
                         </TableCell>
+                        {isMainSalesperson() && (
+  <TableCell
+    sx={{
+      color: "white",
+      fontSize: "16px",
+      fontWeight: "bold",
+    }}
+  >
+    Branch
+  </TableCell>
+)}
                         <TableCell
                           sx={{
                             color: "white",
@@ -1307,6 +1533,7 @@ const SalespersonOrderManagement = () => {
                           </TableCell>
                           <TableCell>{order?.cartItemCount}</TableCell>
                           <TableCell>${order?.totalAmount}</TableCell>
+                          <TableCell>{order?.orderType}</TableCell>
                           <TableCell>
                             <Select
                               value={order.status}
@@ -1322,6 +1549,23 @@ const SalespersonOrderManagement = () => {
                               <MenuItem value="Cancelled">Cancelled</MenuItem>
                             </Select>
                           </TableCell>
+                          {isMainSalesperson() && order.orderType === "Online" && (
+  <TableCell>
+    <Select
+      value={order.assignedBranch || ""}
+      onChange={(e) => handleBranchChange(order._id, e.target.value)}
+      displayEmpty
+      fullWidth
+    >
+      <MenuItem value="">Select Branch</MenuItem>
+      {branchList.map((branch) => (
+        <MenuItem key={branch.id} value={branch.id}>
+          {branch.name}
+        </MenuItem>
+      ))}
+    </Select>
+  </TableCell>
+)}
                           <TableCell>
                             <div className="flex gap-2">
                               <Tooltip title="View Details">
@@ -1386,6 +1630,7 @@ const SalespersonOrderManagement = () => {
                       <p>Date: {format(new Date(order?.createdAt), "PP")}</p>
                       <p>Items: {order?.cartItemCount}</p>
                       <p>Total: ${order?.totalAmount}</p>
+                      <p>Type: {order?.orderType}</p>
                     </div>
 
                     <div className="mt-4 space-y-2">
@@ -1403,6 +1648,25 @@ const SalespersonOrderManagement = () => {
                         <MenuItem value="Cancelled">Cancelled</MenuItem>
                       </Select>
 
+                      {isMainSalesperson() && order.orderType === "Online" && (
+  <div className="mt-4">
+    <p className="font-bold mb-1">Select Branch:</p>
+    <Select
+      fullWidth
+      value={order.assignedBranch || ""}
+      onChange={(e) => handleBranchChange(order._id, e.target.value)}
+      displayEmpty
+    >
+      <MenuItem value="">Select Branch</MenuItem>
+      {branchList.map((branch) => (
+        <MenuItem key={branch.id} value={branch.id}>
+          {branch.name}
+        </MenuItem>
+      ))}
+    </Select>
+  </div>
+)}
+
                       <div className="flex gap-2">
                         <Button
                           variant="contained"
@@ -1417,7 +1681,7 @@ const SalespersonOrderManagement = () => {
                           onClick={() => handleGenerateReceipt(order)}
                           fullWidth
                         >
-                          Generate Receipt
+                          Receipt
                         </Button>
                         <Button
                           variant="contained"
@@ -1439,37 +1703,6 @@ const SalespersonOrderManagement = () => {
             </>
           )}
         </div>
-
-        {/* Pagination */}
-        {meta?.nextPage || meta?.previousPage ? (
-          <nav className="w-full flex justify-center items-center my-16">
-            <ul className="inline-flex items-center -space-x-px text-sm">
-              {meta?.previousPage && (
-                <>
-                  <li className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer">
-                    Previous
-                  </li>
-                  <li className="px-4 py-2 border hover:bg-gray-100 cursor-pointer">
-                    {meta?.previousPage}
-                  </li>
-                </>
-              )}
-              <li className="px-4 py-2 bg-[#603F26] text-white border">
-                {meta?.currentPage}
-              </li>
-              {meta?.nextPage && (
-                <>
-                  <li className="px-4 py-2 border hover:bg-gray-100 cursor-pointer">
-                    {meta?.nextPage}
-                  </li>
-                  <li className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer">
-                    Next
-                  </li>
-                </>
-              )}
-            </ul>
-          </nav>
-        ) : null}
 
         {/* Order Details Dialog */}
         <OrderDetailsDialog
@@ -1494,7 +1727,6 @@ const SalespersonOrderManagement = () => {
         />
 
         {/* Receipt Dialog */}
-        {/* Receipt Dialog */}
         <ReceiptDialog
           open={receiptDialogOpen}
           onClose={handleCloseReceipt}
@@ -1506,6 +1738,17 @@ const SalespersonOrderManagement = () => {
 };
 
 export default SalespersonOrderManagement;
+
+
+
+
+
+
+
+
+
+
+
 
 // import React, { useEffect, useState } from "react";
 // import { useDispatch, useSelector } from "react-redux";

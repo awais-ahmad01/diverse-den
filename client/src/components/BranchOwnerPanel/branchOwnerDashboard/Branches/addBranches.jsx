@@ -253,6 +253,9 @@ import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
+import { useNavigate
+
+ } from "react-router-dom";
 
 import { FaArrowLeft } from "react-icons/fa";
 import { 
@@ -271,6 +274,8 @@ const AddBranches = () => {
   
   const dispatch = useDispatch();
 
+  const navigate = useNavigate();
+
   const theme = createTheme({
     palette: {
       primary: {
@@ -280,7 +285,7 @@ const AddBranches = () => {
   });
 
   // Check if we should show the main branch checkbox
-  const showMainBranchOption = user?.isMainBranch === false;
+  const showMainBranchOption = user?.hasMainBranch === false;
 
   console.log("showMainBranchOption:", showMainBranchOption);
 
@@ -331,6 +336,7 @@ const AddBranches = () => {
         contactNo: data.branch_contact,
         emailAddress: data.branch_email,
         business: user.business,
+        user: user,
         isMainBranch: showMainBranchOption ? data.is_main_branch : false,
       };
 
@@ -349,6 +355,8 @@ const AddBranches = () => {
 
       dispatch(successGlobal('Branch added successfully'));
       reset();
+      navigate('../branchesList');
+      window.location.reload();
       
     } catch (error) {
       dispatch(errorGlobal(error?.response?.data?.message || 'Failed to add branch'));

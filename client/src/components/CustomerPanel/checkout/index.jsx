@@ -149,6 +149,7 @@ const Checkout = () => {
       data,
       cartItems,
       totalAmount: calculateSubtotal(),
+      orderType: "Online"
     };
 
     console.log("orderrrrrr:", body);

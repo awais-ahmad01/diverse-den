@@ -80,6 +80,7 @@ const ListBranches = () => {
       .unwrap()
       .then(() => {
         showToast("SUCCESS", "Branch deleted successfully!");
+        window.location.reload();
       })
       .catch(() => {
         showToast("ERROR", "Failed to delete branch!");
@@ -262,7 +263,7 @@ const ListBranches = () => {
                               <Tooltip title="View Branch">
                                 <IconButton
                                   component={Link}
-                                  to={`../viewbranch/${branch._id}/${branch.name}/${branch.branchCode}`}
+                                  to={`../viewbranch/${branch?._id}/${branch?.name}/${branch?.branchCode}`}
                                   color="primary"
                                 >
                                   <VisibilityIcon />
@@ -323,7 +324,7 @@ const ListBranches = () => {
                       <Button
                         variant="contained"
                         component={Link}
-                        to={`../viewbranch/${branch._id}/${branch.name}/${branch.branchCode}`}
+                        to={`../viewbranch/${branch?._id}/${branch?.name}/${branch?.branchCode}`}
                         fullWidth
                       >
                         View

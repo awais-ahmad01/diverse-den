@@ -74,6 +74,7 @@ import BusinessInventory from "./components/BranchOwnerPanel/salespersonDashboar
 import BranchesInventory from "./components/BranchOwnerPanel/salespersonDashboard/branchesInventory/index.jsx";
 import ViewBranchProducts from "./components/BranchOwnerPanel/salespersonDashboard/branchesInventory/viewBranchProducts.jsx";
 import ManageInventory from "./components/BranchOwnerPanel/salespersonDashboard/manageInventory/index.jsx";
+import Guard from "./guard/guard.jsx";
 
 function App() {
   const dispatch = useDispatch();
@@ -130,14 +131,32 @@ function App() {
             path="/branchOwnerPanel"
             element={
               // <AuthGuard allowedRoles={["Branch Owner"]}>
-              //   <BranchOwnerPanel />
+                <BranchOwnerPanel />
               // </AuthGuard>
-              <BranchOwnerPanel />
+              // <BranchOwnerPanel />
             }
           >
-            <Route path="subscription" element={<SubscriptionPlans />} />
+            <Route
+              path="subscription"
+              element={
+            
+                //  <Guard>
+                   <SubscriptionPlans />
+                //  {/* </Guard> */}
+           
+              }
+            />
 
-            <Route path="business_setup" element={<BusinessSetup />} />
+            <Route
+              path="business_setup"
+              element={
+             
+                  // <Guard>
+                    <BusinessSetup />
+                  // </Guard>
+                  
+              }
+            />
 
             <Route
               path="branchOwnerDashboard"
@@ -145,7 +164,7 @@ function App() {
                 // <BranchOwnerDashboard />
                 <AuthGuard allowedRoles={["Branch Owner"]}>
                   <BranchOwnerDashboard />
-                </AuthGuard>
+                 </AuthGuard>
               }
             >
               <Route path="branchesList" element={<ListBranches />} />
@@ -155,7 +174,7 @@ function App() {
               <Route path="updatebranch/:id" element={<UpdateBranch />} />
 
               <Route
-                path="viewbranch/:id/:name/:code"
+                path="viewbranch/:id/:name/:branchcode"
                 element={<ViewBranch />}
               />
 
@@ -254,7 +273,6 @@ function App() {
               />
 
               <Route path="manageInventory" element={<ManageInventory />} />
-
 
               <Route
                 path="assignProduct/:branchCode"

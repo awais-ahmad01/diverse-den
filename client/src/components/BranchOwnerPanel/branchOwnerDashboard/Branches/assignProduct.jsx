@@ -30,6 +30,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { addProductToBranch, getBranchProducts, getVariantRemainings } from "../../../../store/actions/branches";
 import { getProducts } from "../../../../store/actions/products";
+import { ConstructionOutlined } from "@mui/icons-material";
 
 
 const theme = createTheme({
@@ -434,6 +435,8 @@ const ProductList = () => {
 
   const { branchCode } = useParams();
 
+  console.log("Branch Code:", branchCode);
+
   const handleProductClick = (product) => {
     setSelectedProduct(product);
     setOpenDialog(true);
@@ -513,7 +516,7 @@ const ProductList = () => {
                         className="cursor-pointer hover:bg-gray-100"
                       >
                         <TableCell>{product?.title}</TableCell>
-                        <TableCell>${product?.price}</TableCell>
+                        <TableCell>Rs {product?.price}</TableCell>
                         <TableCell>{product?.category}</TableCell>
                         <TableCell>{product?.remainingQuantity}</TableCell>
                         <TableCell>

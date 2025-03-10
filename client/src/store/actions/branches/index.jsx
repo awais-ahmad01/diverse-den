@@ -299,16 +299,19 @@ export const getBranchProductDetails = createAsyncThunk(
         return;
       }
 
+
       const response = await axios.get('http://localhost:3000/branchOwner/viewBranchProductsDetail', {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        params: {
-         branchCode,
-         productId
-        },
+        params:{
+          branchCode,
+        productId
+        }
+
       })
+
 
       console.log("Branch Products details: ", response.data)
       

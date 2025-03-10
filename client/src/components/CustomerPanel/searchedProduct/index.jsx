@@ -25,7 +25,7 @@ const SearchedProduct = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
         {searchedProducts && searchedProducts.length > 0 ? (
           searchedProducts.map((product) => (
-            <Link to={`/productDetails/${product._id}`} key={product._id}>
+            <Link to={`/customer/productDetails/${product._id}`} key={product._id}>
               <div className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl">
                 <div className="relative h-80 bg-gray-100">
                   <img
@@ -34,6 +34,7 @@ const SearchedProduct = () => {
                     className="object-cover w-full h-full"
                   />
                 </div>
+
                 <div className="p-4">
                   <h2 className="text-lg font-semibold text-gray-800 truncate">
                     {product.title}
