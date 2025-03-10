@@ -311,7 +311,7 @@ export const getBusinessProductReviews = createAsyncThunk(
     } catch (error) {
       console.log("errro000r................");
     
-      console.log(error);
+      console.log(error.response.data.message);
       throw error;
     }
   }

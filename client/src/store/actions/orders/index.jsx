@@ -95,6 +95,57 @@ export const updateOrderStatus = createAsyncThunk(
 
 
 
+export const deleteOrder = createAsyncThunk(
+  "orders/deleteOrder",
+  async ({deleteOrderId, business}, {getState, dispatch}) => {
+    try {
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        dispatch(errorGlobal('No token found'));
+        return;
+      }
+
+
+      const body = {
+        orderId: deleteOrderId
+      }
+
+      console.log('Body:', body)
+
+      const response = await axios.post('http://localhost:3000/deleteOrder', body,  {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+
+     
+
+      console.log("order Deleted: ", response.data)
+
+
+      const {meta} = getState().orders;
+      const pageNo = meta.currentPage
+      dispatch(listOrders({ business, pageNo}))
+
+      return true
+
+     
+    } catch (error) {
+      console.log("errro000r................");
+     
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+
+
+
 
 export const listPaymentHistory = createAsyncThunk(
   "orders/listPaymentHistory",

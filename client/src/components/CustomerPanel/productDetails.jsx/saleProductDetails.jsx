@@ -575,7 +575,6 @@ import { showToast } from "../../../tools";
 const SaleProductDetails = () => {
   const { user, isauthenticated } = useSelector((state) => state.auth);
 
-  const business = user?.business;
 
   const { productId, eventId } = useParams();
 
@@ -585,6 +584,9 @@ const SaleProductDetails = () => {
   const navigate = useNavigate();
 
   const { saleProduct, productReviews } = useSelector((state) => state.products);
+
+
+  const business = saleProduct?.business;
 
   console.log("saleProduct:", saleProduct);
 
@@ -812,6 +814,11 @@ const SaleProductDetails = () => {
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
+
+    if (!isauthenticated) {
+      navigate("/signin");
+      return;
+    }
 
     const body = {
       userData: user,

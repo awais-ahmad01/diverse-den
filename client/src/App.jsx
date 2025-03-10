@@ -91,12 +91,12 @@ function App() {
     });
   }, [dispatch]);
 
-  useEffect(() => {
-    if (user?.business) {
-      console.log("Fetching branches for business:", user.business);
-      dispatch(getAllBranches(user.business));
-    }
-  }, [user, dispatch]);
+  // useEffect(() => {
+  //   if (user?.business) {
+  //     console.log("Fetching branches for business:", user.business);
+  //     dispatch(getAllBranches(user.business));
+  //   }
+  // }, [user, dispatch]);
 
   if (!authChecked || isloading) {
     return <Loader />;

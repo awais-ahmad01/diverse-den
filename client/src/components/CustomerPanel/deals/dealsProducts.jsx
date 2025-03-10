@@ -5,129 +5,55 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSaleEventByIdWithProductDetails } from "../../../store/actions/saleEvents";
 
 const DealsPage = () => {
-  const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
-  const [brands, setBrands] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState("");
+  const [filterOption, setFilterOption] = useState("bestMatch");
+  const [sortedProducts, setSortedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const {saleEventsWithProductDetails, isloading} = useSelector((state) => state.saleEvents);
-
-  console.log('saleEventsWithProductDetails:', saleEventsWithProductDetails);
-
+  const { saleEventsWithProductDetails, isloading } = useSelector((state) => state.saleEvents);
+  
   const dispatch = useDispatch();
+  const { eventId } = useParams();
 
-  const {eventId} = useParams();
+  // Handle filter change
+  const handleFilterChange = (e) => {
+    setFilterOption(e.target.value);
+    applySorting(e.target.value);
+  };
 
+  // Apply price sorting
+  const applySorting = (option) => {
+    if (!saleEventsWithProductDetails?.products) return;
+    
+    let sorted = [...saleEventsWithProductDetails.products];
+    
+    if (option === 'bestMatch') {
+      // Random sorting for best match
+      sorted = sorted.sort(() => Math.random() - 0.5);
+    } else if (option === 'lowToHigh') {
+      sorted = sorted.sort((a, b) => a.discountedPrice - b.discountedPrice);
+    } else if (option === 'highToLow') {
+      sorted = sorted.sort((a, b) => b.discountedPrice - a.discountedPrice);
+    }
+    
+    setSortedProducts(sorted);
+  };
+
+  // Fetch sale event data
   useEffect(() => {
     dispatch(getSaleEventByIdWithProductDetails(eventId));
-  }, []);
+  }, [eventId, dispatch]);
 
-  // Mock deals products data
-  const mockDealsProducts = [
-    {
-      _id: "1",
-      title: "Premium Coffee Beans",
-      price: 950, // Discounted price
-      originalPrice: 1200,
-      discountPercentage: 21,
-      brand: "Coffee King",
-      imagePath: ["/api/placeholder/400/320"],
-      category: "coffee"
-    },
-    {
-      _id: "2",
-      title: "Espresso Machine",
-      price: 12000, // Discounted price
-      originalPrice: 15000,
-      discountPercentage: 20,
-      brand: "CoffeeTech",
-      imagePath: ["/api/placeholder/400/320"],
-      category: "coffee"
-    },
-    {
-      _id: "3",
-      title: "Coffee Grinder",
-      price: 2800, // Discounted price
-      originalPrice: 3500,
-      discountPercentage: 20,
-      brand: "CoffeeTech",
-      imagePath: ["/api/placeholder/400/320"],
-      category: "coffee"
-    },
-    {
-      _id: "4",
-      title: "Arabica Coffee Beans",
-      price: 760, // Discounted price
-      originalPrice: 950,
-      discountPercentage: 20,
-      brand: "Coffee King",
-      imagePath: ["/api/placeholder/400/320"],
-      category: "coffee"
-    },
-    {
-      _id: "5",
-      title: "Coffee Mug Set",
-      price: 600, // Discounted price
-      originalPrice: 800,
-      discountPercentage: 25,
-      brand: "HomeStyle",
-      imagePath: ["/api/placeholder/400/320"],
-      category: "coffee"
-    },
-    {
-      _id: "6",
-      title: "French Press",
-      price: 1350, // Discounted price
-      originalPrice: 1800,
-      discountPercentage: 25,
-      brand: "BrewMaster",
-      imagePath: ["/api/placeholder/400/320"],
-      category: "coffee"
-    },
-  ];
+  // Initialize sorted products when data is loaded
+  useEffect(() => {
+    if (saleEventsWithProductDetails?.products) {
+      // Apply default sorting (best match)
+      applySorting('bestMatch');
+    }
+  }, [saleEventsWithProductDetails]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  useEffect(() => {
-    const fetchDealsProducts = () => {
-      try {
-        setLoading(true);
-        
-        // Using mock data instead of API call
-        const dealsProducts = mockDealsProducts;
-        setProducts(dealsProducts);
-        setFilteredProducts(dealsProducts);
-        
-        // Extract unique brands from products
-        const uniqueBrands = [...new Set(dealsProducts.map(product => product.brand))];
-        setBrands(uniqueBrands);
-        
-        setLoading(false);
-      } catch (err) {
-        console.log(err);
-        setLoading(false);
-      }
-    };
-
-    fetchDealsProducts();
-  }, []);
-
-  // Filter products by selected brand
-  useEffect(() => {
-    if (selectedBrand === "") {
-      setFilteredProducts(products);
-    } else {
-      const filtered = products.filter(product => product.brand === selectedBrand);
-      setFilteredProducts(filtered);
-    }
-  }, [selectedBrand, products]);
-
-  const handleBrandChange = (e) => {
-    setSelectedBrand(e.target.value);
-  };
 
   if (isloading) {
     return <Loader />;
@@ -141,35 +67,30 @@ const DealsPage = () => {
       <div className="flex flex-wrap items-center justify-between mb-6">
         <div className="w-full md:w-auto mb-4 md:mb-0">
           <p className="text-gray-500">
-            Showing {saleEventsWithProductDetails?.products?.length} {saleEventsWithProductDetails?.products?.length === 1 ? 'product' : 'products'}
-            {/* {selectedBrand && ` for ${selectedBrand}`} */}
+            Showing {sortedProducts.length} {sortedProducts.length === 1 ? 'product' : 'products'}
           </p>
         </div>
         
-        {/* <div className="w-full md:w-auto flex items-center">
-          <label htmlFor="brandSelect" className="mr-3 font-medium text-gray-700">
-            Brand:
-          </label>
-          <select
-            id="brandSelect"
-            value={selectedBrand}
-            onChange={handleBrandChange}
-            className="border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-[#603F26] focus:outline-none w-full md:w-auto"
-          >
-            <option value="">All Brands</option>
-            {brands.map(brand => (
-              <option key={brand} value={brand}>
-                {brand}
-              </option>
-            ))}
-          </select>
-        </div> */}
-      </div> 
+        {/* Price filter */}
+        {sortedProducts.length > 0 && (
+          <div className="w-full md:w-auto">
+            <select
+              className="bg-white border border-gray-300 rounded-lg py-2 px-4 focus:ring-2 focus:ring-[#603F26] focus:outline-none w-full md:w-auto"
+              value={filterOption}
+              onChange={handleFilterChange}
+            >
+              <option value="bestMatch">Best Match</option>
+              <option value="lowToHigh">Price: Low to High</option>
+              <option value="highToLow">Price: High to Low</option>
+            </select>
+          </div>
+        )}
+      </div>
       
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-        {saleEventsWithProductDetails?.products?.length > 0 ? (
-          saleEventsWithProductDetails?.products?.map((product) => (
+        {sortedProducts.length > 0 ? (
+          sortedProducts.map((product) => (
             <Link to={`/customer/saleProductDetails/${product?.productId}/${eventId}`} key={product?.productId}>
               <div
                 className="bg-white shadow-md rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
@@ -189,9 +110,6 @@ const DealsPage = () => {
                   <h2 className="text-lg font-semibold text-gray-800 truncate">
                     {product?.name}
                   </h2>
-                  {/* <p className="text-sm text-gray-500 mt-1">
-                    {product?.brand}
-                  </p> */}
                   <div className="flex items-center justify-between mt-4">
                     <div>
                       <span className="text-lg font-bold text-[#603F26]">

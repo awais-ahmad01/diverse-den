@@ -175,7 +175,7 @@ export const removeBranch = createAsyncThunk(
         },
       })
 
-      dispatch(successGlobal('Branch deteled Successfully!!'))
+      // dispatch(successGlobal('Branch deteled Successfully!!'))
 
       console.log("Branch Deleted: ", response.data)
 
@@ -192,7 +192,7 @@ export const removeBranch = createAsyncThunk(
 
       console.log("Errrorrr...")
       
-      dispatch(errorGlobal(error.response?.data?.message || 'Failed to delete branch'));
+      // dispatch(errorGlobal(error.response?.data?.message || 'Failed to delete branch'));
       console.log(error.response.data.message)
       // throw error;
     }    

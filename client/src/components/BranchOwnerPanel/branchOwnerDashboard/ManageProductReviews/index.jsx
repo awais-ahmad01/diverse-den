@@ -140,6 +140,7 @@ const ReviewDetailsDialog = ({
                   </IconButton>
                 </div>
 
+
                 <div>
                   <Rating value={review.rating} readOnly size="small" />
                   <p className="mt-2">{review.comment}</p>

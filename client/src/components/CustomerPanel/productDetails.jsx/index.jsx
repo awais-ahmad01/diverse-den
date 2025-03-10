@@ -512,7 +512,7 @@ import { showToast } from "../../../tools";
 const ProductDetails = () => {
   const { user, isauthenticated } = useSelector((state) => state.auth);
 
-  const business = user?.business;
+
 
   const { productId } = useParams();
 
@@ -520,6 +520,10 @@ const ProductDetails = () => {
   const navigate = useNavigate();
 
   const { customerProduct, productReviews } = useSelector((state) => state.products);
+
+  console.log('customerProduct:', customerProduct);
+
+  const business = customerProduct?.business;
 
   useEffect(() => {
     dispatch(getCustomerProductById(productId));
@@ -730,6 +734,12 @@ const ProductDetails = () => {
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
+
+    if (!isauthenticated) {
+      navigate("/signin");
+      return;
+    }
+
 
     const body = {
       userData: user,
