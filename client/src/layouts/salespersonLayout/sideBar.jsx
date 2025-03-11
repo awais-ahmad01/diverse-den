@@ -175,6 +175,7 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
       icon: <FaBoxOpen className="text-xl" />,
       activePaths: [
         '/branchOwnerPanel/salespersonDashboard/manageInventory',
+        '/branchOwnerPanel/salespersonDashboard/viewBranchProduct'
       ],
     },
     {
@@ -192,7 +193,7 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
       icon: <FaBoxOpen className="text-xl" />,
       activePaths: [
         '/branchOwnerPanel/salespersonDashboard/branchesInventory',
-        '/branchOwnerPanel/salespersonDashboard/viewBranchProduct',
+        // '/branchOwnerPanel/salespersonDashboard/viewBranchProduct',
         '/branchOwnerPanel/salespersonDashboard/viewBranchProducts'
       ],
     },

@@ -7,7 +7,7 @@ import { removeBranchProduct } from "../../../../store/actions/products";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Loader } from "../../../../tools";
 
-// Material UI Components
+
 import {
   Button,
   Dialog,

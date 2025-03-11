@@ -217,10 +217,12 @@ const SubscriptionPlans = () => {
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth);
   const { businessVerify } = useSelector((state) => state.businesses);
+  console.log("businessVerify", businessVerify);
   const { _id: userId } = userData.user;
 
   const [plans, setPlans] = useState([]);
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(true); // Add loading state
+
 
   useEffect(() => {
     const businessId = userData?.user?.business;
@@ -247,8 +249,9 @@ const SubscriptionPlans = () => {
           }
         );
         console.log(plans_response.data);
-
+        
         setPlans(plans_response.data.plans);
+        setLoading(false);
       } catch (error) {
         throw error;
       }
@@ -289,12 +292,20 @@ const SubscriptionPlans = () => {
 
       console.log(response.data);
       showToast("SUCCESS", "Plan added successfully.");
-      setLoading(false); 
+      console.log('businessVerify',businessVerify);
+      setLoading(false);
+      
+    
+      
+      console.log('businessVerify2',businessVerify);
 
-      if (businessVerify.length === 0)
+        // navigate("../business_setup");
+
+
+      if (!businessVerify)
          {
-          window.location.reload();
-        navigate("../business_setup");
+          // window.location.reload();
+          navigate("../business_setup");
       } else {
         navigate("../branchOwnerDashboard");
       }

@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm, Controller } from "react-hook-form";  
 import { useNavigate } from "react-router-dom";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { Loader } from "../../../../tools";
 
 import { FaArrowLeft } from "react-icons/fa";
 import {
@@ -27,6 +28,7 @@ const AddSalesperson = () => {
   const navigate = useNavigate();
   const { allBranches } = useSelector((state) => state.branches);
   const { user } = useSelector((state) => state.auth);
+  const [Loading, setLoading] = useState(false);
 
   const theme = createTheme({
     palette: {
@@ -57,18 +59,30 @@ const AddSalesperson = () => {
   const { control, formState, handleSubmit, reset } = form;
   const { errors } = formState;
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    setLoading(true); 
+  
     const body = {
       name: data.salesperson_name,
       email: data.salesperson_email,
       assignBranch: data.branch,
       business: user.business,
     };
-
-    console.log(body);
-    dispatch(addSalesperson(body));
-
-    reset();
+  
+    try {
+     
+      await dispatch(addSalesperson(body)).unwrap();
+  
+      
+      reset();
+      navigate("../salespersonsList"); 
+    } catch (error) {
+     
+      console.error("Failed to add salesperson:", error);
+    } finally {
+     
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -77,6 +91,11 @@ const AddSalesperson = () => {
 
     
   }, [dispatch, user?.business]);
+
+
+  if(Loading){
+    return <Loader />
+  }
 
   return (
     <div className="bg-gray-50 flex flex-col p-5">

@@ -121,6 +121,7 @@ const PreventSignin = (props) => {
             if(userRole === 'Branch Owner'){
 
                 if(user.activePlan){
+    
                     return <Navigate to='/branchOwnerPanel/branchOwnerDashboard' state={{from:location}} replace/>
                 }
                 return <Navigate to='/branchOwnerPanel/subscription' state={{from:location}} replace/>

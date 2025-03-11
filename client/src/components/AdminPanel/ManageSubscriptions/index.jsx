@@ -307,78 +307,40 @@ const ManageSubscriptionPlans = () => {
 
   }, [dispatch])
   
-  // Mock subscription plans data
-  // const mockSubscriptionPlans = [
-  //   {
-  //     id: "plan1",
-  //     name: "Basic",
-  //     features: ["Limited access to dashboard", "5 projects", "Basic support"],
-  //     price: 9.99,
-  //     duration: 30,
-  //     subscriberCount: 145
-  //   },
-  //   {
-  //     id: "plan2",
-  //     name: "Premium",
-  //     features: ["Full access to dashboard", "Unlimited projects", "Priority support", "Advanced analytics"],
-  //     price: 19.99,
-  //     duration: 30,
-  //     subscriberCount: 87
-  //   },
-  //   {
-  //     id: "plan3",
-  //     name: "Enterprise",
-  //     features: ["Custom solutions", "Dedicated support manager", "API access", "White-labeling options", "Team management"],
-  //     price: 49.99,
-  //     duration: 30,
-  //     subscriberCount: 23
-  //   }
-  // ];
-
-  // const [subscriptionPlans, setSubscriptionPlans] = useState(mockSubscriptionPlans);
-  // const [isLoading, setIsLoading] = useState(false);
+  
   const [currentPlan, setCurrentPlan] = useState(null);
   const [dialogMode, setDialogMode] = useState(null); // "add", "edit", "delete", "subscribers", null
   
-  // useEffect(() => {
-  //   // In a real implementation, this would dispatch an action to fetch subscription plans
-  //   // dispatch(fetchSubscriptionPlans());
-  //   setIsLoading(true);
-  //   // Simulate API call
-  //   setTimeout(() => {
-  //     setIsLoading(false);
-  //   }, 500);
-  // }, []);
 
-  // Handler for opening add dialog
+  
   const handleAddPlan = () => {
     setCurrentPlan(null);
     setDialogMode("add");
   };
 
-  // Handler for opening edit dialog
+
   const handleEditPlan = (plan) => {
     setCurrentPlan(plan);
     setDialogMode("edit");
   };
 
-  // Handler for opening delete dialog
+
   const handleDeletePlan = (plan) => {
     setCurrentPlan(plan);
     setDialogMode("delete");
   };
 
-  // Handler for opening subscribers dialog
+ 
   const handleViewSubscribers = (plan) => {
     setCurrentPlan(plan);
     setDialogMode("subscribers");
   };
 
-  // Handler for saving plan (add or edit)
+
   const handleSavePlan = (formData, mode) => {
     try {
       if (mode === "add") {
-        // In a real implementation, this would dispatch an action
+       
         dispatch(addSubscriptionPlan(formData))
           .unwrap()
           .then(() => {
@@ -410,10 +372,10 @@ const ManageSubscriptionPlans = () => {
     }
   };
 
-  // Handler for confirming plan deletion
+
   const handleDeleteConfirm = () => {
     try {
-      // In a real implementation, this would dispatch an action
+      
       const planId = currentPlan?._id;
       dispatch(deleteSubscriptionPlan(planId))
         .unwrap()
@@ -433,7 +395,6 @@ const ManageSubscriptionPlans = () => {
     }
   };
 
-  // Close any open dialog
   const handleCloseDialog = () => {
     setDialogMode(null);
   };
@@ -452,7 +413,7 @@ const ManageSubscriptionPlans = () => {
           </h1>
         </header>
 
-        {/* Stats and Add Button */}
+       
         <section className="px-4 md:px-6 lg:px-12 flex justify-between items-center mb-6">
           <div>
             <div className="bg-[#603F26] text-white px-6 py-4 rounded-lg">
@@ -475,7 +436,6 @@ const ManageSubscriptionPlans = () => {
           </div>
         </section>
 
-        {/* Subscription Plans */}
         <section className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!subscriptionPlans || subscriptionPlans?.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-lg shadow">
@@ -502,7 +462,7 @@ const ManageSubscriptionPlans = () => {
                           {plan?.name}
                         </Typography>
                         <Chip 
-                          label={`Rs ${plan?.price?.toFixed(2)}`} 
+                          label={`$ ${plan?.price?.toFixed(2)}`} 
                           color="primary" 
                           className="font-bold"
                         />

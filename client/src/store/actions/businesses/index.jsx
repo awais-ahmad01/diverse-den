@@ -447,19 +447,21 @@ export const verifyBusiness = createAsyncThunk(
         }
       );
 
-      console.log("business verify:", response.data);
+
+      console.log("business verifyyyy:", response.data);
 
 
 
       
-      return { data: response.data};
+      return { data: response.data.businessExist};
     } catch (error) {
       console.log("errro000r................");
     
-      console.log(error);
+      console.log(error.response.data.message);
       throw error;
     }
   }
+
 );
 
 

@@ -78,7 +78,7 @@ const UpdateBranch = () => {
   
         console.log("Branch Data: ", branchData);
   
-        // Ensure the fields are reset with values from the fetched data
+        
         reset({
           branch_name: branchData.name || "",
           branch_code: branchData.branchCode || "",

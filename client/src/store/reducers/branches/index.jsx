@@ -1,3 +1,6 @@
+
+
+
 import { createSlice } from "@reduxjs/toolkit";
 import { getBranches, getAllBranches, getBranchProducts, getVariantRemainings, getBranchProductDetails
   , getBranchProductsByBranchCode, getAllBranchProducts
@@ -64,21 +67,6 @@ export const branchesSlice = createSlice({
         state.isloading = false;
       })
 
-
-      // .addCase(getAllBranchProducts.pending, (state) => {
-      //   state.isloading = true;
-      // })
-      // .addCase(getAllBranchProducts.fulfilled, (state, action) => {
-      //   state.isloading = false;
-      //   state.branchInventoryProducts = action.payload.data;
-      //   state.branchInventoryMeta = action.payload.metaData;
-      // })
-      // .addCase(getAllBranchProducts.rejected, (state) => {
-      //   state.isloading = false;
-      // })
-
-
-
       .addCase(getBranchProductsByBranchCode.pending, (state) => {
         state.isloading = true;
       })
@@ -118,6 +106,20 @@ export const branchesSlice = createSlice({
       .addCase(getBranchProductDetails.rejected, (state) => {
         state.isloading = false;
       })
+
+
+      .addCase(getAllBranchProducts.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getAllBranchProducts.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.branchInventoryProducts = action.payload.data;
+        state.branchInventoryMeta = action.payload.metaData;
+      })
+      .addCase(getAllBranchProducts.rejected, (state) => {
+        state.isloading = false;
+      })
+
 
 
 

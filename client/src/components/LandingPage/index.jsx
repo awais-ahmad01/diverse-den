@@ -659,7 +659,7 @@ const LandingPage = () => {
                 </div>
               </div>
             </Grid>
-            <Grid item xs={12} md={6}>
+            {/* <Grid item xs={12} md={6}>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <img 
                   style={{
@@ -669,10 +669,10 @@ const LandingPage = () => {
                     boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
                   }}
                   alt="E-commerce platform showcasing multiple devices"
-                  src="https://cdnjs.cloudflare.com/ajax/libs/placeholder-imgs/0.0.4/120x120.png"
+                  src="/images/ecom.png"
                 />
               </div>
-            </Grid>
+            </Grid> */}
           </Grid>
         </Container>
       </div>

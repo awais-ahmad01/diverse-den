@@ -287,7 +287,7 @@ export const getBranchProducts = createAsyncThunk(
 
 
 export const getAllBranchProducts = createAsyncThunk(
-  'branches/getBranchProducts',
+  'branches/getAllBranchProducts',
   async ({branchCode, pageNo=1, limit=5}, thunkAPI) => {
     try {
 
@@ -302,7 +302,7 @@ export const getAllBranchProducts = createAsyncThunk(
         return;
       }
 
-      const response = await axios.get('http://localhost:3000/branchOwner/viewBranchProductsById', {
+      const response = await axios.get('http://localhost:3000/branchOwner/viewBranchProductsByBranchCodeWithPagination', {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

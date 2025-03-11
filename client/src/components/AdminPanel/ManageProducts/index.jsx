@@ -6,7 +6,7 @@ import { getProducts, removeProduct } from "../../../../store/actions/products";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Loader } from "../../../../tools";
 
-// Material UI Components
+
 import {
   Button,
   Dialog,
@@ -27,7 +27,7 @@ import {
   Tooltip
 } from "@mui/material";
 
-// Icons
+
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -152,7 +152,7 @@ const ListProducts = () => {
           </Box>
         </Box>
 
-        {/* Products Content */}
+    
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!products || products.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">

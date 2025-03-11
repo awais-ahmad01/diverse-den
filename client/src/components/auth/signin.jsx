@@ -123,11 +123,11 @@ const Signin = () => {
         variant="outlined"
         id="password"
         label="Password"
-        type={showPassword ? "text" : "password"}  // Toggle input type based on state
-        error={!!errors.password} // Show error if there's a password validation error
-        helperText={errors.password?.message} // Show error message from validation
-        autoComplete="new-password" // Disable autocomplete
-        {...register("password")} // Register the input field with react-hook-form
+        type={showPassword ? "text" : "password"}  
+        error={!!errors.password} 
+        helperText={errors.password?.message} 
+        autoComplete="new-password" 
+        {...register("password")} 
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">

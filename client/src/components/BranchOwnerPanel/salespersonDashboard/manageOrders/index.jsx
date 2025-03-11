@@ -1540,8 +1540,8 @@ const SalespersonOrderManagement = () => {
     }
   }, [salespersonOrders]);
 
-  // Calculate stats based on filtered orders
-  const totalOrders = filteredOrders.length || 0;
+  
+  const totalOrders = salespersonOrders?.length || 0;
   const totalOnlineOrders =
     allOrders.filter((o) => o.orderType === "Online").length || 0;
   const totalInStoreOrders =
@@ -1550,13 +1550,12 @@ const SalespersonOrderManagement = () => {
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
 
-    // Apply filters based on tab selection
     if (newValue === 0) {
-      // All Orders tab
+     
       setFilteredOrders(allOrders);
       setOrderTypeFilter("");
     } else if (newValue === 1) {
-      // Online Orders tab
+      
       setFilteredOrders(
         allOrders.filter((order) => order.orderType === "Online")
       );
@@ -1631,13 +1630,6 @@ const SalespersonOrderManagement = () => {
     setSelectedOrderForReceipt(null);
   };
 
-  const [selectedBranch, setSelectedBranch] = useState("");
-  const [branchList, setBranchList] = useState([
-    { id: "branch1", name: "Downtown Branch" },
-    { id: "branch2", name: "North Side Branch" },
-    { id: "branch3", name: "West Mall Branch" },
-    { id: "branch4", name: "East Side Branch" },
-  ]);
 
   const isMainSalesperson = () => {
     return user?.hasMainBranch === true;
@@ -1673,22 +1665,21 @@ const SalespersonOrderManagement = () => {
       baseOrders = allOrders.filter((order) => order.orderType === "In-Store");
     }
 
-    // Apply additional filters
+    
     let filtered = [...baseOrders];
 
-    // Apply order number filter
     if (orderNumber) {
       filtered = filtered.filter((order) =>
         order._id.slice(-6).toLowerCase().includes(orderNumber.toLowerCase())
       );
     }
 
-    // Apply status filter
+    
     if (statusFilter) {
       filtered = filtered.filter((order) => order.status === statusFilter);
     }
 
-    // Update the filtered orders
+    
     setFilteredOrders(filtered);
   };
 
@@ -1696,7 +1687,6 @@ const SalespersonOrderManagement = () => {
     setOrderNumber("");
     setStatusFilter("");
 
-    // Reset to correct tab view
     if (tabValue === 0) {
       setFilteredOrders(allOrders);
     } else if (tabValue === 1) {
@@ -1871,7 +1861,7 @@ const SalespersonOrderManagement = () => {
           </Tabs>
         </Box>
 
-        {/* Filters */}
+       
         {showFilters && (
           <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
             <Paper sx={{ p: 3 }}>
@@ -1914,7 +1904,7 @@ const SalespersonOrderManagement = () => {
           </Box>
         )}
 
-        {/* Orders Content */}
+       
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!filteredOrders || filteredOrders.length === 0 ? (
             <div className="bg-white p-8 rounded-lg shadow text-center">
@@ -2186,7 +2176,7 @@ const SalespersonOrderManagement = () => {
                             displayEmpty
                           >
                             <MenuItem value="">Select Branch</MenuItem>
-                            {branchList.map((branch) => (
+                            {branches?.map((branch) => (
                               <MenuItem key={branch.id} value={branch.id}>
                                 {branch.name}
                               </MenuItem>

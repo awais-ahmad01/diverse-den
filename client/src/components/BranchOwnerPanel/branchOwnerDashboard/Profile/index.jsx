@@ -59,7 +59,7 @@ const ProfilePage = () => {
     accountNumber: "",
   });
 
-  // Sample bank list - replace with your actual bank list
+  
   const bankList = [
     "Bank of America",
     "Chase",
@@ -68,7 +68,7 @@ const ProfilePage = () => {
     "Capital One",
   ];
 
-  // Fetch user data including business information
+  
   useEffect(() => {
     console.log("Fetching profile data...");
 
@@ -113,7 +113,6 @@ const ProfilePage = () => {
     fetchData();
   }, []);
 
-  // Handle business information update
   const handleBusinessUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -140,7 +139,7 @@ const ProfilePage = () => {
       });
     }
   };
-  // Handle image upload
+
   const handleImageUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -192,7 +191,7 @@ const ProfilePage = () => {
     }
   };
 
-  // Handle password update
+ 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
@@ -575,7 +574,7 @@ const ProfilePage = () => {
           </CardContent>
         </Card>
 
-        {/* Notifications */}
+      
         <Snackbar
           open={notification.open}
           autoHideDuration={6000}

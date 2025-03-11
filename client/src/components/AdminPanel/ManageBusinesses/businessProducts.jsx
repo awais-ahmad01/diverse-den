@@ -8,7 +8,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Loader, showToast } from "../../../tools";
 
 
-// Material UI Components
+
 import {
   Button,
   Dialog,
@@ -113,7 +113,7 @@ const BusinessProducts = () => {
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
-        {/* Header */}
+    
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
           {/* <IconButton component={Link} to="../dashboard" color="primary">
             <ArrowBackIcon />
@@ -163,7 +163,7 @@ const BusinessProducts = () => {
           </Box> */}
         </Box>
 
-        {/* Products Content */}
+       
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!businessProducts || businessProducts .length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">

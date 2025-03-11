@@ -53,7 +53,7 @@ const UserDetailsDialog = ({ open, onClose, user }) => {
       </DialogTitle>
       <DialogContent className="mt-4">
         <Grid container spacing={3}>
-          {/* User Information */}
+         
           <Grid item xs={12}>
             <h3 className="text-lg font-bold mb-2">
               Personal Information
@@ -65,7 +65,7 @@ const UserDetailsDialog = ({ open, onClose, user }) => {
             <p>Phone: {user.phone || "Not provided"}</p>
           </Grid>
 
-          {/* Address Information */}
+      
           <Grid item xs={12}>
             <hr className="my-4" />
             <h3 className="text-lg font-bold mb-2">
@@ -228,7 +228,7 @@ const ManageUsers = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <main className="relative bg-gray-50 flex flex-col pt-5">
+      <main className="relative bg-gray-50 flex flex-col pt-5 pb-9">
         {/* Header */}
         <header className="px-4 md:px-6 lg:px-12 mb-6">
           <h1 className="text-3xl font-bold text-[#603F26]">
@@ -236,7 +236,7 @@ const ManageUsers = () => {
           </h1>
         </header>
 
-        {/* Stats and Actions */}
+     
         <section className="px-4 md:px-6 lg:px-12 flex justify-between items-center mb-6">
           <div>
             <div className="bg-[#603F26] text-white px-6 py-4 rounded-lg">
@@ -315,7 +315,7 @@ const ManageUsers = () => {
           </section>
         )}
 
-        {/* Users Content */}
+    
         <section className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!filteredUsers || filteredUsers.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
@@ -542,14 +542,14 @@ const ManageUsers = () => {
           </nav>
         ) : null}
 
-        {/* User Details Dialog */}
+      
         <UserDetailsDialog
           open={!!viewUserDetails}
           onClose={() => setViewUserDetails(null)}
           user={viewUserDetails}
         />
 
-        {/* Delete Confirmation Dialog */}
+       
         <DeleteConfirmationDialog
           open={!!deleteUserId}
           onClose={() => setDeleteUserId(null)}

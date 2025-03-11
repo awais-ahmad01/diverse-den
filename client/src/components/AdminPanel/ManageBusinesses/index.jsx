@@ -283,9 +283,9 @@ const ManageBusinesses = () => {
     setDeleteBusinessId(businessId);
   };
 
-  const handleEnableClick = (businessId) => {
-    setEnableBusinessId(businessId);
-  };
+  // const handleEnableClick = (businessId) => {
+  //   setEnableBusinessId(businessId);
+  // };
 
   const handleDeleteConfirm = async () => {
     try {
@@ -304,36 +304,26 @@ const ManageBusinesses = () => {
     }
   };
 
-  const handleEnableConfirm = async () => {
-    try {
-      // In a real implementation, this would dispatch an action
-      // await dispatch(enableBusiness(enableBusinessId))
-      //   .unwrap()
-      //   .then((response) => {
-      //     showToast("SUCCESS", "Business enabled successfully!");
-      //   })
-      //   .catch((error) => {
-      //     showToast("ERROR", "Failed to enable business");
-      //   });
-
-      // For demo, we'll just update local state
-      const updatedBusinesses = businesses.map((b) =>
-        b._id === enableBusinessId ? { ...b, isActive: true } : b
-      );
-      setBusinesses(updatedBusinesses);
-      setFilteredBusinesses(
-        filteredBusinesses.map((b) =>
-          b._id === enableBusinessId ? { ...b, isActive: true } : b
-        )
-      );
-      showToast("SUCCESS", "Business enabled successfully!");
-    } catch (error) {
-      console.error("Failed to enable business:", error);
-      showToast("ERROR", "Failed to enable business");
-    } finally {
-      setEnableBusinessId(null);
-    }
-  };
+  // const handleEnableConfirm = async () => {
+  //   try {
+     
+  //     const updatedBusinesses = businesses.map((b) =>
+  //       b._id === enableBusinessId ? { ...b, isActive: true } : b
+  //     );
+  //     setBusinesses(updatedBusinesses);
+  //     setFilteredBusinesses(
+  //       filteredBusinesses.map((b) =>
+  //         b._id === enableBusinessId ? { ...b, isActive: true } : b
+  //       )
+  //     );
+  //     showToast("SUCCESS", "Business enabled successfully!");
+  //   } catch (error) {
+  //     console.error("Failed to enable business:", error);
+  //     showToast("ERROR", "Failed to enable business");
+  //   } finally {
+  //     setEnableBusinessId(null);
+  //   }
+  // };
 
   const applyFilters = () => {
     let filtered = [...businesses];
@@ -364,15 +354,7 @@ const ManageBusinesses = () => {
     }
   }, [businesses]);
 
-  // useEffect(() => {
-  // In a real implementation, this would dispatch an action to fetch businesses
-  // dispatch(listBusinesses());
-  // setIsLoading(true);
-  // Simulate API call
-  // setTimeout(() => {
-  //   setIsLoading(false);
-  // }, 500);
-  // }, []);
+
 
   useEffect(() => {
     dispatch(listBusinesses({}));
@@ -390,7 +372,7 @@ const ManageBusinesses = () => {
     }
   };
 
-  // Get unique business types for filter dropdown
+  
   const businessTypes = [
     ...new Set(businesses.map((business) => business.type)),
   ];
@@ -402,7 +384,7 @@ const ManageBusinesses = () => {
   return (
     <ThemeProvider theme={theme}>
       <main className="relative bg-gray-50 flex flex-col pt-5 pb-10">
-        {/* Header */}
+      
         <header className="px-4 md:px-6 lg:px-12 mb-6">
           <h1 className="text-3xl font-bold text-[#603F26]">
             Manage Businesses
@@ -513,7 +495,7 @@ const ManageBusinesses = () => {
           </section>
         )}
 
-        {/* Businesses Content */}
+    
         <section className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!filteredBusinesses || filteredBusinesses.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
@@ -787,7 +769,7 @@ const ManageBusinesses = () => {
         />
 
         {/* Enable Business Dialog */}
-        <EnableBusinessDialog
+        {/* <EnableBusinessDialog
           open={!!enableBusinessId}
           onClose={() => setEnableBusinessId(null)}
           onConfirm={handleEnableConfirm}
@@ -795,7 +777,7 @@ const ManageBusinesses = () => {
             businesses.find((business) => business._id === enableBusinessId)
               ?.name
           }
-        />
+        /> */}
       </main>
     </ThemeProvider>
   );

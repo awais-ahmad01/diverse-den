@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import axios from "axios";
+import { Loader } from "../../../tools";
 import StripeCheckout from "react-stripe-checkout";
 import {
   TextField,
@@ -61,7 +62,6 @@ const checkoutSchema = yup.object().shape({
 });
 
 const Checkout = () => {
-  
   const { user, isauthenticated } = useSelector((state) => state.auth);
   const { cartItems, isloading } = useSelector((state) => state.products);
   const dispatch = useDispatch();
@@ -100,9 +100,8 @@ const Checkout = () => {
       postalCode: "",
       paymentMethod: "cashOnDelivery",
     },
-    mode: "onChange", 
+    mode: "onChange",
   });
-  
 
   const paymentMethod = watch("paymentMethod");
 
@@ -153,7 +152,7 @@ const Checkout = () => {
       cartItems,
       totalAmount: calculateSubtotal(),
       shippingCost: 200,
-      orderType: "Online"
+      orderType: "Online",
     };
 
     console.log("orderrrrrr:", body);
@@ -168,12 +167,10 @@ const Checkout = () => {
           .then(() => {
             navigate("/customer");
             window.location.reload();
-            
           })
           .catch(() => {
             showToast("ERROR", "Failed to empty cart");
           });
-
       })
       .catch(() => {
         showToast("ERROR", "Failed to place Order");
@@ -182,9 +179,7 @@ const Checkout = () => {
 
   if (isloading) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <CircularProgress size={60} thickness={4} />
-      </div>
+      <Loader/>
     );
   }
 
@@ -373,31 +368,31 @@ const Checkout = () => {
                 </button>
               )}
 
-{paymentMethod === "stripe" && !isPayment && (
-  <StripeCheckout
-    stripeKey="pk_test_51QOJ4oDZzPFomXhEJc2PFEnX4MqUEEzMkA8gwhbgA7I7GzXobg0QAwn06yuHn2Gb1ofTkwLHiGPI7N8XrxVMi0xt00zvcbJDcy"
-    token={(token) => {
-      makePayment(token);
-    }}
-    name="payment"
-    // amount={plan.price * 100}
-    // currency="PKR"
-    disabled={!isValid}
-  >
-    <button
-      type="button"
-      className={`w-full font-semibold text-white py-3 rounded-lg transition duration-300 ease-in-out ${
-        isValid 
-          ? "bg-[#603f26] transform hover:scale-[1.02]" 
-          : "bg-gray-400 cursor-not-allowed"
-      }`}
-      onClick={(e) => e.preventDefault()}
-      disabled={!isValid}
-    >
-      Pay Now
-    </button>
-  </StripeCheckout>
-)}
+              {paymentMethod === "stripe" && !isPayment && (
+                <StripeCheckout
+                  stripeKey="pk_test_51QOJ4oDZzPFomXhEJc2PFEnX4MqUEEzMkA8gwhbgA7I7GzXobg0QAwn06yuHn2Gb1ofTkwLHiGPI7N8XrxVMi0xt00zvcbJDcy"
+                  token={(token) => {
+                    makePayment(token);
+                  }}
+                  name="payment"
+                  // amount={plan.price * 100}
+                  // currency="PKR"
+                  disabled={!isValid}
+                >
+                  <button
+                    type="button"
+                    className={`w-full font-semibold text-white py-3 rounded-lg transition duration-300 ease-in-out ${
+                      isValid
+                        ? "bg-[#603f26] transform hover:scale-[1.02]"
+                        : "bg-gray-400 cursor-not-allowed"
+                    }`}
+                    onClick={(e) => e.preventDefault()}
+                    disabled={!isValid}
+                  >
+                    Pay Now
+                  </button>
+                </StripeCheckout>
+              )}
 
               {isPayment && (
                 <button
@@ -486,11 +481,9 @@ const Checkout = () => {
             )}
           </Paper>
         </div>
-
       </div>
     </div>
   );
 };
 
 export default Checkout;
-

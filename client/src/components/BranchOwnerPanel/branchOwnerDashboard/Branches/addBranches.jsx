@@ -33,12 +33,12 @@ const AddBranches = () => {
     },
   });
 
-  // Check if we should show the main branch checkbox
+
   const showMainBranchOption = user?.hasMainBranch === false;
 
   console.log("showMainBranchOption:", showMainBranchOption);
 
-  // Create schema dynamically based on showMainBranchOption
+ 
   const getSchema = () => {
     const baseSchema = {
       branch_name: yup.string().required("Branch name is required"),
@@ -52,7 +52,7 @@ const AddBranches = () => {
       branch_contact: yup.string().required("Branch contact is required"),
     };
 
-    // Only add is_main_branch validation if it should be shown
+    
     if (showMainBranchOption) {
       baseSchema.is_main_branch = yup.boolean();
     }
@@ -137,7 +137,7 @@ const AddBranches = () => {
           className="w-full max-w-2xl bg-white p-6 rounded-lg shadow-lg"
         >
           <ThemeProvider theme={theme}>
-            {/* Controller for branch_name */}
+         
             <div className="mb-4">
               <Controller
                 name="branch_name"
@@ -156,7 +156,7 @@ const AddBranches = () => {
               />
             </div>
 
-            {/* Controller for branch_code */}
+         
             <div className="mb-4">
               <Controller
                 name="branch_code"
@@ -175,7 +175,7 @@ const AddBranches = () => {
               />
             </div>
 
-            {/* Controller for branch_email */}
+           
             <div className="mb-4">
               <Controller
                 name="branch_email"
@@ -194,7 +194,7 @@ const AddBranches = () => {
               />
             </div>
 
-            {/* Controller for branch_city */}
+          
             <div className="mb-4">
               <Controller
                 name="branch_city"
@@ -232,7 +232,7 @@ const AddBranches = () => {
               />
             </div>
 
-            {/* Controller for branch_contact */}
+          
             <div className="mb-4">
               <Controller
                 name="branch_contact"
@@ -251,7 +251,7 @@ const AddBranches = () => {
               />
             </div>
 
-            {/* Main Branch Checkbox - Only shown if showMainBranchOption is true */}
+          
             {showMainBranchOption && (
               <div className="mb-4">
                 <Controller

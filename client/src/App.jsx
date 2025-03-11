@@ -140,9 +140,9 @@ function App() {
               path="subscription"
               element={
             
-                //  <Guard>
+               
                    <SubscriptionPlans />
-                //  {/* </Guard> */}
+              
            
               }
             />
@@ -151,9 +151,9 @@ function App() {
               path="business_setup"
               element={
              
-                  // <Guard>
+               
                     <BusinessSetup />
-                  // </Guard>
+               
                   
               }
             />

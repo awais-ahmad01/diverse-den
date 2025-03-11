@@ -46,11 +46,11 @@ const theme = createTheme({
 const ManageInventory = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { branchProducts, branchMeta } = useSelector((state) => state.branches);
+  const { branchInventoryProducts, branchInventoryMeta } = useSelector((state) => state.branches);
 
   console.log("branchCode", user.assignedBranch)
   
-  const totalProducts = branchMeta?.totalItems || 0;
+  const totalProducts = branchInventoryMeta?.totalItems || 0;
 
 //  const { id, name, code } = useParams();
 
@@ -153,7 +153,7 @@ const ManageInventory = () => {
 
         {/* Products Content */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
-          {!branchProducts || branchProducts.length === 0 ? (
+          {!branchInventoryProducts || branchInventoryProducts.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
               No Products found
             </div>
@@ -223,24 +223,24 @@ const ManageInventory = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {branchProducts.map((product, index) => (
+                      {branchInventoryProducts?.map((product, index) => (
                         <TableRow
                           key={index}
                           sx={{
                             "&:last-child td, &:last-child th": { border: 0 },
                           }}
                         >
-                          <TableCell>{product.title}</TableCell>
-                          <TableCell>{product.branch}</TableCell>
-                          <TableCell>{product.category}</TableCell>
-                          <TableCell>{product.price}</TableCell>
-                          <TableCell>{product.totalBranchQuantity}</TableCell>
+                          <TableCell>{product?.title}</TableCell>
+                          <TableCell>{product?.branch}</TableCell>
+                          <TableCell>{product?.category}</TableCell>
+                          <TableCell>{product?.price}</TableCell>
+                          <TableCell>{product?.totalBranchQuantity}</TableCell>
                           <TableCell>
                             <div className="flex justify-center gap-2">
                               <Tooltip title="View Product">
                                 <IconButton
                                   component={Link}
-                                  to={`../viewBranchProduct/${product._id}/${product.title}/${code}`} 
+                                  to={`../viewBranchProduct/${product?._id}/${product.title}/${user?.assignedBranch}`} 
                                   color="primary"
                                 >
                                   <VisibilityIcon />
@@ -248,7 +248,7 @@ const ManageInventory = () => {
                               </Tooltip>
                               <Tooltip title="Delete Product">
                                 <IconButton
-                                  onClick={() => handleClickOpen(product._id)}
+                                  onClick={() => handleClickOpen(product?._id)}
                                   color="error"
                                 >
                                   <DeleteIcon />
@@ -265,24 +265,24 @@ const ManageInventory = () => {
 
               {/* Mobile View */}
               <div className="block xl:hidden space-y-4">
-                {branchProducts.map((product, index) => (
+                {branchInventoryProducts.map((product, index) => (
                   <div
                     key={index}
                     className="bg-white p-4 rounded-lg shadow"
                   >
                     <div className="space-y-2">
-                      <p className="font-bold">{product.title}</p>
-                      <p>Branch: {product.branch}</p>
-                      <p>Category: {product.category}</p>
-                      <p>Price: {product.price}</p>
-                      <p>Quantity: {product.totalBranchQuantity}</p>
+                      <p className="font-bold">{product?.title}</p>
+                      <p>Branch: {product?.branch}</p>
+                      <p>Category: {product?.category}</p>
+                      <p>Price: {product?.price}</p>
+                      <p>Quantity: {product?.totalBranchQuantity}</p>
                     </div>
 
                     <div className="mt-4 flex gap-2">
                       <Button
                         variant="contained"
                         component={Link}
-                        to={`../viewBranchProduct/${product._id}/${product.title}`}
+                        to={`../viewBranchProduct/${product?._id}/${product.title}/${user?.assignedBranch}`}
                         fullWidth
                       >
                         View
@@ -290,7 +290,7 @@ const ManageInventory = () => {
                       <Button
                         variant="contained"
                         color="error"
-                        onClick={() => handleClickOpen(product._id)}
+                        onClick={() => handleClickOpen(product?._id)}
                         fullWidth
                       >
                         Delete
@@ -304,38 +304,38 @@ const ManageInventory = () => {
         </div>
 
         {/* Pagination */}
-        {branchMeta?.nextPage || branchMeta?.previousPage ? (
+        {branchInventoryMeta?.nextPage || branchInventoryMeta?.previousPage ? (
           <nav className="w-full flex justify-center items-center my-16">
             <ul className="inline-flex items-center -space-x-px text-sm">
               {branchMeta?.previousPage && (
                 <>
                   <li 
-                    onClick={() => handlePrevPage(branchMeta?.previousPage)}
+                    onClick={() => handlePrevPage(branchInventoryMeta?.previousPage)}
                     className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer"
                   >
                     Previous
                   </li>
                   <li 
-                    onClick={() => handlePrevPage(branchMeta?.previousPage)}
+                    onClick={() => handlePrevPage(branchInventoryMeta?.previousPage)}
                     className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
                   >
-                    {branchMeta?.previousPage}
+                    {branchInventoryMeta?.previousPage}
                   </li>
                 </>
               )}
               <li className="px-4 py-2 bg-[#603F26] text-white border">
-                {branchMeta?.currentPage}
+                {branchInventoryMeta?.currentPage}
               </li>
-              {branchMeta?.nextPage && (
+              {branchInventoryMeta?.nextPage && (
                 <>
                   <li 
-                    onClick={() => handleNextPage(branchMeta?.nextPage)}
+                    onClick={() => handleNextPage(branchInventoryMeta?.nextPage)}
                     className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
                   >
-                    {branchMeta?.nextPage}
+                    {branchInventoryMeta?.nextPage}
                   </li>
                   <li 
-                    onClick={() => handleNextPage(branchMeta?.nextPage)}
+                    onClick={() => handleNextPage(branchInventoryMeta?.nextPage)}
                     className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer"
                   >
                     Next
