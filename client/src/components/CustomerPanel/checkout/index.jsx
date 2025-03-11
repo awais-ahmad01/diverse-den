@@ -149,6 +149,7 @@ const Checkout = () => {
       data,
       cartItems,
       totalAmount: calculateSubtotal(),
+      shippingCost: 200,
       orderType: "Online"
     };
 

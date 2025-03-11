@@ -50,6 +50,100 @@ export const listOrders = createAsyncThunk(
 
 
 
+export const getSalespersonOrders = createAsyncThunk(
+  "orders/getSalespersonOrders",
+  async ({branchCode, pageNo=1, limit=25}, thunkAPI) => {
+    try {
+      console.log("List Orders.....");
+
+      console.log('branchCode:',branchCode)
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      
+
+      const response = await axios.get(
+        "http://localhost:3000/getSalespersonOrders",
+        
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params:{
+            branchCode,
+            pageNo,
+            limit,
+          }
+        }
+      );
+
+      console.log("Orders:", response.data);
+      return { data: response.data.branchOrders, metaData: response.data.meta, };
+    } catch (error) {
+      console.log("errro000r................");
+    
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+
+
+
+export const assignOrderToBranch = createAsyncThunk(
+  "orders/assignOrderToBranch",
+  async ({orderId, branch}, thunkAPI) => {
+    try {
+
+      console.log("Status data:", orderId, branch);
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      const response = await axios.post(
+        "http://localhost:3000/assignOrderToBranch",
+        {
+          orderId,
+          branch,
+        },
+        
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          
+        }
+      );
+
+      console.log("branch assigned:", response.data);
+      return true;
+     
+    } catch (error) {
+      console.log("errro000r................");
+     
+      console.log(error);
+      throw error;
+    }
+  }
+);
+
+
+
+
+
+
 export const updateOrderStatus = createAsyncThunk(
   "orders/updateOrderStatus",
   async ({orderId, status}, thunkAPI) => {

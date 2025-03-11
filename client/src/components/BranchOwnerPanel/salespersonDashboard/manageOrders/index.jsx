@@ -4,11 +4,13 @@ import { showToast } from "../../../../tools";
 import { Link } from "react-router-dom";
 import {
   listOrders,
+  getSalespersonOrders
   // updateOrderStatus,
   // assignRider,
   // deleteOrder,
   // placeInStoreOrder,
 } from "../../../../store/actions/orders";
+import {getBranches} from "../../../../store/actions/branches";
 import {
   Button,
   Dialog,
@@ -848,7 +850,8 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
 const SalespersonOrderManagement = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { orders, isloading, meta } = useSelector((state) => state.orders);
+  const { salespersonOrders, isloading, meta } = useSelector((state) => state.orders);
+  const { branches } = useSelector((state) => state.branches);
 
   const [viewOrderDetails, setViewOrderDetails] = useState(null);
   const [deleteOrderId, setDeleteOrderId] = useState(null);
@@ -864,6 +867,28 @@ const SalespersonOrderManagement = () => {
   
   // Store the original dummy data
   const [allOrders, setAllOrders] = useState([]);
+
+  console.log("salespersonOrders:", salespersonOrders);
+  console.log("filteredOrders:", filteredOrders);
+  console.log("allOrders:", allOrders);
+
+  useEffect(() => {
+    const branchCode = user?.assignedBranch;
+
+    dispatch(getSalespersonOrders({ branchCode }));
+
+    const business = user?.business;
+    dispatch(getBranches({ business }));
+
+  }, [dispatch, user]);
+
+
+  useEffect(() => {
+    if (salespersonOrders) {
+      setAllOrders(salespersonOrders);
+      setFilteredOrders(salespersonOrders);
+    }
+  }, [salespersonOrders]);
 
   useEffect(() => {
     // Dummy data for online and in-store orders
@@ -979,8 +1004,8 @@ const SalespersonOrderManagement = () => {
     ];
   
     // Set both the all orders and filtered orders
-    setAllOrders(dummyOrders);
-    setFilteredOrders(dummyOrders);
+    // setAllOrders(dummyOrders);
+    // setFilteredOrders(dummyOrders);
   }, []);
 
   // Calculate stats based on filtered orders
@@ -1043,6 +1068,7 @@ const SalespersonOrderManagement = () => {
   const handleDeleteClick = (orderId) => {
     setDeleteOrderId(orderId);
   };
+
 
   const handleDeleteConfirm = async () => {
     try {
@@ -1131,8 +1157,10 @@ const [branchList, setBranchList] = useState([
 const isMainSalesperson = () => {
   // Replace "main-salesperson-id" with the actual ID of your main salesperson
   // return user && user.id === "main-salesperson-id";
-  return true
+  return user?.hasMainBranch === true;
 };
+
+console.log('isMainSalesperson', isMainSalesperson())
 
 // Step 2: Add a function to handle branch selection for an order
 const handleBranchChange = (orderId, branchId) => {
@@ -1522,8 +1550,8 @@ const handleBranchChange = (orderId, branchId) => {
                     </TableHead>
                     <TableBody>
                       {filteredOrders.map((order) => (
-                        <TableRow key={order._id}>
-                          <TableCell>#{order._id.slice(-6)}</TableCell>
+                        <TableRow key={order?._id}>
+                          <TableCell>#{order?._id.slice(-6)}</TableCell>
                           <TableCell>
                             {order?.userInfo?.firstname}{" "}
                             {order?.userInfo?.lastname}
@@ -1536,11 +1564,11 @@ const handleBranchChange = (orderId, branchId) => {
                           <TableCell>{order?.orderType}</TableCell>
                           <TableCell>
                             <Select
-                              value={order.status}
+                              value={order?.status}
                               onChange={(e) =>
-                                handleStatusChange(order._id, e.target.value)
+                                handleStatusChange(order?._id, e.target.value)
                               }
-                              className={getStatusColor(order.status)}
+                              className={getStatusColor(order?.status)}
                             >
                               <MenuItem value="Pending">Pending</MenuItem>
                               <MenuItem value="Processing">Processing</MenuItem>
@@ -1549,18 +1577,20 @@ const handleBranchChange = (orderId, branchId) => {
                               <MenuItem value="Cancelled">Cancelled</MenuItem>
                             </Select>
                           </TableCell>
-                          {isMainSalesperson() && order.orderType === "Online" && (
+                          {isMainSalesperson() && 
+                          order?.orderType === "Online" && 
+                          (
   <TableCell>
     <Select
-      value={order.assignedBranch || ""}
+      value={order?.assignedBranch || ""}
       onChange={(e) => handleBranchChange(order._id, e.target.value)}
       displayEmpty
       fullWidth
     >
       <MenuItem value="">Select Branch</MenuItem>
-      {branchList.map((branch) => (
-        <MenuItem key={branch.id} value={branch.id}>
-          {branch.name}
+      {branches.map((branch) => (
+        <MenuItem key={branch?.id} value={branch?.id}>
+          {branch?.name}
         </MenuItem>
       ))}
     </Select>
@@ -1609,20 +1639,20 @@ const handleBranchChange = (orderId, branchId) => {
               <div className="block xl:hidden space-y-4">
                 {filteredOrders.map((order) => (
                   <div
-                    key={order._id}
+                    key={order?._id}
                     className="bg-white p-4 rounded-lg shadow"
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <p className="font-bold">#{order._id.slice(-6)}</p>
+                        <p className="font-bold">#{order?._id.slice(-6)}</p>
                         <p>
                           {order?.userInfo?.firstname}{" "}
                           {order?.userInfo?.lastname}
                         </p>
                       </div>
                       <Chip
-                        label={order.status}
-                        className={getStatusColor(order.status)}
+                        label={order?.status}
+                        className={getStatusColor(order?.status)}
                       />
                     </div>
 
@@ -1636,7 +1666,7 @@ const handleBranchChange = (orderId, branchId) => {
                     <div className="mt-4 space-y-2">
                       <Select
                         fullWidth
-                        value={order.status}
+                        value={order?.status}
                         onChange={(e) =>
                           handleStatusChange(order._id, e.target.value)
                         }
@@ -1653,8 +1683,8 @@ const handleBranchChange = (orderId, branchId) => {
     <p className="font-bold mb-1">Select Branch:</p>
     <Select
       fullWidth
-      value={order.assignedBranch || ""}
-      onChange={(e) => handleBranchChange(order._id, e.target.value)}
+      value={order?.assignedBranch || ""}
+      onChange={(e) => handleBranchChange(order?._id, e.target.value)}
       displayEmpty
     >
       <MenuItem value="">Select Branch</MenuItem>
@@ -1686,7 +1716,7 @@ const handleBranchChange = (orderId, branchId) => {
                         <Button
                           variant="contained"
                           color="error"
-                          onClick={() => handleDeleteClick(order._id)}
+                          onClick={() => handleDeleteClick(order?._id)}
                           disabled={
                             order.status === "Shipped" ||
                             order.status === "Delivered"
