@@ -941,7 +941,7 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit, branchCode }) => {
         // Simple products
         ...selectedProducts.map((product) => ({
           createdAt: new Date().toISOString(),
-          productId: product, // Include full product object if available
+          productId: product?.product, // Include full product object if available
           quantity: product.totalQuantity,
           selectedVariant: {
             color: null,
@@ -957,7 +957,7 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit, branchCode }) => {
           ({ product, selectedItems }) =>
             selectedItems.map((item) => ({
               createdAt: new Date().toISOString(),
-              productId: product, // Include full product object
+              productId: product?.product, // Include full product object
               quantity: item.quantity,
               selectedVariant: {
                 color: item.color || null,
