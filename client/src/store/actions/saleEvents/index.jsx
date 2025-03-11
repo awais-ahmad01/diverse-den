@@ -74,7 +74,7 @@ export const getSaleEventById = createAsyncThunk(
           }
         );
   
-        console.log("SaleEvent by Id response:", response);
+        console.log("SaleEvent by Id response:", response.data);
         
         // Check if the response data has the expected structure
         if (!response.data) {
@@ -83,6 +83,7 @@ export const getSaleEventById = createAsyncThunk(
         }
         
         return {
+
           data: response.data
         };
       }
@@ -182,43 +183,129 @@ export const createSaleEvent = createAsyncThunk(
 
 
 
-export const updateSaleEvent = createAsyncThunk(
-    'saleEvents/updateSaleEvent',
-    async({eventData})=>{
-        try{
+// export const updateSaleEvent = createAsyncThunk(
+//     'saleEvents/updateSaleEvent',
+//     async({formData, eventId})=>{
+//         try{
 
 
-            const token = localStorage.getItem("token"); 
+//             const token = localStorage.getItem("token"); 
 
-            console.log("Retrieved Token auth...:", token);
-            if (!token) {
-                console.log("No token found!");
+//             console.log("Retrieved Token auth...:", token);
+//             if (!token) {
+//                 console.log("No token found!");
                 
-                return { data:{},auth:false }; 
-            }
+//                 return { data:{},auth:false }; 
+//             }
 
 
-            const request = await axios.post('http://localhost:3000/', eventData ,
-                {
-                    headers: {
-                      Authorization: `Bearer ${token}`, 
-                      "Content-Type": "application/json",
-                    },
+//             const request = await axios.post('http://localhost:3000/branchOwner/updateSaleEvent', {formData, eventId} ,
+//                 {
+//                     headers: {
+//                       Authorization: `Bearer ${token}`, 
+//                       "Content-Type": "application/json",
+//                     },
                     
-                }
-             );
+//                 }
+//              );
 
             
-            return true
-        }
-        catch(error){
+//             return true
+//         }
+//         catch(error){
+
+//           console.log(error.response.data.message)
             
-            throw error;
-        }
-    }
+//             throw error;
+//         }
+//     }
 
-)
+// )
 
+
+
+export const updateSaleEvent = createAsyncThunk(
+  'saleEvents/updateSaleEvent',
+  async({formData, eventId}) => {
+      try {
+          const token = localStorage.getItem("token");
+          
+          console.log("Retrieved Token auth...:", token);
+          if (!token) {
+              console.log("No token found!");
+              return { data:{}, auth:false }; 
+          }
+          
+          // Extract products from FormData and parse it
+          const productsString = formData.get('products');
+          const products = JSON.parse(productsString);
+          
+          // Extract other fields from FormData
+          const name = formData.get('name');
+          const description = formData.get('description');
+          const startDate = formData.get('startDate');
+          const endDate = formData.get('endDate');
+          const discountType = formData.get('discountType');
+          const discountValue = formData.get('discountValue');
+          const businessId = formData.get('businessId');
+          
+          // Create request data structure that matches the backend expectations
+          const requestData = {
+              eventId,
+              name,
+              description,
+              startDate,
+              endDate,
+              discountType,
+              discountValue,
+              products,
+              businessId
+          };
+          
+          // If there's an image in the FormData, we need to use multipart/form-data
+          if (formData.get('image')) {
+              // Create a new FormData to send
+              const dataToSend = new FormData();
+              
+              // Add all the JSON data as a single field
+              dataToSend.append('data', JSON.stringify(requestData));
+              
+              // Add the image
+              dataToSend.append('image', formData.get('image'));
+              
+              const request = await axios.post(
+                  'http://localhost:3000/branchOwner/updateSaleEvent', 
+                  dataToSend,
+                  {
+                      headers: {
+                          Authorization: `Bearer ${token}`,
+                          'Content-Type': 'multipart/form-data',
+                      }
+                  }
+              );
+              
+              return true;
+          } else {
+              // No image, send as JSON
+              const request = await axios.post(
+                  'http://localhost:3000/branchOwner/updateSaleEvent', 
+                  requestData,
+                  {
+                      headers: {
+                          Authorization: `Bearer ${token}`,
+                          'Content-Type': 'application/json',
+                      }
+                  }
+              );
+              
+              return true;
+          }
+      } catch(error) {
+          console.log(error.response?.data?.message || error.message);
+          throw error;
+      }
+  }
+);
 
 
 

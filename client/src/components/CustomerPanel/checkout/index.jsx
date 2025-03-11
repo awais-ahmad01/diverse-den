@@ -61,6 +61,7 @@ const checkoutSchema = yup.object().shape({
 });
 
 const Checkout = () => {
+  
   const { user, isauthenticated } = useSelector((state) => state.auth);
   const { cartItems, isloading } = useSelector((state) => state.products);
   const dispatch = useDispatch();

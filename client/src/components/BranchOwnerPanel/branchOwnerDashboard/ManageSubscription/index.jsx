@@ -16,6 +16,7 @@ import {
   Box,
   Alert,
   AlertTitle,
+  Typography,
   Stack,
   CircularProgress
 } from "@mui/material";
@@ -186,7 +187,7 @@ const ManageSubscriptions = () => {
         <CardContent>
           <h3 className="text-base font-semibold">{plan.name}</h3>
           <div className="my-4">
-            <span className="text-2xl font-bold">Rs{plan.price}</span>
+            <span className="text-2xl font-bold">${plan.price}</span>
             <span className="text-sm text-gray-500 ml-1">/{selectedInterval}</span>
           </div>
           <div className="space-y-2">
@@ -247,11 +248,19 @@ const ManageSubscriptions = () => {
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
+
+
      
         <div className="px-4 md:px-8 lg:px-12 mb-3">
-          <h1 className="text-2xl md:text-3xl font-bold text-[#603F26]">
+          <Typography
+                      variant="h4"
+                      sx={{ color: "#603F26", fontWeight: "bold" }}
+                    >
+                       Subscription Management
+                    </Typography>
+          {/* <h1 className="text-2xl md:text-3xl font-bold text-[#603F26]">
             Subscription Management
-          </h1>
+          </h1> */}
           <p className="text-sm text-gray-500">
             Manage your subscription, billing and plan details
           </p>

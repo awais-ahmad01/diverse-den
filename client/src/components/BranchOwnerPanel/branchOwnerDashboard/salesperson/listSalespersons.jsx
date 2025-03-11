@@ -216,7 +216,7 @@ const ListSalespersons = () => {
                           <TableCell>{salesperson.assignBranch}</TableCell>
                           <TableCell>
                             <div className="flex justify-center gap-2">
-                              <Tooltip title="View Salesperson">
+                              {/* <Tooltip title="View Salesperson">
                                 <IconButton
                                   component={Link}
                                   to={`../viewSalesperson/${salesperson._id}`}
@@ -224,7 +224,7 @@ const ListSalespersons = () => {
                                 >
                                   <VisibilityIcon />
                                 </IconButton>
-                              </Tooltip>
+                              </Tooltip> */}
                               <Tooltip title="Delete Salesperson">
                                 <IconButton
                                   onClick={() => handleClickOpen(salesperson._id)}

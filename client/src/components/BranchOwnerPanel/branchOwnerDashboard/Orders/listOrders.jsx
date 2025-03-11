@@ -888,6 +888,8 @@ const ListOrders = () => {
   const business = user?.business;
   const { orders, isloading, meta } = useSelector((state) => state.orders);
 
+  console.log("orders:", orders);
+
   const [viewOrderDetails, setViewOrderDetails] = useState(null);
   const [deleteOrderId, setDeleteOrderId] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -978,6 +980,7 @@ const ListOrders = () => {
   useEffect(() => {
     const business = user?.business;
     dispatch(listOrders({ business }));
+    
   }, [dispatch, user]);
 
   if (isloading) {

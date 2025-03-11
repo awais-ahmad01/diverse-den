@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getProductByID } from "../../../../store/actions/products";
 import { Loader } from "../../../../tools";
 import { getBranchProductDetails } from "../../../../store/actions/branches";
+import { Link } from "react-router-dom";
 
 import {
   Box,
@@ -19,14 +20,19 @@ import {
   Paper,
   Container,
   CircularProgress,
+   IconButton,
   Dialog,
 } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {
   Category as CategoryIcon,
   Inventory as InventoryIcon,
   Image as ImageIcon,
   Info as InfoIcon,
 } from "@mui/icons-material";
+
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -42,6 +48,15 @@ function TabPanel(props) {
     </div>
   );
 }
+
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#603F26",
+    },
+  },
+});
 
 const ViewBranchProduct = () => {
  
@@ -108,16 +123,25 @@ const ViewBranchProduct = () => {
   };
 
 
+
+
   if (isLoading) {
     return <Loader />;
   }
 
   return (
     <div>
-      <Container maxWidth="xl" sx={{ py: 4 }}>
+
+       <ThemeProvider theme={theme}>
+       <Container maxWidth="xl" sx={{ py: 4 }}>
         <Box sx={{ mb: 5 }}>
           <Box>
-            <Typography
+
+          {/* <Box sx={{ px: 2, mb: 3, display: "flex", alignItems: "center", gap: 2 }}> */}
+          {/* <IconButton component={Link} to="../branchesList" color="primary">
+            <ArrowBackIcon />
+          </IconButton> */}
+          <Typography
               variant="h4"
               component="h1"
               gutterBottom
@@ -125,10 +149,15 @@ const ViewBranchProduct = () => {
                 fontWeight: "bold",
                 color: "#603F26",
               }}
+
               
             >
               {branchProductDetails?.product?.title || "Untitled Product"}
             </Typography>
+
+
+        {/* </Box> */}
+           
             <Typography
               variant="subtitle1"
               sx={{
@@ -482,6 +511,8 @@ const ViewBranchProduct = () => {
           </Grid>
         </Grid>
       </Container>
+       </ThemeProvider>
+      
     </div>
   );
 };

@@ -481,7 +481,20 @@ const ProductList = () => {
           {/* <Link to="../">
             <FaArrowLeft className="text-[#603F26] text-xl cursor-pointer" />
           </Link> */}
-          <h1 className="font-bold text-2xl text-[#603F26]">Product List</h1>
+          <Typography
+                        variant="h4"
+                        component="h1"
+                        gutterBottom
+                        sx={{
+                          fontWeight: "bold",
+                          color: "#603F26",
+                        }}
+          
+                        
+                      >
+                        Product List
+                      </Typography>
+          {/* <h1 className="font-bold text-2xl text-[#603F26]">Product List</h1> */}
         </div>
 
         {/* Product Table (Desktop) */}

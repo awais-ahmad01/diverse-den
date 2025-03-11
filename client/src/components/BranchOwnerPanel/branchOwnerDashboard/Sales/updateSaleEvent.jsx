@@ -23,7 +23,7 @@ const UpdateSaleEvent = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Get the sale event ID from URL params
   const { user } = useSelector((state) => state.auth);
-  const { salesProducts, isloading, currentSaleEvent } = useSelector((state) => state.saleEvents);
+  const { salesProducts, isloading, saleEventById } = useSelector((state) => state.saleEvents);
 
   // Form state
   const [saleEvent, setSaleEvent] = useState({
@@ -51,7 +51,7 @@ const UpdateSaleEvent = () => {
 
   const [showFilters, setShowFilters] = useState(true);
   const [formTouched, setFormTouched] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   // Fetch available products and the current sale event when component mounts
   useEffect(() => {
@@ -61,39 +61,113 @@ const UpdateSaleEvent = () => {
     // Fetch the sale event data by ID
     if (id) {
       dispatch(getSaleEventById(id))
-        .unwrap()
-        .then(() => setLoading(false))
-        .catch(error => {
-          showToast("ERROR", "Failed to fetch sale event data");
-          console.error("Failed to fetch sale event data:", error);
-          navigate("../saleEventsList");
-        });
     }
-  }, [dispatch, user, id, navigate]);
+
+  }, [dispatch, user, id]);
+
+  // Helper function to properly format dates
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    
+    // Handle different date formats that might come from the API
+    let date;
+    try {
+      if (typeof dateString === 'string' && dateString.includes('-')) {
+        // If date is already in YYYY-MM-DD format, return it
+        const parts = dateString.split('-');
+        if (parts.length === 3 && parts[0].length === 4) {
+          return dateString.split('T')[0];
+        }
+      }
+      
+      // Try to parse as date
+      date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        // If dateString is in format like "3/9/2025 - 3/14/2025", extract first date
+        if (dateString.includes(' - ')) {
+          const firstPart = dateString.split(' - ')[0];
+          date = new Date(firstPart);
+        }
+      }
+      
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.warn("Invalid date:", dateString);
+        return '';
+      }
+      
+      // Format to YYYY-MM-DD for HTML date input
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (e) {
+      console.error("Error parsing date:", e, dateString);
+      return '';
+    }
+  };
 
   // Populate the form with existing sale event data when it's loaded
-  useEffect(() => {
-    if (currentSaleEvent && !loading) {
-      // Format dates for the date input fields
-      const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toISOString().split('T')[0];
-      };
-
-      setSaleEvent({
-        name: currentSaleEvent.name || '',
-        description: currentSaleEvent.description || '',
-        startDate: formatDate(currentSaleEvent.startDate) || '',
-        endDate: formatDate(currentSaleEvent.endDate) || '',
-        discountType: currentSaleEvent.discountType || 'percentage',
-        discountValue: currentSaleEvent.discountValue || '',
-        products: currentSaleEvent.products || [],
-        image: null,
-        imagePreview: null,
-        currentImage: currentSaleEvent.image || null,
-      });
+ // In the useEffect that populates the form with existing sale event data
+// In the useEffect that populates the form with existing sale event data
+// Populate the form with existing sale event data when it's loaded
+useEffect(() => {
+  if (saleEventById && !isloading) {
+    console.log("Sale event loaded:", saleEventById);
+    
+    // Parse dates if they're in a format like "3/9/2025 - 3/14/2025"
+    let startDate = '';
+    let endDate = '';
+    
+    if (saleEventById.duration && saleEventById.duration.includes(' - ')) {
+      const [start, end] = saleEventById.duration.split(' - ');
+      startDate = formatDate(start.trim());
+      endDate = formatDate(end.trim());
+    } else {
+      startDate = formatDate(saleEventById.startDate);
+      endDate = formatDate(saleEventById.endDate);
     }
-  }, [currentSaleEvent, loading]);
+    
+    // Process products and their prices
+    const processedProducts = Array.isArray(saleEventById?.products) 
+      ? saleEventById.products.map(product => {
+          // Remove currency symbols ($) before parsing prices
+          const originalPriceStr = String(product.originalPrice || product.price || 0).replace(/[^\d.-]/g, '');
+          const discountedPriceStr = String(product.discountedPrice || 0).replace(/[^\d.-]/g, '');
+          
+          // Parse the cleaned strings to numbers
+          const originalPrice = parseFloat(originalPriceStr) || 0;
+          const discountedPrice = parseFloat(discountedPriceStr) || 0;
+          
+          return {
+            ...product,
+            _id: product._id || product.productId,
+            productId: product.productId || product._id,
+            originalPrice: originalPrice,
+            price: originalPrice,
+            discountedPrice: discountedPrice,
+            title: product.title || product.name,
+            category: product.category
+          };
+        }) 
+      : [];
+    
+    setSaleEvent({
+      name: saleEventById?.name || '',
+      description: saleEventById?.description || '',
+      startDate: startDate,
+      endDate: endDate,
+      discountType: saleEventById?.discountType || 'percentage',
+      discountValue: saleEventById?.discountValue || '',
+      products: processedProducts,
+      image: null,
+      imagePreview: null,
+      currentImage: saleEventById?.imagePath || null,
+    });
+    
+    console.log("Form populated with dates:", startDate, endDate);
+  }
+}, [saleEventById, isloading]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -132,7 +206,8 @@ const UpdateSaleEvent = () => {
         setSaleEvent(prev => ({
           ...prev,
           image: file,
-          imagePreview: reader.result
+          imagePreview: reader.result,
+          currentImage: null // Clear current image when new one is uploaded
         }));
       };
       reader.readAsDataURL(file);
@@ -147,22 +222,45 @@ const UpdateSaleEvent = () => {
     }));
   };
 
+  const isProductSelected = (product) => {
+    return saleEvent.products.some(p => 
+      p._id === product._id || 
+      p.productId === product._id ||
+      p._id === product.productId ||
+      p.productId === product.productId
+    );
+  };
+
   const handleProductToggle = (product) => {
     setSaleEvent(prev => {
-      const isSelected = prev.products.some(p => p._id === product._id);
+      // Check if the product is already selected by ID
+      const isSelected = isProductSelected(product);
       
       if (isSelected) {
+        // Remove the product, but make sure we still have some products left
+        const updatedProducts = prev.products.filter(p => 
+          p._id !== product._id && 
+          p.productId !== product._id &&
+          p._id !== product.productId &&
+          p.productId !== product.productId
+        );
+        
         // Clear product error if we still have products after removing this one
-        if (prev.products.length > 1) {
+        if (updatedProducts.length > 0) {
           setFormErrors(prevErrors => ({
             ...prevErrors,
             products: false
+          }));
+        } else {
+          setFormErrors(prevErrors => ({
+            ...prevErrors,
+            products: true
           }));
         }
         
         return {
           ...prev,
-          products: prev.products.filter(p => p._id !== product._id)
+          products: updatedProducts
         };
       } else {
         // Clear products error as soon as at least one product is selected
@@ -171,13 +269,20 @@ const UpdateSaleEvent = () => {
           products: false
         }));
         
+        // Calculate the discounted price
+        const originalPrice = parseFloat(product.price);
+        const discountValue = parseFloat(prev.discountValue) || 0;
+        
         const calculatedPrice = prev.discountType === 'percentage' 
-          ? product.price * (1 - (Number(prev.discountValue) / 100))
-          : product.price - Number(prev.discountValue);
+          ? originalPrice * (1 - (discountValue / 100))
+          : originalPrice - discountValue;
 
         const productWithDiscount = {
           ...product,
-          originalPrice: product.price,
+          _id: product._id,
+          productId: product.productId || product._id,
+          originalPrice: originalPrice,
+          price: originalPrice,
           discountedPrice: Math.max(0, calculatedPrice)
         };
 
@@ -198,14 +303,17 @@ const UpdateSaleEvent = () => {
       setSaleEvent(prev => ({
         ...prev,
         products: prev.products.map(product => {
-          const originalPrice = product.originalPrice || product.price;
+          const originalPrice = parseFloat(product.originalPrice || product.price);
+          const discountValue = parseFloat(prev.discountValue) || 0;
+          
           const calculatedPrice = prev.discountType === 'percentage'
-            ? originalPrice * (1 - (Number(prev.discountValue) / 100))
-            : originalPrice - Number(prev.discountValue);
+            ? originalPrice * (1 - (discountValue / 100))
+            : originalPrice - discountValue;
 
           return {
             ...product,
             originalPrice: originalPrice,
+            price: originalPrice,
             discountedPrice: Math.max(0, calculatedPrice)
           };
         })
@@ -246,7 +354,8 @@ const UpdateSaleEvent = () => {
       showToast("ERROR", "Please fill all the fields correctly");
       return;
     }
-
+  
+    setLoading(true);
     const business = user?.business;
     const formData = new FormData();
     formData.append('name', saleEvent.name);
@@ -262,17 +371,40 @@ const UpdateSaleEvent = () => {
       formData.append('image', saleEvent.image);
     }
     
-    formData.append('products', JSON.stringify(saleEvent.products));
-
-    dispatch(updateSaleEvent({ id, formData }))
+    // Prepare products data
+    const productsToSend = saleEvent.products.map(product => ({
+      _id: product._id,
+      productId: product.productId || product._id,
+      originalPrice: parseFloat(product.originalPrice || product.price),
+      discountedPrice: parseFloat(product.discountedPrice),
+      title: product.title || product.name,
+      price: parseFloat(product.originalPrice || product.price),
+      category: product.category,
+    }));
+    
+    console.log("Products to send:", productsToSend);
+    
+    // Make sure we're sending a non-empty array
+    if (productsToSend.length === 0) {
+      showToast("ERROR", "At least one product must be selected");
+      setLoading(false);
+      return;
+    }
+    
+    formData.append('products', JSON.stringify(productsToSend));
+  
+    dispatch(updateSaleEvent({ eventId: id, formData }))
       .unwrap()
       .then(() => {
         showToast("SUCCESS", "Sale event updated successfully");
         navigate("../saleEventsList");
       })
       .catch(error => {
-        showToast("ERROR", "Failed to update sale event");
+        showToast("ERROR", error.response?.data?.message || "Failed to update sale event");
         console.error("Failed to update sale event:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -517,8 +649,13 @@ const UpdateSaleEvent = () => {
                 </TableHead>
                 <TableBody>
                   {salesProducts && salesProducts.map((product) => {
-                    const isSelected = saleEvent.products.some(p => p._id === product?._id);
-                    const selectedProduct = saleEvent.products.find(p => p._id === product?._id);
+                    const isSelected = isProductSelected(product);
+                    const selectedProduct = saleEvent.products.find(p => 
+                      p._id === product._id || 
+                      p.productId === product._id ||
+                      p._id === product.productId ||
+                      p.productId === product.productId
+                    );
                     
                     return (
                       <TableRow
@@ -530,10 +667,15 @@ const UpdateSaleEvent = () => {
                       >
                         <TableCell>{product?.title}</TableCell>
                         <TableCell>{product?.category}</TableCell>
-                        <TableCell align="right">${product?.price.toFixed(2)}</TableCell>
-                        <TableCell align="right">
-                          {isSelected ? `$${selectedProduct.discountedPrice.toFixed(2)}` : '-'}
-                        </TableCell>
+                        <TableCell align="right">Rs {parseFloat(product?.price).toFixed(2)}</TableCell>
+                        
+<TableCell align="right">
+  {isSelected ? 
+    `$${Number.isFinite(parseFloat(selectedProduct.discountedPrice)) 
+        ? parseFloat(selectedProduct.discountedPrice).toFixed(2) 
+        : '0.00'}` 
+    : '-'}
+</TableCell>
                         <TableCell align="center">
                           <Checkbox
                             checked={isSelected}
@@ -553,8 +695,13 @@ const UpdateSaleEvent = () => {
         {/* Products Cards - Mobile View */}
         <div className="px-4 md:px-8 lg:px-12 xl:hidden space-y-4">
           {salesProducts && salesProducts.map((product) => {
-            const isSelected = saleEvent.products.some(p => p._id === product?._id);
-            const selectedProduct = saleEvent.products.find(p => p._id === product?._id);
+            const isSelected = isProductSelected(product);
+            const selectedProduct = saleEvent.products.find(p => 
+              p._id === product._id || 
+              p.productId === product._id ||
+              p._id === product.productId ||
+              p.productId === product.productId
+            );
 
             return (
               <div
@@ -579,10 +726,14 @@ const UpdateSaleEvent = () => {
                     />
                   </div>
                   <div className="flex justify-between mt-2">
-                    <span>Original Price: ${product?.price?.toFixed(2)}</span>
+                    <span>Original Price: Rs{parseFloat(product?.price).toFixed(2)}</span>
                     <span>
-                      Discounted: {isSelected ? `$${selectedProduct.discountedPrice.toFixed(2)}` : '-'}
-                    </span>
+  Discounted: {isSelected ? 
+    `$${Number.isFinite(parseFloat(selectedProduct.discountedPrice)) 
+        ? parseFloat(selectedProduct.discountedPrice).toFixed(2) 
+        : '0.00'}` 
+    : '-'}
+</span>
                   </div>
                 </div>
               </div>
@@ -601,14 +752,15 @@ const UpdateSaleEvent = () => {
           </Link>
           <button
             onClick={handleUpdate}
+            disabled={loading}
             className={`w-full sm:w-auto px-6 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors ${
-              isFormValid() 
+              isFormValid() && !loading
                 ? 'bg-[#603F26] text-white hover:bg-[#4a3019]' 
                 : 'bg-gray-300 text-gray-600 cursor-not-allowed'
             }`}
           >
             <SaveIcon />
-            Update Event
+            {loading ? 'Updating...' : 'Update Event'}
           </button>
         </div>
       </div>

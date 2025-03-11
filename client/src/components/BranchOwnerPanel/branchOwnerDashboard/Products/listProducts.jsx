@@ -99,7 +99,7 @@ const ListProducts = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="relative bg-gray-50 flex flex-col pt-5">
+      <div className="relative bg-gray-50 flex flex-col pt-5 pb-9">
         {/* Header */}
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
           {/* <IconButton component={Link} to="../dashboard" color="primary">

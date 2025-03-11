@@ -599,7 +599,7 @@ export const placeOrder = createAsyncThunk(
       // thunkAPI.dispatch(
       //   errorGlobal(error.response?.data?.message || "Failed to place order")
       // );
-      console.log(error);
+      console.log(error.response?.data?.message);
       throw error;
     }
   }

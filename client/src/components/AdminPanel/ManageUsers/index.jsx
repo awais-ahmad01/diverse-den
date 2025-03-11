@@ -81,14 +81,14 @@ const UserDetailsDialog = ({ open, onClose, user }) => {
               Account Information
             </h3>
             <p>Role: {user.role}</p>
-            <p>
+            {/* <p>
               Account Status: 
               <Chip
                 label={user.isActive ? "Active" : "Inactive"}
                 color={user.isActive ? "success" : "error"}
                 className="ml-2"
               />
-            </p>
+            </p> */}
             <p>
               Registration Date: {format(new Date(user.createdAt), "PPP")}
             </p>
@@ -285,8 +285,9 @@ const ManageUsers = () => {
                   >
                     <option value="">All Roles</option>
                     <option value="Admin">Admin</option>
-                    <option value="User">User</option>
-                    <option value="Business">Business</option>
+                    <option value="Branch Owner">Branch Owner</option>
+                    <option value="Customer">Customer</option>
+                    <option value="Salesperson">Salesperson</option>
                   </select>
                 </div>
                 <div className="flex gap-2">

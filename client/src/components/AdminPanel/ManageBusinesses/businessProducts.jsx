@@ -186,7 +186,7 @@ const BusinessProducts = () => {
                         >
                           Product
                         </TableCell>
-                        <TableCell
+                        {/* <TableCell
                           sx={{
                             color: "white",
                             fontSize: "16px",
@@ -194,7 +194,7 @@ const BusinessProducts = () => {
                           }}
                         >
                           Branch
-                        </TableCell>
+                        </TableCell> */}
                         <TableCell
                           sx={{
                             color: "white",
@@ -243,7 +243,7 @@ const BusinessProducts = () => {
                           }}
                         >
                           <TableCell>{product.title}</TableCell>
-                          <TableCell>{product?.branch ? product?.branch : 'Not Assigned'}</TableCell>
+                          {/* <TableCell>{product?.branch ? product?.branch : 'Not Assigned'}</TableCell> */}
                           <TableCell>{product.category}</TableCell>
                           <TableCell>{product.price}</TableCell>
                           <TableCell>{product.totalQuantity}</TableCell>
@@ -293,7 +293,7 @@ const BusinessProducts = () => {
                   >
                     <div className="space-y-2">
                       <p className="font-bold">{product.title}</p>
-                      <p>Branch: {product?.branch ? product?.branch : 'Not Assigned'}</p>
+                      {/* <p>Branch: {product?.branch ? product?.branch : 'Not Assigned'}</p> */}
                       <p>Category: {product.category}</p>
                       <p>Price: {product.price}</p>
                       <p>Quantity: {product.totalQuantity}</p>

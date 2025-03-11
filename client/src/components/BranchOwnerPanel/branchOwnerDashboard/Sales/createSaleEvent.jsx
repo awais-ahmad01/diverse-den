@@ -913,9 +913,9 @@ const CreateSaleEvent = () => {
                       >
                         <TableCell>{product?.title}</TableCell>
                         <TableCell>{product?.category}</TableCell>
-                        <TableCell align="right">${product?.price.toFixed(2)}</TableCell>
+                        <TableCell align="right">Rs {product?.price.toFixed(2)}</TableCell>
                         <TableCell align="right">
-                          {isSelected ? `$${selectedProduct.discountedPrice.toFixed(2)}` : '-'}
+                          {isSelected ? `Rs ${selectedProduct.discountedPrice.toFixed(2)}` : '-'}
                         </TableCell>
                         <TableCell align="center">
                           <Checkbox
@@ -962,9 +962,9 @@ const CreateSaleEvent = () => {
                     />
                   </div>
                   <div className="flex justify-between mt-2">
-                    <span>Original Price: ${product?.price?.toFixed(2)}</span>
+                    <span>Original Price: Rs {product?.price?.toFixed(2)}</span>
                     <span>
-                      Discounted: {isSelected ? `$${selectedProduct.discountedPrice.toFixed(2)}` : '-'}
+                      Discounted: {isSelected ? `Rs ${selectedProduct.discountedPrice.toFixed(2)}` : '-'}
                     </span>
                   </div>
                 </div>

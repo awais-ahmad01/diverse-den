@@ -703,6 +703,15 @@ const ProductDetails = () => {
         return;
       }
 
+      const body = {
+        userId: user._id,
+          productId: customerProduct._id,
+          quantity: quantity,
+          selectedVariant: selectedVariant,
+      }
+
+      console.log("bodyyyyyyyyy:", body);
+
       const response = await axios.post(
         "http://localhost:3000/customer/addToCart",
         {

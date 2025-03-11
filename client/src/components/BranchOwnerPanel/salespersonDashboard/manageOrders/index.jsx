@@ -4,13 +4,15 @@ import { showToast } from "../../../../tools";
 import { Link } from "react-router-dom";
 import {
   listOrders,
-  getSalespersonOrders
-  // updateOrderStatus,
+  getSalespersonOrders, assignOrderToBranch,
+  updateOrderStatus,
   // assignRider,
-  // deleteOrder,
+  deleteOrder,
   // placeInStoreOrder,
 } from "../../../../store/actions/orders";
 import {getBranches} from "../../../../store/actions/branches";
+import {placeOrder} from "../../../../store/actions/products";
+import {getBranchProductsByBranchCode} from "../../../../store/actions/branches";
 import {
   Button,
   Dialog,
@@ -234,13 +236,13 @@ const ReceiptDialog = ({ open, onClose, order }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {order.items?.map((item, index) => (
+                  {order.cartItems?.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell>{item.title}</TableCell>
-                      <TableCell align="right">{item.totalQuantity}</TableCell>
-                      <TableCell align="right">${item.price.toFixed(2)}</TableCell>
+                      <TableCell>{item?.title}</TableCell>
+                      <TableCell align="right">{item?.totalQuantity}</TableCell>
+                      <TableCell align="right">Rs {item?.price?.toFixed(2)}</TableCell>
                       <TableCell align="right">
-                        ${(item.totalQuantity * item.price).toFixed(2)}
+                        Rs {(item?.totalQuantity * item?.price).toFixed(2)}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -253,7 +255,7 @@ const ReceiptDialog = ({ open, onClose, order }) => {
                       Subtotal:
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                      ${order.subtotal?.toFixed(2)}
+                      Rs {order?.subtotal?.toFixed(2)}
                     </TableCell>
                   </TableRow>
                   <TableRow sx={{ bgcolor: "#f5f5f5" }}>
@@ -265,7 +267,7 @@ const ReceiptDialog = ({ open, onClose, order }) => {
                       Shipping:
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: "bold" }}>
-                      ${order.shippingCost?.toFixed(2)}
+                      Rs {order.shippingCost?.toFixed(2)}
                     </TableCell>
                   </TableRow>
                   <TableRow sx={{ bgcolor: "#fffde7" }}>
@@ -277,7 +279,7 @@ const ReceiptDialog = ({ open, onClose, order }) => {
                       Total:
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: "bold", fontSize: "1.1rem" }}>
-                      ${order.totalAmount?.toFixed(2)}
+                      Rs {order?.totalAmount?.toFixed(2)}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -393,13 +395,13 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {order.items?.map((item, index) => (
+                  {order?.cartItems?.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell>{item.title}</TableCell>
-                      <TableCell align="right">{item?.totalQuantity}</TableCell>
-                      <TableCell align="right">${item.price}</TableCell>
+                      <TableCell>{item?.productId?.title}</TableCell>
+                      <TableCell align="right">{item?.quantity}</TableCell>
+                      <TableCell align="right">Rs {item?.productId?.price}</TableCell>
                       <TableCell align="right">
-                        ${item.totalQuantity * item.price}
+                        Rs {item?.quantity * item?.productId?.price}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -407,20 +409,20 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
                     <TableCell colSpan={3} align="right" className="font-bold">
                       Subtotal:
                     </TableCell>
-                    <TableCell align="right">${order.subtotal}</TableCell>
+                    <TableCell align="right">Rs {order?.subTotal}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={3} align="right" className="font-bold">
                       Shipping:
                     </TableCell>
-                    <TableCell align="right">${order.shippingCost}</TableCell>
+                    <TableCell align="right">Rs {order?.shippingCost}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={3} align="right" className="font-bold">
                       Total:
                     </TableCell>
                     <TableCell align="right" className="font-bold">
-                      ${order.totalAmount}
+                      Rs {order?.totalAmount}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -433,10 +435,10 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
             <Typography variant="h6" className="font-bold mb-2">
               Payment Information
             </Typography>
-            <Typography>Method: {order.userInfo?.paymentMethod}</Typography>
-            <Typography>Status: {order.paymentStatus}</Typography>
-            {order.transactionId && (
-              <Typography>Transaction ID: {order.transactionId}</Typography>
+            <Typography>Method: {order?.userInfo?.paymentMethod}</Typography>
+            <Typography>Status: {order?.paymentStatus}</Typography>
+            {order?.transactionId && (
+              <Typography>Transaction ID: {order?.transactionId}</Typography>
             )}
           </Grid>
 
@@ -448,11 +450,11 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
             <Typography>
               Current Status:
               <Chip
-                label={order.status}
+                label={order?.status}
                 color={
-                  order.status === "Delivered"
+                  order?.status === "Delivered"
                     ? "success"
-                    : order.status === "Cancelled"
+                    : order?.status === "Cancelled"
                     ? "error"
                     : "primary"
                 }
@@ -460,15 +462,15 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
               />
             </Typography>
             <Typography>
-              Order Date: {format(new Date(order.createdAt), "PPP")}
+              Order Date: {format(new Date(order?.createdAt), "PPP")}
             </Typography>
-            {order.rider && (
-              <Typography>Assigned Rider: {order.rider.name}</Typography>
+            {order?.rider && (
+              <Typography>Assigned Rider: {order?.rider?.name}</Typography>
             )}
           </Grid>
 
           {/* Assign Rider Section (if order is ready for delivery) */}
-          {(order.status === "Processing" || order.status === "Shipped") && (
+          {(order?.status === "Processing" || order?.status === "Shipped") && (
             <Grid item xs={12}>
               <Divider className="my-4" />
               <Typography variant="h6" className="font-bold mb-2">
@@ -509,6 +511,7 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
 };
 
 // Delete Confirmation Dialog Component
+
 const DeleteConfirmationDialog = ({
   open,
   onClose,
@@ -536,8 +539,29 @@ const DeleteConfirmationDialog = ({
   );
 };
 
-// In-Store Order Dialog Component
-const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
+
+
+
+
+
+
+
+
+
+
+
+
+const InStoreOrderDialog = ({ open, onClose, onSubmit, branchCode }) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { branchProductsByBranchCode } = useSelector((state) => state.branches);
+
+  useEffect(() => {
+    dispatch(getBranchProductsByBranchCode(branchCode));
+  }, [branchCode, open]);
+
+  
+
   const [customerInfo, setCustomerInfo] = useState({
     firstname: "",
     lastname: "",
@@ -550,16 +574,19 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
   const [products, setProducts] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [errors, setErrors] = useState({});
+  const [selectedVariants, setSelectedVariants] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Mock products data - in a real app, this would come from an API
+
   useEffect(() => {
-    // Simulating API call to get products
-    setProducts([
-      { id: "p1", title: "Product 1", price: 29.99, stock: 15 },
-      { id: "p2", title: "Product 2", price: 39.99, stock: 8 },
-      { id: "p3", title: "Product 3", price: 19.99, stock: 20 },
-    ]);
-  }, []);
+    if(branchProductsByBranchCode) {
+      setProducts(branchProductsByBranchCode);
+    }
+  }, [branchProductsByBranchCode]);
+
+
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -571,13 +598,254 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
     }
   };
 
+  // Check if product has variants based on the data structure
+  const hasVariants = (product) => {
+    return product.variants && product.variants.length > 0;
+  };
+
   const handleAddProduct = (product) => {
     if (product) {
-      setSelectedProducts((prev) => [
-        ...prev,
-        { ...product, totalQuantity: 1 },
-      ]);
+      if (!hasVariants(product)) {
+        // Simple product without variants
+        setSelectedProducts((prev) => [
+          ...prev,
+          { 
+            id: product._id || product.id,
+            title: product.title,
+            price: product.price,
+            totalQuantity: 1,
+            stock: product.totalBranchQuantity || 0,
+            hasVariants: false
+          },
+        ]);
+      } else {
+        // Product with variants - set up initial state
+        setSelectedVariants(prev => ({
+          ...prev,
+          [product._id || product.id]: { 
+            product, 
+            selectedItems: []
+          }
+        }));
+      }
     }
+  };
+
+  const handleAddVariantItem = (productId) => {
+    const product = selectedVariants[productId].product;
+    let initialVariant = {};
+    
+    // Handle the actual variant structure based on the provided data
+    if (product.variants && product.variants.length > 0) {
+      const firstVariant = product.variants[0];
+      
+      // Check if variant has size
+      if (firstVariant.size) {
+        initialVariant.size = firstVariant.size;
+      }
+      
+      // Check if variant has material
+      if (firstVariant.material) {
+        initialVariant.material = firstVariant.material;
+      }
+      
+      // Handle colors if they exist
+      if (firstVariant.colors && firstVariant.colors.length > 0) {
+        const firstColor = firstVariant.colors[0];
+        initialVariant.color = firstColor.color;
+        initialVariant.stock = firstColor.quantity || 0;
+        initialVariant.price = product.price;
+      } else {
+        // No colors, use variant quantity directly
+        initialVariant.stock = firstVariant.quantity || 0;
+        initialVariant.price = product.price;
+      }
+
+      // Set variant ID if available
+      if (firstVariant._id) {
+        initialVariant.variantId = firstVariant._id;
+      }
+    }
+    
+    // Add to selected items with initial quantity of 1
+    setSelectedVariants(prev => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        selectedItems: [
+          ...prev[productId].selectedItems,
+          {
+            ...initialVariant,
+            quantity: Math.min(1, initialVariant.stock || 1)
+          }
+        ]
+      }
+    }));
+  };
+
+  // Find variant stock based on selected options
+  const findVariantStock = (product, variantOptions) => {
+    if (!product.variants || product.variants.length === 0) {
+      return 0;
+    }
+
+    // Find matching variant
+    for (const variant of product.variants) {
+      let match = true;
+      
+      // Check if size matches
+      if (variantOptions.size && variant.size !== variantOptions.size) {
+        match = false;
+      }
+      
+      // Check if material matches
+      if (variantOptions.material && variant.material !== variantOptions.material) {
+        match = false;
+      }
+      
+      // If we have a match on size/material, check for color
+      if (match && variantOptions.color && variant.colors && variant.colors.length > 0) {
+        const colorMatch = variant.colors.find(c => c.color === variantOptions.color);
+        if (colorMatch) {
+          return colorMatch.quantity || 0;
+        }
+        match = false;
+      } else if (match && (!variantOptions.color || !variant.colors || variant.colors.length === 0)) {
+        // If we have a match and no color is needed or no colors available
+        return variant.quantity || 0;
+      }
+    }
+    
+    return 0;
+  };
+
+  // Get all available sizes from product variants
+  const getSizeOptions = (product) => {
+    if (!product.variants || product.variants.length === 0) {
+      return [];
+    }
+    
+    const sizes = new Set();
+    product.variants.forEach(variant => {
+      if (variant.size) {
+        sizes.add(variant.size);
+      }
+    });
+    
+    return Array.from(sizes);
+  };
+
+  // Get all available materials from product variants
+  const getMaterialOptions = (product) => {
+    if (!product.variants || product.variants.length === 0) {
+      return [];
+    }
+    
+    const materials = new Set();
+    product.variants.forEach(variant => {
+      if (variant.material) {
+        materials.add(variant.material);
+      }
+    });
+    
+    return Array.from(materials);
+  };
+
+  // Get all available colors for a given size/material
+  const getColorOptions = (product, variantOptions) => {
+    if (!product.variants || product.variants.length === 0) {
+      return [];
+    }
+    
+    const colors = new Set();
+    
+    product.variants.forEach(variant => {
+      let match = true;
+      
+      // Check if size matches (if size is specified)
+      if (variantOptions.size && variant.size !== variantOptions.size) {
+        match = false;
+      }
+      
+      // Check if material matches (if material is specified)
+      if (variantOptions.material && variant.material !== variantOptions.material) {
+        match = false;
+      }
+      
+      // If we have a match, add all colors
+      if (match && variant.colors && variant.colors.length > 0) {
+        variant.colors.forEach(color => {
+          colors.add(color.color);
+        });
+      }
+    });
+    
+    return Array.from(colors);
+  };
+
+  const handleVariantChange = (productId, itemIndex, field, value) => {
+    setSelectedVariants(prev => {
+      const product = prev[productId].product;
+      const updatedItems = [...prev[productId].selectedItems];
+      const currentItem = { ...updatedItems[itemIndex] };
+      
+      // Update the selected field
+      currentItem[field] = value;
+      
+      // If changing primary variant (size/material), reset secondary variant (color)
+      if ((field === 'size' || field === 'material') && currentItem.color) {
+        // Check if the color is still valid with the new size/material
+        const validColors = getColorOptions(product, currentItem);
+        if (!validColors.includes(currentItem.color)) {
+          // Reset color if it's no longer valid
+          currentItem.color = validColors.length > 0 ? validColors[0] : '';
+        }
+      }
+      
+      // Update stock based on new selection
+      currentItem.stock = findVariantStock(product, currentItem);
+      
+      // Keep price as product price (assuming price doesn't change by variant)
+      currentItem.price = product.price;
+      
+      // Ensure quantity is valid for new stock level
+      if (field !== 'quantity') {
+        currentItem.quantity = Math.min(currentItem.quantity || 1, Math.max(1, currentItem.stock || 1));
+      } else {
+        // Direct quantity update
+        currentItem.quantity = Math.max(1, Math.min(currentItem.stock || 1, parseInt(value) || 1));
+      }
+      
+      updatedItems[itemIndex] = currentItem;
+      
+      return {
+        ...prev,
+        [productId]: {
+          ...prev[productId],
+          selectedItems: updatedItems
+        }
+      };
+    });
+  };
+
+  const handleRemoveVariantItem = (productId, itemIndex) => {
+    setSelectedVariants(prev => {
+      const updatedItems = prev[productId].selectedItems.filter((_, i) => i !== itemIndex);
+      
+      // If no items left, remove the product entirely
+      if (updatedItems.length === 0) {
+        const { [productId]: _, ...rest } = prev;
+        return rest;
+      }
+      
+      return {
+        ...prev,
+        [productId]: {
+          ...prev[productId],
+          selectedItems: updatedItems
+        }
+      };
+    });
   };
 
   const handleQuantityChange = (index, value) => {
@@ -600,10 +868,15 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
       newErrors.lastname = "Last name is required";
     if (!customerInfo.phone.trim())
       newErrors.phone = "Phone number is required";
-    if (!customerInfo.address.trim()) newErrors.address = "Address is required";
+    if (!customerInfo.address.trim()) 
+      newErrors.address = "Address is required";
 
     // Validate products
-    if (selectedProducts.length === 0)
+    const hasSelectedProducts = 
+      selectedProducts.length > 0 || 
+      Object.keys(selectedVariants).length > 0;
+    
+    if (!hasSelectedProducts)
       newErrors.products = "At least one product is required";
 
     setErrors(newErrors);
@@ -611,28 +884,100 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
   };
 
   const calculateTotal = () => {
-    return selectedProducts.reduce(
+    // Calculate total for simple products
+    const simpleProductsTotal = selectedProducts.reduce(
       (total, item) => total + item.price * item.totalQuantity,
       0
     );
+    
+    // Calculate total for products with variants
+    const variantProductsTotal = Object.values(selectedVariants).reduce(
+      (total, { product, selectedItems }) => {
+        return total + selectedItems.reduce(
+          (subtotal, item) => subtotal + item.price * item.quantity,
+          0
+        );
+      },
+      0
+    );
+    
+    return simpleProductsTotal + variantProductsTotal;
   };
 
   const handleSubmit = () => {
     if (validateForm()) {
-      // Create order object
-      const orderData = {
-        userInfo: customerInfo,
-        items: selectedProducts,
-        subtotal: calculateTotal(),
-        shippingCost: 0, // No shipping cost for in-store orders
-        totalAmount: calculateTotal(),
-        status: "Delivered", // In-store orders are delivered immediately
-        orderType: "In-Store",
-      };
+      // Format cart items according to the required structure
+      const cartItems = [
+        // Simple products
+        ...selectedProducts.map(product => ({
+          createdAt: new Date().toISOString(),
+          productId: product, // Include full product object if available
+          quantity: product.totalQuantity,
+          selectedVariant: {
+            color: null,
+            material: null,
+            size: null,
+          },
+          updatedAt: new Date().toISOString(),
+          userId: user?._id 
+        })),
+        
 
-      onSubmit(orderData);
+        // Products with variants
+        ...Object.values(selectedVariants).flatMap(({ product, selectedItems }) => 
+          selectedItems.map(item => ({
+            createdAt: new Date().toISOString(),
+            productId: product, // Include full product object
+            quantity: item.quantity,
+            selectedVariant: {
+              color: item.color || null,
+              material: item.material || null,
+              size: item.size || null,
+            },
+            updatedAt: new Date().toISOString(),
+            userId: user?._id  
+          }))
+        )
+      ];
+  
+      // Prepare order data structure
+      const body = {
+        cartItems,
+        data: {
+          address: customerInfo.address,
+          // city: "Islamabad", // You might want to add city field to your form
+          email: customerInfo.email,
+          firstName: customerInfo.firstname,
+          lastName: customerInfo.lastname,
+          paymentMethod: customerInfo.paymentMethod ,
+          // === "Cash" ? "cashOnDelivery" : customerInfo.paymentMethod.toLowerCase(),
+          phone: customerInfo.phone,
+          // postalCode: "45000", // You might want to add postalCode field to your form
+        },
+        orderType: "In-Store",
+        shippingCost: 0, // For in-store orders
+        totalAmount: calculateTotal()
+      };
+  
+      console.log('orderData:', body);
+      onSubmit(body);
       onClose();
     }
+  };
+
+  // Determine if product has size variants
+  const hasSizeVariants = (product) => {
+    return product.variants && product.variants.some(v => v.size);
+  };
+
+  // Determine if product has material variants
+  const hasMaterialVariants = (product) => {
+    return product.variants && product.variants.some(v => v.material);
+  };
+
+  // Determine if product has color variants
+  const hasColorVariants = (product) => {
+    return product.variants && product.variants.some(v => v.colors && v.colors.length > 0);
   };
 
   return (
@@ -735,90 +1080,261 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
             </AccordionSummary>
             <AccordionDetails>
               <Box mb={2}>
-                <Autocomplete
-                  options={products}
-                  getOptionLabel={(option) => option.title}
-                  renderInput={(params) => (
-                    <TextField {...params} label="Search Products" />
-                  )}
-                  onChange={(_, value) => handleAddProduct(value)}
-                  isOptionEqualToValue={(option, value) =>
-                    option.id === value.id
-                  }
-                />
+                {loading ? (
+                  <Box display="flex" justifyContent="center" alignItems="center" py={2}>
+                    <CircularProgress size={24} sx={{ mr: 2 }} />
+                    <Typography>Loading products...</Typography>
+                  </Box>
+                ) : error ? (
+                  <Box sx={{ p: 2, bgcolor: '#fff4e5', borderRadius: 1, mb: 2 }}>
+                    <Typography color="error">{error}</Typography>
+                    <Button 
+                      variant="outlined" 
+                      size="small" 
+                      sx={{ mt: 1 }}
+                      onClick={() => {
+                        setError(null);
+                        setLoading(true);
+                        // Retry fetching
+                        fetch('/api/products')
+                          .then(res => {
+                            if (!res.ok) throw new Error('Failed to fetch');
+                            return res.json();
+                          })
+                          .then(data => {
+                            setProducts(data);
+                            setLoading(false);
+                          })
+                          .catch(err => {
+                            setError('Failed to load products. Please try again later.');
+                            setLoading(false);
+                          });
+                      }}
+                    >
+                      Retry
+                    </Button>
+                  </Box>
+                ) : (
+                  <Autocomplete
+                    options={branchProductsByBranchCode || products}
+                    getOptionLabel={(option) => option.title || ""}
+                    renderInput={(params) => (
+                      <TextField {...params} label="Search Products" />
+                    )}
+                    onChange={(_, value) => handleAddProduct(value)}
+                    isOptionEqualToValue={(option, value) =>
+                      (option._id || option.id) === (value._id || value.id)
+                    }
+                  />
+                )}
                 {errors.products && (
                   <FormHelperText error>{errors.products}</FormHelperText>
                 )}
               </Box>
 
-              {selectedProducts.length > 0 ? (
-                <TableContainer component={Paper} sx={{ mb: 2 }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Product</TableCell>
-                        <TableCell>Price</TableCell>
-                        <TableCell>Quantity</TableCell>
-                        <TableCell>Total</TableCell>
-                        <TableCell>Actions</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {selectedProducts.map((product, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{product.title}</TableCell>
-                          <TableCell>${product.price}</TableCell>
-                          <TableCell>
-                            <TextField
-                              type="number"
-                              value={product.totalQuantity}
-                              onChange={(e) =>
-                                handleQuantityChange(
-                                  index,
-                                  Math.max(
-                                    1,
-                                    Math.min(
-                                      product.stock,
-                                      parseInt(e.target.value) || 1
+              {/* Products with variants */}
+              {Object.keys(selectedVariants).length > 0 && (
+                <Box mb={3}>
+                  <Typography variant="h6" sx={{ mb: 1 }}>Products with Variants</Typography>
+                  {Object.entries(selectedVariants).map(([productId, { product, selectedItems }]) => (
+                    <Paper key={productId} sx={{ p: 2, mb: 2 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Typography variant="h6">{product.title}</Typography>
+                        <Button 
+                          variant="outlined" 
+                          size="small" 
+                          onClick={() => handleAddVariantItem(productId)}
+                        >
+                          Add Variant
+                        </Button>
+                      </Box>
+                      
+                      {selectedItems.length > 0 ? (
+                        <TableContainer component={Paper} sx={{ mb: 1 }}>
+                          <Table size="small">
+                            <TableHead>
+                              <TableRow>
+                                {hasSizeVariants(product) && <TableCell>Size</TableCell>}
+                                {hasMaterialVariants(product) && <TableCell>Material</TableCell>}
+                                {hasColorVariants(product) && <TableCell>Color</TableCell>}
+                                <TableCell>Available</TableCell>
+                                <TableCell>Price</TableCell>
+                                <TableCell>Quantity</TableCell>
+                                <TableCell>Total</TableCell>
+                                <TableCell>Actions</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {selectedItems.map((item, idx) => (
+                                <TableRow key={idx}>
+                                  {hasSizeVariants(product) && (
+                                    <TableCell>
+                                      <Select
+                                        value={item.size || ''}
+                                        size="small"
+                                        onChange={(e) => handleVariantChange(productId, idx, 'size', e.target.value)}
+                                      >
+                                        {getSizeOptions(product).map((size) => (
+                                          <MenuItem key={size} value={size}>{size}</MenuItem>
+                                        ))}
+                                      </Select>
+                                    </TableCell>
+                                  )}
+                                  {hasMaterialVariants(product) && (
+                                    <TableCell>
+                                      <Select
+                                        value={item.material || ''}
+                                        size="small"
+                                        onChange={(e) => handleVariantChange(productId, idx, 'material', e.target.value)}
+                                      >
+                                        {getMaterialOptions(product).map((material) => (
+                                          <MenuItem key={material} value={material}>{material}</MenuItem>
+                                        ))}
+                                      </Select>
+                                    </TableCell>
+                                  )}
+                                  {hasColorVariants(product) && (
+                                    <TableCell>
+                                      <Select
+                                        value={item.color || ''}
+                                        size="small"
+                                        onChange={(e) => handleVariantChange(productId, idx, 'color', e.target.value)}
+                                      >
+                                        {getColorOptions(product, item).map((color) => (
+                                          <MenuItem key={color} value={color}>{color}</MenuItem>
+                                        ))}
+                                      </Select>
+                                    </TableCell>
+                                  )}
+                                  <TableCell>
+                                    {item.stock > 0 ? item.stock : (
+                                      <Chip size="small" label="Out of stock" color="error" />
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    ${item.price?.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell>
+                                    <TextField
+                                      type="number"
+                                      value={item.quantity}
+                                      onChange={(e) => 
+                                        handleVariantChange(
+                                          productId, 
+                                          idx, 
+                                          'quantity', 
+                                          e.target.value
+                                        )
+                                      }
+                                      InputProps={{
+                                        inputProps: { min: 1, max: item.stock || 1 },
+                                      }}
+                                      size="small"
+                                      sx={{ width: 80 }}
+                                      disabled={item.stock <= 0}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    ${(item.price * item.quantity).toFixed(2)}
+                                  </TableCell>
+                                  <TableCell>
+                                    <IconButton
+                                      color="error"
+                                      size="small"
+                                      onClick={() => handleRemoveVariantItem(productId, idx)}
+                                    >
+                                      <DeleteIcon />
+                                    </IconButton>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      ) : (
+                        <Typography color="text.secondary">
+                          No variants added yet. Click "Add Variant" to select options.
+                        </Typography>
+                      )}
+                    </Paper>
+                  ))}
+                </Box>
+              )}
+
+              {/* Simple products without variants */}
+              {selectedProducts.length > 0 && (
+                <Box mb={2}>
+                  <Typography variant="h6" sx={{ mb: 1 }}>Simple Products</Typography>
+                  <TableContainer component={Paper}>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Product</TableCell>
+                          <TableCell>Price</TableCell>
+                          <TableCell>Quantity</TableCell>
+                          <TableCell>Total</TableCell>
+                          <TableCell>Actions</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {selectedProducts.map((product, index) => (
+                          <TableRow key={index}>
+                            <TableCell>{product.title}</TableCell>
+                            <TableCell>${product.price.toFixed(2)}</TableCell>
+                            <TableCell>
+                              <TextField
+                                type="number"
+                                value={product.totalQuantity}
+                                onChange={(e) =>
+                                  handleQuantityChange(
+                                    index,
+                                    Math.max(
+                                      1,
+                                      Math.min(
+                                        product.stock,
+                                        parseInt(e.target.value) || 1
+                                      )
                                     )
                                   )
-                                )
-                              }
-                              InputProps={{
-                                inputProps: { min: 1, max: product.stock },
-                              }}
-                              size="small"
-                              sx={{ width: 80 }}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            $
-                            {(product.price * product.totalQuantity).toFixed(2)}
-                          </TableCell>
-                          <TableCell>
-                            <IconButton
-                              color="error"
-                              onClick={() => handleRemoveProduct(index)}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                      <TableRow>
-                        <TableCell colSpan={3} align="right">
-                          <Typography variant="h6">Total:</Typography>
-                        </TableCell>
-                        <TableCell colSpan={2}>
-                          <Typography variant="h6">
-                            ${calculateTotal().toFixed(2)}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              ) : (
+                                }
+                                InputProps={{
+                                  inputProps: { min: 1, max: product.stock },
+                                }}
+                                size="small"
+                                sx={{ width: 80 }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              ${(product.price * product.totalQuantity).toFixed(2)}
+                            </TableCell>
+                            <TableCell>
+                              <IconButton
+                                color="error"
+                                onClick={() => handleRemoveProduct(index)}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+              )}
+
+              {/* Order summary */}
+              {(selectedProducts.length > 0 || Object.keys(selectedVariants).length > 0) && (
+                <Paper sx={{ p: 2, mt: 2 }}>
+                  <Typography variant="h6" sx={{ mb: 2 }}>Order Summary</Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Typography variant="h6">Total Amount:</Typography>
+                    <Typography variant="h6">${calculateTotal().toFixed(2)}</Typography>
+                  </Box>
+                </Paper>
+              )}
+
+              {!loading && !error && selectedProducts.length === 0 && Object.keys(selectedVariants).length === 0 && (
                 <Typography
                   variant="body1"
                   color="text.secondary"
@@ -837,7 +1353,7 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
           onClick={handleSubmit}
           variant="contained"
           color="primary"
-          disabled={selectedProducts.length === 0}
+          disabled={selectedProducts.length === 0 && Object.keys(selectedVariants).length === 0}
         >
           Place Order
         </Button>
@@ -846,10 +1362,15 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit }) => {
   );
 };
 
+
+
+
 // Main Order Management Component
 const SalespersonOrderManagement = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+  const branchCode = user?.assignedBranch;
+
   const { salespersonOrders, isloading, meta } = useSelector((state) => state.orders);
   const { branches } = useSelector((state) => state.branches);
 
@@ -890,123 +1411,7 @@ const SalespersonOrderManagement = () => {
     }
   }, [salespersonOrders]);
 
-  useEffect(() => {
-    // Dummy data for online and in-store orders
-    const dummyOrders = [
-      {
-        _id: "order1",
-        userInfo: {
-          firstname: "John",
-          lastname: "Doe",
-          email: "john.doe@example.com",
-          phone: "123-456-7890",
-          address: "123 Main St, City, Country",
-          paymentMethod: "Credit Card",
-        },
-        items: [
-          { title: "Product 1", price: 29.99, totalQuantity: 2 },
-          { title: "Product 2", price: 39.99, totalQuantity: 1 },
-        ],
-        subtotal: 99.97,
-        shippingCost: 10.0,
-        totalAmount: 109.97,
-        status: "Processing",
-        orderType: "Online",
-        createdAt: new Date().toISOString(),
-        cartItemCount: 3,
-      },
-      {
-        _id: "order2",
-        userInfo: {
-          firstname: "Jane",
-          lastname: "Smith",
-          email: "jane.smith@example.com",
-          phone: "987-654-3210",
-          address: "456 Elm St, City, Country",
-          paymentMethod: "Cash",
-        },
-        items: [
-          { title: "Product 3", price: 19.99, totalQuantity: 5 },
-        ],
-        subtotal: 99.95,
-        shippingCost: 0.0,
-        totalAmount: 99.95,
-        status: "Delivered",
-        orderType: "In-Store",
-        createdAt: new Date().toISOString(),
-        cartItemCount: 5,
-      },
-      {
-        _id: "order3",
-        userInfo: {
-          firstname: "Alice",
-          lastname: "Johnson",
-          email: "alice.johnson@example.com",
-          phone: "555-123-4567",
-          address: "789 Oak St, City, Country",
-          paymentMethod: "Debit Card",
-        },
-        items: [
-          { title: "Product 4", price: 49.99, totalQuantity: 1 },
-          { title: "Product 5", price: 9.99, totalQuantity: 3 },
-        ],
-        subtotal: 89.96,
-        shippingCost: 5.0,
-        totalAmount: 94.96,
-        status: "Shipped",
-        orderType: "Online",
-        createdAt: new Date().toISOString(),
-        cartItemCount: 4,
-      },
-      {
-        _id: "order4",
-        userInfo: {
-          firstname: "Michael",
-          lastname: "Brown",
-          email: "michael.brown@example.com",
-          phone: "222-333-4444",
-          address: "101 Pine St, City, Country",
-          paymentMethod: "Mobile Payment",
-        },
-        items: [
-          { title: "Product 6", price: 14.99, totalQuantity: 2 },
-          { title: "Product 7", price: 24.99, totalQuantity: 1 },
-        ],
-        subtotal: 54.97,
-        shippingCost: 0.0,
-        totalAmount: 54.97,
-        status: "Pending",
-        orderType: "In-Store",
-        createdAt: new Date().toISOString(),
-        cartItemCount: 3,
-      },
-      {
-        _id: "order5",
-        userInfo: {
-          firstname: "Emily",
-          lastname: "Davis",
-          email: "emily.davis@example.com",
-          phone: "777-888-9999",
-          address: "202 Maple St, City, Country",
-          paymentMethod: "Credit Card",
-        },
-        items: [
-          { title: "Product 8", price: 79.99, totalQuantity: 1 },
-        ],
-        subtotal: 79.99,
-        shippingCost: 7.50,
-        totalAmount: 87.49,
-        status: "Shipped",
-        orderType: "Online",
-        createdAt: new Date().toISOString(),
-        cartItemCount: 1,
-      },
-    ];
-  
-    // Set both the all orders and filtered orders
-    // setAllOrders(dummyOrders);
-    // setFilteredOrders(dummyOrders);
-  }, []);
+ 
 
   // Calculate stats based on filtered orders
   const totalOrders = filteredOrders.length || 0;
@@ -1032,33 +1437,45 @@ const SalespersonOrderManagement = () => {
     }
   };
   
-  const handleStatusChange = async (orderId, newStatus) => {
-    try {
-      // Update the status in our local state
-      const updatedOrders = allOrders.map(order => {
-        if (order._id === orderId) {
-          return { ...order, status: newStatus };
-        }
-        return order;
+  const handleStatusChange = (orderId, newStatus) => {
+
+    dispatch(updateOrderStatus({ orderId, status: newStatus }))
+      .unwrap()
+      .then((response) => {
+        showToast("SUCCESS", "Status Updated Successfully!!");
+        const branchCode = user?.assignedBranch;
+        dispatch(getSalespersonOrders({branchCode}));
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed to update status");
       });
+
+    // try {
+      // Update the status in our local state
+      // const updatedOrders = allOrders.map(order => {
+      //   if (order._id === orderId) {
+      //     return { ...order, status: newStatus };
+      //   }
+      //   return order;
+      // });
       
-      setAllOrders(updatedOrders);
+      // setAllOrders(updatedOrders);
       
-      // Re-apply current tab filter
-      if (tabValue === 0) {
-        setFilteredOrders(updatedOrders);
-      } else if (tabValue === 1) {
-        setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
-      } else if (tabValue === 2) {
-        setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
-      }
+      // // Re-apply current tab filter
+      // if (tabValue === 0) {
+      //   setFilteredOrders(updatedOrders);
+      // } else if (tabValue === 1) {
+      //   setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
+      // } else if (tabValue === 2) {
+      //   setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
+      // }
       
       // Show success toast (commented out for now)
       // showToast("SUCCESS", "Status Updated Successfully!!");
-    } catch (error) {
-      console.error("Failed to update order status:", error);
+    // } catch (error) {
+      // console.error("Failed to update order status:", error);
       // showToast("ERROR", "Failed to update status");
-    }
+    // }
   };
 
   const handleViewDetails = (order) => {
@@ -1071,64 +1488,58 @@ const SalespersonOrderManagement = () => {
 
 
   const handleDeleteConfirm = async () => {
-    try {
-      // Delete the order from our local state
-      const updatedOrders = allOrders.filter(order => order._id !== deleteOrderId);
-      setAllOrders(updatedOrders);
+
+    const business = user?.business;
+
+    dispatch(deleteOrder({deleteOrderId, business}))
+      .unwrap()
+      .then((response) => {
+        showToast("SUCCESS", "Order deleted Successfully!!");
+        const branchCode = user?.assignedBranch;
+        dispatch(getSalespersonOrders({branchCode}));
+        setDeleteOrderId(null);
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed to delete order");
+      });
+
+
+    // try {
+    //   // Delete the order from our local state
+    //   const updatedOrders = allOrders.filter(order => order._id !== deleteOrderId);
+    //   setAllOrders(updatedOrders);
       
-      // Re-apply current tab filter
-      if (tabValue === 0) {
-        setFilteredOrders(updatedOrders);
-      } else if (tabValue === 1) {
-        setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
-      } else if (tabValue === 2) {
-        setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
-      }
+    //   // Re-apply current tab filter
+    //   if (tabValue === 0) {
+    //     setFilteredOrders(updatedOrders);
+    //   } else if (tabValue === 1) {
+    //     setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
+    //   } else if (tabValue === 2) {
+    //     setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
+    //   }
       
-      // Show success toast (commented out for now)
-      // showToast("SUCCESS", "Order deleted Successfully!!");
-    } catch (error) {
-      console.error("Failed to delete order:", error);
-      // showToast("ERROR", "Failed to delete order");
-    } finally {
-      setDeleteOrderId(null);
-    }
+    //   // Show success toast (commented out for now)
+    //   // showToast("SUCCESS", "Order deleted Successfully!!");
+    // } catch (error) {
+    //   console.error("Failed to delete order:", error);
+    //   // showToast("ERROR", "Failed to delete order");
+    // } finally {
+    //   setDeleteOrderId(null);
+    // }
   };
 
-  const handlePlaceInStoreOrder = async (orderData) => {
-    try {
-      // Add new in-store order to our local state
-      const newOrder = {
-        _id: `order${allOrders.length + 1}`,
-        userInfo: orderData.userInfo,
-        items: orderData.items,
-        subtotal: orderData.subtotal,
-        shippingCost: 0,
-        totalAmount: orderData.totalAmount,
-        status: "Pending",
-        orderType: "In-Store",
-        createdAt: new Date().toISOString(),
-        cartItemCount: orderData.items.reduce((total, item) => total + item.totalQuantity, 0)
-      };
-      
-      const updatedOrders = [...allOrders, newOrder];
-      setAllOrders(updatedOrders);
-      
-      // Re-apply current tab filter
-      if (tabValue === 0) {
-        setFilteredOrders(updatedOrders);
-      } else if (tabValue === 1) {
-        setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
-      } else if (tabValue === 2) {
-        setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
-      }
-      
-      // Show success toast (commented out for now)
-      // showToast("SUCCESS", "In-store order placed successfully!!");
-    } catch (error) {
-      console.error("Failed to place in-store order:", error);
-      // showToast("ERROR", "Failed to place in-store order");
-    }
+  const handlePlaceInStoreOrder =  (body) => {
+    console.log("bodyyyy :", body);
+    dispatch(placeOrder(body))
+      .unwrap()
+      .then((response) => {
+        showToast("SUCCESS", "Order placed Successfully!!");
+        const branchCode = user?.assignedBranch;
+        dispatch(getSalespersonOrders({branchCode}));
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed to place order");
+      });
   };
 
   const handleGenerateReceipt = (order) => {
@@ -1163,27 +1574,35 @@ const isMainSalesperson = () => {
 console.log('isMainSalesperson', isMainSalesperson())
 
 // Step 2: Add a function to handle branch selection for an order
-const handleBranchChange = (orderId, branchId) => {
-  const updatedOrders = allOrders.map(order => {
-    if (order._id === orderId) {
-      return { ...order, assignedBranch: branchId };
-    }
-    return order;
+const handleBranchChange = (orderId, branch) => {
+
+  console.log('handleBranchChange', orderId, branch)
+
+  dispatch(assignOrderToBranch({ orderId, branch })).unwrap().then(() => {
+    showToast("SUCCESS", "Branch Updated Successfully!!");
+  }).catch((error) => {
+    showToast("ERROR", "Failed to update branch");
   });
+  // const updatedOrders = allOrders.map(order => {
+  //   if (order._id === orderId) {
+  //     return { ...order, assignedBranch: branchId };
+  //   }
+  //   return order;
+  // });
   
-  setAllOrders(updatedOrders);
+  // setAllOrders(updatedOrders);
   
-  // Re-apply current tab filter
-  if (tabValue === 0) {
-    setFilteredOrders(updatedOrders);
-  } else if (tabValue === 1) {
-    setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
-  } else if (tabValue === 2) {
-    setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
-  }
+  // // Re-apply current tab filter
+  // if (tabValue === 0) {
+  //   setFilteredOrders(updatedOrders);
+  // } else if (tabValue === 1) {
+  //   setFilteredOrders(updatedOrders.filter(o => o.orderType === "Online"));
+  // } else if (tabValue === 2) {
+  //   setFilteredOrders(updatedOrders.filter(o => o.orderType === "In-Store"));
+  // }
   
   // You could add an API call here to update the order in your backend
-  console.log(`Order ${orderId} assigned to branch ${branchId}`);
+  // console.log(`Order ${orderId} assigned to branch ${branchId}`);
 };
 
 // Step 3: Modify the desktop table view to add branch dropdown for online orders
@@ -1560,7 +1979,7 @@ const handleBranchChange = (orderId, branchId) => {
                             {format(new Date(order?.createdAt), "PP")}
                           </TableCell>
                           <TableCell>{order?.cartItemCount}</TableCell>
-                          <TableCell>${order?.totalAmount}</TableCell>
+                          <TableCell>Rs {order?.totalAmount}</TableCell>
                           <TableCell>{order?.orderType}</TableCell>
                           <TableCell>
                             <Select
@@ -1583,13 +2002,13 @@ const handleBranchChange = (orderId, branchId) => {
   <TableCell>
     <Select
       value={order?.assignedBranch || ""}
-      onChange={(e) => handleBranchChange(order._id, e.target.value)}
+      onChange={(e) => handleBranchChange(order?._id, e.target.value)}
       displayEmpty
       fullWidth
     >
       <MenuItem value="">Select Branch</MenuItem>
       {branches.map((branch) => (
-        <MenuItem key={branch?.id} value={branch?.id}>
+        <MenuItem key={branch?._id} value={branch}>
           {branch?.name}
         </MenuItem>
       ))}
@@ -1754,6 +2173,7 @@ const handleBranchChange = (orderId, branchId) => {
           open={showInStoreOrderDialog}
           onClose={() => setShowInStoreOrderDialog(false)}
           onSubmit={handlePlaceInStoreOrder}
+          branchCode={branchCode}
         />
 
         {/* Receipt Dialog */}

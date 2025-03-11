@@ -1,5 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getBranches, getAllBranches, getBranchProducts, getVariantRemainings, getBranchProductDetails } from "../../actions/branches";
+import { getBranches, getAllBranches, getBranchProducts, getVariantRemainings, getBranchProductDetails
+  , getBranchProductsByBranchCode
+ } from "../../actions/branches";
 
 let default_state = {
   isloading: false,
@@ -7,7 +9,8 @@ let default_state = {
   allBranches: [],
   branchProducts: [],
   variants: [],
-  branchProductDetails:[]
+  branchProductDetails:[],
+  branchProductsByBranchCode:[]
   
 };
 
@@ -57,6 +60,20 @@ export const branchesSlice = createSlice({
         state.branchMeta = action.payload.metaData;
       })
       .addCase(getBranchProducts.rejected, (state) => {
+        state.isloading = false;
+      })
+
+
+
+      .addCase(getBranchProductsByBranchCode.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getBranchProductsByBranchCode.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.branchProductsByBranchCode = action.payload.data;
+        
+      })
+      .addCase(getBranchProductsByBranchCode.rejected, (state) => {
         state.isloading = false;
       })
 
