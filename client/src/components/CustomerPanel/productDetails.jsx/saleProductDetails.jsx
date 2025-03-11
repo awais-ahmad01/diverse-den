@@ -680,6 +680,20 @@ const SaleProductDetails = () => {
     return Array.from(colorSet);
   };
 
+
+  const getUniqueMaterials = () => {
+    if (!saleProduct?.variants) return [];
+    
+    const materialSet = new Set();
+    saleProduct.variants.forEach(variant => {
+      if (variant?.material && variant.material.length > 0) {
+        materialSet.add(variant.material);
+      }
+    });
+    
+    return Array.from(materialSet);
+  };
+
   useEffect(() => {
     if (!saleProduct || !saleProduct.variants || saleProduct.variants.length === 0) {
       return; 
@@ -878,34 +892,31 @@ const SaleProductDetails = () => {
           </div>
         )}
 
-        {checkVariants?.hasMaterial && (
-          <div className="mb-4">
-            <span className="block mb-2 font-semibold">Material</span>
-            <div className="flex space-x-2">
-              {saleProduct.variants.map(
-                (variant, index) =>
-                  variant?.material?.length > 0 && (
-                    <button
-                      key={index}
-                      onClick={() =>
-                        setSelectedVariant((prev) => ({
-                          ...prev,
-                          material: variant.material,
-                        }))
-                      }
-                      className={`px-3 py-1 border rounded ${
-                        selectedVariant.material === variant.material
-                          ? "ring-2 ring-[#603f26] bg-gray-100"
-                          : "ring-1 ring-gray-300"
-                      }`}
-                    >
-                      {variant.material}
-                    </button>
-                  )
-              )}
-            </div>
-          </div>
-        )}
+{checkVariants?.hasMaterial && (
+  <div className="mb-4">
+    <span className="block mb-2 font-semibold">Material</span>
+    <div className="flex space-x-2">
+      {getUniqueMaterials().map((material, index) => (
+        <button
+          key={index}
+          onClick={() =>
+            setSelectedVariant((prev) => ({
+              ...prev,
+              material: material,
+            }))
+          }
+          className={`px-3 py-1 border rounded ${
+            selectedVariant.material === material
+              ? "ring-2 ring-[#603f26] bg-gray-100"
+              : "ring-1 ring-gray-300"
+          }`}
+        >
+          {material}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
         {checkVariants?.hasColors && (
           <div className="mb-4">

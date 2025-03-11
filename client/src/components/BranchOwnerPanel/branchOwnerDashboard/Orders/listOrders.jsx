@@ -915,6 +915,24 @@ const ListOrders = () => {
         });
   };
 
+
+    const handleNextPage = (page) => {
+      const business = user?.business;
+      if (business && page) {
+        dispatch(listOrders({ business, pageNo: page }));
+       
+      }
+    };
+  
+    const handlePrevPage = (page) => {
+      const business = user?.business;
+      if (business && page) {
+        dispatch(listOrders({ business, pageNo: page }));
+       
+      }
+    };
+  
+
   const handleViewDetails = (order) => {
     setViewOrderDetails(order);
   };
@@ -1327,16 +1345,22 @@ const ListOrders = () => {
           )}
         </div>
 
-        {/* Pagination */}
-        {meta?.nextPage || meta?.previousPage ? (
+     {/* Pagination */}
+     {meta?.nextPage || meta?.previousPage ? (
           <nav className="w-full flex justify-center items-center my-16">
             <ul className="inline-flex items-center -space-x-px text-sm">
               {meta?.previousPage && (
                 <>
-                  <li className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer">
+                  <li 
+                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer"
+                  >
                     Previous
                   </li>
-                  <li className="px-4 py-2 border hover:bg-gray-100 cursor-pointer">
+                  <li 
+                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
+                  >
                     {meta?.previousPage}
                   </li>
                 </>
@@ -1346,10 +1370,16 @@ const ListOrders = () => {
               </li>
               {meta?.nextPage && (
                 <>
-                  <li className="px-4 py-2 border hover:bg-gray-100 cursor-pointer">
+                  <li 
+                    onClick={() => handleNextPage(meta?.nextPage)}
+                    className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
+                  >
                     {meta?.nextPage}
                   </li>
-                  <li className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer">
+                  <li 
+                    onClick={() => handleNextPage(meta?.nextPage)}
+                    className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer"
+                  >
                     Next
                   </li>
                 </>

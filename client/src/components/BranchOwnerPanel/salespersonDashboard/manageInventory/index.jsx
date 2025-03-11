@@ -47,16 +47,18 @@ const ManageInventory = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { branchProducts, branchMeta } = useSelector((state) => state.branches);
+
+  console.log("branchCode", user.assignedBranch)
   
   const totalProducts = branchMeta?.totalItems || 0;
 
- const { id, name, code } = useParams();
+//  const { id, name, code } = useParams();
 
   const handleNextPage = (page) => {
     const business = user?.business;
     if (business && page) {
       console.log("Next Page:", page);
-      dispatch(getBranchProducts({ branchId: id, pageNo: page }));
+      dispatch(getBranchProducts({ branchId: user?.assignedBranch, pageNo: page }));
     }
   };
 
@@ -64,7 +66,7 @@ const ManageInventory = () => {
     const business = user?.business;
     if (business && page) {
       console.log("Previous Page:", page);
-      dispatch(getBranchProducts({ branchId: id, pageNo: page }));
+      dispatch(getBranchProducts({ branchId: user?.assignedBranch, pageNo: page }));
     }
   };
 
@@ -83,7 +85,7 @@ const ManageInventory = () => {
 
   const handleDelete = () => {
     console.log("delete:code:", toRemove);
-    dispatch(removeBranchProduct({ toRemove, branchId: id }))
+    dispatch(removeBranchProduct({ toRemove, branchId: user?.assignedBranch }))
       .unwrap()
       .finally(() => {
         setOpen(false);
@@ -92,8 +94,8 @@ const ManageInventory = () => {
   };
 
   useEffect(() => {
-    dispatch(getBranchProducts({ branchId: id }));
-  }, [dispatch, id]);
+    dispatch(getBranchProducts({ branchId: user?.assignedBranch }));
+  }, [dispatch, user?.assignedBranch]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -141,7 +143,7 @@ const ManageInventory = () => {
               color="primary"
               startIcon={<AddCircleIcon />}
               component={Link}
-              to={`../assignProduct/${code}`}
+              to={`../assignProduct/${user?.assignedBranch}`}
             >
               Add Product
             </Button>

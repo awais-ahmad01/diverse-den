@@ -87,7 +87,7 @@ const Checkout = () => {
     control,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: yupResolver(checkoutSchema),
     defaultValues: {
@@ -100,7 +100,9 @@ const Checkout = () => {
       postalCode: "",
       paymentMethod: "cashOnDelivery",
     },
+    mode: "onChange", 
   });
+  
 
   const paymentMethod = watch("paymentMethod");
 
@@ -371,26 +373,31 @@ const Checkout = () => {
                 </button>
               )}
 
-              {paymentMethod === "stripe" && !isPayment && (
-                <StripeCheckout
-                  stripeKey="pk_test_51QOJ4oDZzPFomXhEJc2PFEnX4MqUEEzMkA8gwhbgA7I7GzXobg0QAwn06yuHn2Gb1ofTkwLHiGPI7N8XrxVMi0xt00zvcbJDcy"
-                  token={(token) => {
-                    makePayment(token);
-                  }}
-                  name="payment"
-                  // amount={plan.price * 100}
-                  // currency="PKR"
-                >
-                  <button
-                    type="button"
-                    className="w-full bg-[#603f26] font-semibold text-white py-3 rounded-lg transition duration-300 ease-in-out transform hover:scale-[1.02]"
-                    onClick={(e)=> e.preventDefault()}
-                  >
-
-                    Pay Now
-                  </button>
-                </StripeCheckout>
-              )}
+{paymentMethod === "stripe" && !isPayment && (
+  <StripeCheckout
+    stripeKey="pk_test_51QOJ4oDZzPFomXhEJc2PFEnX4MqUEEzMkA8gwhbgA7I7GzXobg0QAwn06yuHn2Gb1ofTkwLHiGPI7N8XrxVMi0xt00zvcbJDcy"
+    token={(token) => {
+      makePayment(token);
+    }}
+    name="payment"
+    // amount={plan.price * 100}
+    // currency="PKR"
+    disabled={!isValid}
+  >
+    <button
+      type="button"
+      className={`w-full font-semibold text-white py-3 rounded-lg transition duration-300 ease-in-out ${
+        isValid 
+          ? "bg-[#603f26] transform hover:scale-[1.02]" 
+          : "bg-gray-400 cursor-not-allowed"
+      }`}
+      onClick={(e) => e.preventDefault()}
+      disabled={!isValid}
+    >
+      Pay Now
+    </button>
+  </StripeCheckout>
+)}
 
               {isPayment && (
                 <button
@@ -462,7 +469,7 @@ const Checkout = () => {
                       <Typography variant="body1">
                         {item?.quantity} x{" "}
                         <span className="font-semibold">
-                          ${item?.productId?.price.toFixed(2)}
+                          Rs {item?.productId?.price.toFixed(2)}
                         </span>
                       </Typography>
                     </div>
@@ -472,7 +479,7 @@ const Checkout = () => {
                 <div className="flex justify-between font-bold">
                   <Typography variant="h6">Total</Typography>
                   <Typography variant="h6">
-                    ${cartItems.length > 0 && calculateSubtotal().toFixed(2)}
+                    Rs {cartItems.length > 0 && calculateSubtotal().toFixed(2)}
                   </Typography>
                 </div>
               </div>
@@ -480,30 +487,6 @@ const Checkout = () => {
           </Paper>
         </div>
 
-        {/* <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          open={orderSuccess}
-          autoHideDuration={2000}
-        >
-          <Alert severity="success" variant="filled">
-            Order placed successfully! Redirecting...
-          </Alert>
-        </Snackbar>
-
-        <Snackbar
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          open={!!error}
-          autoHideDuration={6000}
-          onClose={() => setError(null)}
-        >
-          <Alert
-            onClose={() => setError(null)}
-            severity="error"
-            variant="filled"
-          >
-            {error}
-          </Alert>
-        </Snackbar> */}
       </div>
     </div>
   );

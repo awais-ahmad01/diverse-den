@@ -531,7 +531,7 @@ const Cart = () => {
                             : ""}
                         </p>
                         <p className="text-primary">
-                          ${item?.productId?.price.toFixed(2)}
+                          Rs {item?.productId?.price.toFixed(2)}
                         </p>
                         {/* Show available stock indicator */}
                         <p className={`text-sm ${availableStock > 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -579,17 +579,17 @@ const Cart = () => {
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>
-                    ${cartItems?.length > 0 && calculateSubtotal().toFixed(2)}
+                    Rs {cartItems?.length > 0 && calculateSubtotal().toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span>$0.00</span>
+                  <span>Rs 200.00</span>
                 </div>
                 <div className="flex justify-between font-bold border-t pt-2">
                   <span>Total</span>
                   <span>
-                    ${cartItems?.length > 0 && calculateSubtotal().toFixed(2)}
+                    Rs {cartItems?.length > 0 && calculateSubtotal().toFixed(2)}
                   </span>
                 </div>
               </div>
