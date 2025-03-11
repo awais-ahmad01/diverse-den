@@ -810,17 +810,17 @@ const LandingPage = () => {
               { 
                 title: 'Point of Sale (POS)', 
                 description: 'Streamline your in-store operations with our comprehensive POS system. Process transactions, manage inventory, print receipts, scan barcodes, and track sales in real-time. Includes offline mode, cash drawer integration, and multi-payment support.',
-                image: 'https://cdnjs.cloudflare.com/ajax/libs/placeholder-imgs/0.0.4/120x120.png'
+                image: '/images/pos.jpeg'
               },
               { 
                 title: 'E-commerce Web App', 
                 description: 'Provide customers with a full-featured online shopping experience with product search, filtering, and secure payments.',
-                image: 'https://cdnjs.cloudflare.com/ajax/libs/placeholder-imgs/0.0.4/120x120.png'
+                image: '/images/web.jpeg'
               },
               { 
                 title: 'Mobile Application', 
                 description: 'Experience product modeling and AR visualization right from your phone. Browse products, place orders, and view items in your space with our advanced AR features. Download our app from the Google Play Store today!',
-                image: 'https://cdnjs.cloudflare.com/ajax/libs/placeholder-imgs/0.0.4/120x120.png',
+                image: '/images/mobile.jpeg',
                 hasButton: true
               },
             ].map((mode, index) => (

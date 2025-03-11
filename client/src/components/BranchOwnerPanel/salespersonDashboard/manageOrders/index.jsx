@@ -1648,10 +1648,14 @@ const SalespersonOrderManagement = () => {
   const handleBranchChange = (orderId, cartItems, branch) => {
     console.log("handleBranchChange", orderId, branch, cartItems);
 
+    console.log("cartItems", cartItems);
+
     dispatch(assignOrderToBranch({ orderId, cartItems, branch }))
       .unwrap()
       .then(() => {
         showToast("SUCCESS", "Order assigned to branch Successfully!!");
+        const branchCode = user?.assignedBranch;
+        dispatch(getSalespersonOrders({ branchCode }));
       })
       .catch((error) => {
         showToast("ERROR", "Failed to assigned order to branch");

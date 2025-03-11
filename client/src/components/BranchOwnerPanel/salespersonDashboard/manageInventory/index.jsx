@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { getBranchProducts } from "../../../../store/actions/branches";
+import { getAllBranchProducts } from "../../../../store/actions/branches";
 import { removeBranchProduct } from "../../../../store/actions/products";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Loader } from "../../../../tools";
@@ -58,7 +58,7 @@ const ManageInventory = () => {
     const business = user?.business;
     if (business && page) {
       console.log("Next Page:", page);
-      dispatch(getBranchProducts({ branchId: user?.assignedBranch, pageNo: page }));
+      dispatch(getAllBranchProducts({ branchCode: user?.assignedBranch, pageNo: page }));
     }
   };
 
@@ -66,7 +66,7 @@ const ManageInventory = () => {
     const business = user?.business;
     if (business && page) {
       console.log("Previous Page:", page);
-      dispatch(getBranchProducts({ branchId: user?.assignedBranch, pageNo: page }));
+      dispatch(getAllBranchProducts({ branchCode: user?.assignedBranch, pageNo: page }));
     }
   };
 
@@ -93,8 +93,9 @@ const ManageInventory = () => {
       });
   };
 
+
   useEffect(() => {
-    dispatch(getBranchProducts({ branchId: user?.assignedBranch }));
+    dispatch(getAllBranchProducts({ branchCode: user?.assignedBranch }));
   }, [dispatch, user?.assignedBranch]);
 
   return (

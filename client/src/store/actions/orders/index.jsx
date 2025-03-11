@@ -99,7 +99,7 @@ export const getSalespersonOrders = createAsyncThunk(
 
 export const assignOrderToBranch = createAsyncThunk(
   "orders/assignOrderToBranch",
-  async ({orderId, branch}, thunkAPI) => {
+  async ({orderId, branch, cartItems}, thunkAPI) => {
     try {
 
       console.log("Status data:", orderId, branch);
@@ -117,6 +117,7 @@ export const assignOrderToBranch = createAsyncThunk(
         {
           orderId,
           branch,
+          cartItems
         },
         
 
