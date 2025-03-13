@@ -47,7 +47,6 @@ const CategoryPage = () => {
     fetchProductsByCategory();
   }, [slug]);
 
-  // Filter products by selected brand
   useEffect(() => {
     if (selectedBrand === "") {
       setFilteredProducts(products);

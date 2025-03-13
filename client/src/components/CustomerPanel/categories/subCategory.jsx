@@ -135,30 +135,30 @@ const SubCategory = () => {
   const [selectedBrand, setSelectedBrand] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
 
-  // Handle price sort filter change
+
   const handleFilterChange = (e) => {
     setFilterOption(e.target.value);
     applyFilters(e.target.value, selectedBrand);
   };
 
-  // Handle brand filter change
+
   const handleBrandChange = (e) => {
     setSelectedBrand(e.target.value);
     applyFilters(filterOption, e.target.value);
   };
 
-  // Apply both filters (price and brand)
+  
   const applyFilters = (priceFilter, brandFilter) => {
     let filtered = [...subCategoryProducts];
     
-    // Apply brand filter if selected
+   
     if (brandFilter) {
       filtered = filtered.filter(product => product.brand === brandFilter);
     }
     
-    // Apply price sorting
+   
     if (priceFilter === 'bestMatch') {
-      // Random sorting for best match
+     
       filtered = filtered.sort(() => Math.random() - 0.5);
     } else if (priceFilter === 'lowToHigh') {
       filtered = filtered.sort((a, b) => a.price - b.price);
@@ -170,23 +170,23 @@ const SubCategory = () => {
     setFilteredProducts(filtered);
   };
 
-  // Fetch products and reset filters when params change
+  
   useEffect(() => {
     dispatch(clearSubCategoryProducts());
     dispatch(getSubCategoryProducts({ subcategory, productType }));
   }, [category, subcategory, productType, dispatch]);
 
-  // Extract brands and reset filters when products change
+  
   useEffect(() => {
     if (subCategoryProducts && subCategoryProducts.length > 0) {
-      // Extract unique brands
+     
       const uniqueBrands = [...new Set(subCategoryProducts.map(product => product.brand))];
       setBrands(uniqueBrands);
       
-      // Reset brand selection when products change
+    
       setSelectedBrand("");
       
-      // Reset sorted products
+     
       const shuffledProducts = [...subCategoryProducts].sort(() => Math.random() - 0.5);
       setSortedProducts(shuffledProducts);
       setFilteredProducts(shuffledProducts);

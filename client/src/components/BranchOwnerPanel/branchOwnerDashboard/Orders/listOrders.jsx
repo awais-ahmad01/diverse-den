@@ -95,13 +95,13 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {order.items?.map((item, index) => (
+                  {order.cartItems?.map((item, index) => (
                     <TableRow key={index}>
-                      <TableCell>{item.title}</TableCell>
-                      <TableCell align="right">{item?.totalQuantity}</TableCell>
-                      <TableCell align="right">${item.price}</TableCell>
+                      <TableCell>{item?.productId?.title}</TableCell>
+                      <TableCell align="right">{item?.quantity}</TableCell>
+                      <TableCell align="right">Rs {item?.productId?.price}</TableCell>
                       <TableCell align="right">
-                        ${item.totalQuantity * item.price}
+                        Rs {item?.quantity * item?.productId?.price}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -109,20 +109,20 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
                     <TableCell colSpan={3} align="right" className="font-bold">
                       Subtotal:
                     </TableCell>
-                    <TableCell align="right">${order.subtotal}</TableCell>
+                    <TableCell align="right">Rs {order?.subTotal}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={3} align="right" className="font-bold">
                       Shipping:
                     </TableCell>
-                    <TableCell align="right">${order.shippingCost}</TableCell>
+                    <TableCell align="right">Rs {order?.shippingCost}</TableCell>
                   </TableRow>
                   <TableRow>
                     <TableCell colSpan={3} align="right" className="font-bold">
                       Total:
                     </TableCell>
                     <TableCell align="right" className="font-bold">
-                      ${order.totalAmount}
+                      Rs {order.totalAmount}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -135,8 +135,8 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
               Payment Information
             </Typography>
             <Typography>Method: {order.userInfo?.paymentMethod}</Typography>
-            <Typography>Status: {order.paymentStatus}</Typography>
-            <Typography>Transaction ID: {order.transactionId}</Typography>
+            {/* <Typography>Status: {order?.status}</Typography> */}
+            {/* <Typography>Transaction ID: {order.transactionId}</Typography> */}
           </Grid>
 
        
@@ -284,8 +284,7 @@ const ListOrders = () => {
     let filtered = [...orders];
 
     if (orderNumber.trim() !== "") {
-      // Fix for order number filtering - make sure we're using the right case sensitivity
-      // and comparing string-to-string consistently
+     
       filtered = filtered.filter((order) => {
         const shortOrderId = order._id.slice(-6);
         return shortOrderId.includes(orderNumber.trim());
@@ -293,9 +292,9 @@ const ListOrders = () => {
     }
 
     if (customerName.trim() !== "") {
-      // Add customer name filtering
+     
       filtered = filtered.filter((order) => {
-        const fullName = `${order.userInfo?.firstname || ""} ${order.userInfo?.lastname || ""}`.toLowerCase();
+        const fullName = `${order?.userInfo?.firstname || ""} ${order?.userInfo?.lastname || ""}`.toLowerCase();
         return fullName.includes(customerName.trim().toLowerCase());
       });
     }
@@ -544,7 +543,7 @@ const ListOrders = () => {
                             {format(new Date(order?.createdAt), "PP")}
                           </TableCell>
                           <TableCell>{order?.cartItemCount}</TableCell>
-                          <TableCell>${order?.totalAmount}</TableCell>
+                          <TableCell>Rs {order?.totalAmount}</TableCell>
                           <TableCell>
                             <Select
                               value={order.status}
@@ -615,7 +614,7 @@ const ListOrders = () => {
                     <div className="space-y-2">
                       <p>Date: {format(new Date(order?.createdAt), "PP")}</p>
                       <p>Items: {order?.cartItemCount}</p>
-                      <p>Total: ${order?.totalAmount}</p>
+                      <p>Total: Rs {order?.totalAmount}</p>
                     </div>
 
                     <div className="mt-4 space-y-2">

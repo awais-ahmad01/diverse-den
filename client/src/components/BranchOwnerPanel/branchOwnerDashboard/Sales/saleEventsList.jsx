@@ -208,10 +208,10 @@ const SaleEventsList = () => {
   };
 
   const applyFilters = () => {
-    // Start with all events from Redux
+    //
     let filtered = [...saleEvents];
 
-    // Extract dates from duration format (e.g., "Mar 9, 2025 - Mar 18, 2025")
+   
     const extractDatesFromDuration = (duration) => {
       if (!duration) return { start: null, end: null };
 
@@ -262,27 +262,26 @@ const SaleEventsList = () => {
           }
         }
 
-        return true; // Keep events with no start date
+        return true; 
       });
     }
 
-    // Filter by end date
     if (endDate) {
       const filterEndDate = new Date(endDate);
-      // Set time to end of day for inclusive comparison
+      
       filterEndDate.setHours(23, 59, 59, 999);
 
       filtered = filtered.filter((event) => {
-        // Try event.endDate, event.end, event.expiryDate properties
+        
         let eventEndDate = event.endDate || event.end || event.expiryDate;
 
-        // If no direct date property, try extracting from duration
+       
         if (!eventEndDate && event.duration) {
           const { end } = extractDatesFromDuration(event.duration);
           eventEndDate = end;
         }
 
-        // If we have a valid date to compare
+        
         if (eventEndDate) {
           if (eventEndDate instanceof Date) {
             return eventEndDate <= filterEndDate;
@@ -291,16 +290,16 @@ const SaleEventsList = () => {
               return new Date(eventEndDate) <= filterEndDate;
             } catch (error) {
               console.error("Error comparing end dates:", error);
-              return true; // Keep events with invalid dates
+              return true; 
             }
           }
         }
 
-        return true; // Keep events with no end date
+        return true; 
       });
     }
 
-    // Filter by name (case insensitive)
+ 
     if (searchName) {
       filtered = filtered.filter((event) =>
         event.name?.toLowerCase().includes(searchName.toLowerCase())
@@ -309,7 +308,7 @@ const SaleEventsList = () => {
 
     setFilteredEvents(filtered);
 
-    // Log applied filters for debugging
+   
     console.log("Applied filters:", {
       startDate: startDate || "none",
       endDate: endDate || "none",

@@ -268,7 +268,7 @@ const ViewProduct = () => {
                   >
                     <Typography variant="subtitle1">Base Price:</Typography>
                     <Typography>
-                      ${productById?.price?.toFixed(2) || "0.00"}
+                      Rs {productById?.price?.toFixed(2) || "0.00"}
                     </Typography>
                   </Box>
                   <Divider />

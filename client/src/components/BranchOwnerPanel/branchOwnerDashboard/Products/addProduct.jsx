@@ -6,6 +6,7 @@ import { useForm, Controller, useFieldArray } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { FaArrowLeft } from "react-icons/fa";
+import { Loader } from "../../../../tools";
 import {
   TextField,
   Button,
@@ -24,6 +25,7 @@ import { FaTrash } from "react-icons/fa";
 
 import { Link } from "react-router-dom";
 import { addProduct } from "../../../../store/actions/products";
+import { set } from "date-fns";
 
 
 const AddProduct = () => {
@@ -33,6 +35,8 @@ const AddProduct = () => {
   const [Allcategories, setAllCategories] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
+
+  const [Loading, setLoading] = useState(false);
 
   console.log("selectd:", selectedCategory);
   console.log("selectdSub:", selectedSubCategory);
@@ -281,6 +285,7 @@ const AddProduct = () => {
 
   const onSubmit = async (data) => {
     console.log(data);
+    setLoading(true);
     const business = user?.business;
     const body = {
       data,
@@ -296,8 +301,14 @@ const AddProduct = () => {
         setSelectedCategory("");
         setSelectedSubCategory("");
         setSelectedImage(null);
+        setLoading(false);
       });
   };
+
+
+  if(Loading){
+    return <Loader/>
+  }
 
   return (
     <div className="bg-gray-50 flex flex-col p-5">
