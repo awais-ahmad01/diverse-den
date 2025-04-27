@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { getBranches, removeBranch } from "../../../../store/actions/branches";
 import { Loader, showToast } from "../../../../tools";
 
+
+
 import {
   Button,
   Dialog,
@@ -45,6 +47,8 @@ const ListBranches = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   const { branches, meta, isloading } = useSelector((state) => state.branches);
+
+   
 
   const totalBranches = meta?.totalItems || 0;
 
@@ -94,6 +98,8 @@ const ListBranches = () => {
   useEffect(() => {
     const business = user?.business;
     dispatch(getBranches({ business }));
+
+   
   }, [dispatch, user]);
 
   if (isloading) {

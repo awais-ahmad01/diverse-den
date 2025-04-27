@@ -448,10 +448,7 @@ export const verifyBusiness = createAsyncThunk(
       );
 
 
-      console.log("business verifyyyy:", response.data);
-
-
-
+      console.log("business verifyyyy:", response.data.businessExist);
       
       return { data: response.data.businessExist};
     } catch (error) {

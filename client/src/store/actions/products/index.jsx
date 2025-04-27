@@ -567,16 +567,6 @@ export const placeOrder = createAsyncThunk(
         return;
       }
 
-      // const formdata = new FormData();
-
-      // formdata.append("data", JSON.stringify(body.data));
-      // formdata.append("business", body.business);
-
-      // if (body.data.media) {
-      //   body.data.media.forEach((file) => {
-      //     formdata.append("media", file);
-      //   });
-      // }
 
       const response = await axios.post(
         "http://localhost:3000/addOrderDetails",
@@ -591,15 +581,13 @@ export const placeOrder = createAsyncThunk(
 
       console.log("order:", response.data);
 
-      // thunkAPI.dispatch(successGlobal("Order Placed successfully"));
+     
 
       return true;
     } catch (error) {
       console.log("errro000r................");
-      // thunkAPI.dispatch(
-      //   errorGlobal(error.response?.data?.message || "Failed to place order")
-      // );
-      console.log(error.response?.data?.message);
+      
+      console.log("errrrrrrrr:::",error.response?.data?.message);
       throw error;
     }
   }

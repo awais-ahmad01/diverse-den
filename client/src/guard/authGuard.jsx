@@ -5,19 +5,32 @@
 // import { verifyBusiness } from "../store/actions/businesses";
 
 // const AuthGuard = (props) => {
+
+//   console.log("Auth Guard....");
+
 //   const dispatch = useDispatch();
-//   const { isauthenticated, isloading, user } = useSelector((state) => state.auth);
+//   const { isauthenticated, isloading: authLoading, user } = useSelector((state) => state.auth);
+//   const { businessVerify, isloading: businessLoading } = useSelector((state) => state.businesses);
 //   const location = useLocation();
-//   const { businessVerify } = useSelector((state) => state.businesses);
+
+//   console.log("Businessssssss Verifyyyy:", businessVerify);
 
 //   useEffect(() => {
+//     console.log("Business Verification Status Updated:", businessVerify);
+//   }, [businessVerify]);
+
+//   // Dispatch verification when user or business changes
+//   useEffect(() => {
 //     if (user?.business) {
-//       dispatch(verifyBusiness(user.business));
+//       console.log("Dispatching verifyBusiness for business:", user?.business);
+//       dispatch(verifyBusiness(user?.business));
+//       console.log("Dispatched verifyBusiness for business:", user?.business);
 //     }
 //   }, [dispatch, user]);
 
-//   if (isloading) {
+//   if (authLoading || businessLoading) {
 //     return <Loader />;
+  
 //   }
 
 //   if (!isauthenticated) {
@@ -47,7 +60,11 @@
 //     if (role === "Branch Owner") {
 //       // Check if the user has an active plan and a verified business
 //       const hasActivePlan = !!user?.activePlan;
-//       const hasVerifiedBusiness = businessVerify?.length > 0;
+//       const hasVerifiedBusiness = businessVerify;
+//       // const hasVerifiedBusiness = true;
+
+
+//       console.log('hasVerifiedBusiness:', hasVerifiedBusiness);
 
 //       // Debugging: Log the user's plan and business verification status
 //       console.log("hasActivePlan:", hasActivePlan);

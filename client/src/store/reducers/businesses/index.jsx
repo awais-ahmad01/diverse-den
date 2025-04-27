@@ -5,7 +5,8 @@ let default_state = {
   isloading: false,
   businesses: [],
   businessProductReviews: [],
-  businessProducts:[]
+  businessProducts:[],
+  businessVerify: false,
   
 };
 
@@ -15,7 +16,6 @@ export const businessesSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-
 
       .addCase(listBusinesses.pending, (state) => {
         state.isloading = true;

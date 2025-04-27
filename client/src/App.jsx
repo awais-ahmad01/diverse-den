@@ -76,6 +76,12 @@ import ViewBranchProducts from "./components/BranchOwnerPanel/salespersonDashboa
 import ManageInventory from "./components/BranchOwnerPanel/salespersonDashboard/manageInventory/index.jsx";
 import Guard from "./guard/guard.jsx";
 
+import { LoyaltyDashboard } from "./components/CustomerPanel/Loyalty/LoyaltyDashboard.jsx";
+import { RewardsRedemption } from "./components/CustomerPanel/Loyalty/RewardsRedemption.jsx";
+import LoyaltyPerks from "./components/CustomerPanel/Loyalty/LoyaltyPerks.jsx";
+
+import AnalyticsAndTrends from "./components/BranchOwnerPanel/branchOwnerDashboard/Analytics/index.jsx";
+
 function App() {
   const dispatch = useDispatch();
 
@@ -131,9 +137,9 @@ function App() {
             path="/branchOwnerPanel"
             element={
               // <AuthGuard allowedRoles={["Branch Owner"]}>
-                <BranchOwnerPanel />
+              //   <BranchOwnerPanel />
               // </AuthGuard>
-              // <BranchOwnerPanel />
+              <BranchOwnerPanel />
             }
           >
             <Route
@@ -236,6 +242,9 @@ function App() {
               <Route path="manageProductReviews" element={<ProductReviews />} />
 
               <Route path="manageGiftCards" element={<ManageGiftCards />} />
+
+              <Route path="analytics" element={<AnalyticsAndTrends />} />
+
             </Route>
 
             {/* Salesperson Dashboard */}
@@ -317,7 +326,20 @@ function App() {
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
 
+            <Route path="loyaltyDashboard" element={<LoyaltyDashboard />} />
+
+            <Route path="redemption" element={<RewardsRedemption />} />
+
+            <Route path="loyalty" element={<LoyaltyPerks />} />
+
             <Route path="events/:eventId" element={<DealsPage />} />
+
+
+            <Route
+              path="trends"
+              element={<AnalyticsAndTrends />}
+            />
+
           </Route>
 
           <Route path="addsubscription" element={<AddSubscription />} />
@@ -351,6 +373,9 @@ function App() {
               element={<ManageSubscriptionPlans />}
             />
           </Route>
+
+       
+          
         </Routes>
       </BrowserRouter>
     </>
