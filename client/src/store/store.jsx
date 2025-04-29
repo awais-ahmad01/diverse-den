@@ -10,6 +10,7 @@ import businessesReducer from "./reducers/businesses";
 import subscriptionPlansReducer from "./reducers/subscriptionPlans";
 import saleEventsReducer from "./reducers/saleEvents";
 import cartReducer from "./reducers/cart";
+import analyticsReducer from "./reducers/analytics";
 
 const store = configureStore({
     reducer: {
@@ -23,7 +24,8 @@ const store = configureStore({
         businesses: businessesReducer,
         subscriptionPlans: subscriptionPlansReducer,
         saleEvents: saleEventsReducer,
-        cart: cartReducer
+        cart: cartReducer,
+        analytics: analyticsReducer
 
     },
 });
