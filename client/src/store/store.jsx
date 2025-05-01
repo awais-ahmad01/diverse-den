@@ -11,6 +11,7 @@ import subscriptionPlansReducer from "./reducers/subscriptionPlans";
 import saleEventsReducer from "./reducers/saleEvents";
 import cartReducer from "./reducers/cart";
 import analyticsReducer from "./reducers/analytics";
+import loyaltyPerksReducer from "./reducers/loyaltyPerks";
 
 const store = configureStore({
     reducer: {
@@ -25,7 +26,9 @@ const store = configureStore({
         subscriptionPlans: subscriptionPlansReducer,
         saleEvents: saleEventsReducer,
         cart: cartReducer,
-        analytics: analyticsReducer
+        analytics: analyticsReducer,
+        loyaltyPerks: loyaltyPerksReducer
+
 
     },
 });

@@ -76,11 +76,17 @@ import ViewBranchProducts from "./components/BranchOwnerPanel/salespersonDashboa
 import ManageInventory from "./components/BranchOwnerPanel/salespersonDashboard/manageInventory/index.jsx";
 import Guard from "./guard/guard.jsx";
 
-import { LoyaltyDashboard } from "./components/CustomerPanel/Loyalty/LoyaltyDashboard.jsx";
-import { RewardsRedemption } from "./components/CustomerPanel/Loyalty/RewardsRedemption.jsx";
 import LoyaltyPerks from "./components/CustomerPanel/Loyalty/LoyaltyPerks.jsx";
 
 import AnalyticsAndTrends from "./components/BranchOwnerPanel/branchOwnerDashboard/Analytics/index.jsx";
+
+
+
+import RiderDashboard from "./components/RiderPanel/riderDashboard/index.jsx";
+import RiderDetails from "./components/RiderPanel/riderDetails.jsx";
+import RiderOrders from "./components/RiderPanel/riderDashboard/assignedOrders.jsx";
+import ChatModule from "./components/RiderPanel/riderDashboard/riderChats.jsx";
+
 
 function App() {
   const dispatch = useDispatch();
@@ -301,7 +307,20 @@ function App() {
                 <RiderPanel />
               </AuthGuard>
             }
-          />
+          >
+
+            <Route path="riderDetails" element={<RiderDetails />} />
+
+            <Route
+              path="riderDashboard"
+              element={<RiderDashboard />}
+            >
+              <Route path="assignedOrders" element={<RiderOrders/>} />
+
+              <Route path="riderChats" element={<ChatModule/>} />
+
+            </Route>
+          </Route>
 
           {/* Cutomer  */}
 
@@ -326,9 +345,7 @@ function App() {
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
 
-            <Route path="loyaltyDashboard" element={<LoyaltyDashboard />} />
-
-            <Route path="redemption" element={<RewardsRedemption />} />
+           
 
             <Route path="loyalty" element={<LoyaltyPerks />} />
 

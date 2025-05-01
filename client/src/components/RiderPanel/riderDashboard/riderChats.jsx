@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
+import { showToast } from "../../../tools";
 import {
   Button,
   Dialog,
@@ -57,7 +57,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#603F26",
+      main: "#603F26", // Brown color for theme
     },
     secondary: {
       main: "#E8DED1",
@@ -65,126 +65,105 @@ const theme = createTheme({
   },
 });
 
-// Mock data for users and chat messages
+// Mock data for contacts (only salespersons and chatbot)
 const mockContacts = [
   {
-    id: "user1",
-    name: "Ali Ahmad",
+    id: "sales1",
+    name: "Sales - Ali Ahmad",
     avatar: null,
-    lastMessage: "Hi there! Can you help me with my order?",
+    lastMessage: "New delivery assigned to you",
     timestamp: "10:30 AM",
     unread: 2,
     isOnline: true,
-    type: "customer"
+    type: "sales"
   },
   {
-    id: "user2",
-    name: "Sara Khan",
+    id: "sales2",
+    name: "Sales - Sara Khan",
     avatar: null,
-    lastMessage: "When will my order be delivered?",
+    lastMessage: "Customer is waiting at location",
     timestamp: "9:15 AM",
     unread: 0,
     isOnline: false,
-    type: "customer"
+    type: "sales"
   },
   {
-    id: "user3",
-    name: "Salman Ahmed",
+    id: "sales3",
+    name: "Sales - Usman Malik",
     avatar: null,
-    lastMessage: "Thanks for your help!",
+    lastMessage: "Please confirm pickup",
     timestamp: "Yesterday",
-    unread: 0,
-    isOnline: false,
-    type: "customer",
-    isBlocked: true
-  },
-  {
-    id: "user4",
-    name: "Fatima Zahra",
-    avatar: null,
-    lastMessage: "Do you have any specials today?",
-    timestamp: "Yesterday",
-    unread: 0,
-    isOnline: true,
-    type: "customer"
-  },
-  {
-    id: "rider1",
-    name: "Rider - Hassan Ali",
-    avatar: null,
-    lastMessage: "The customer is not available",
-    timestamp: "10:40 AM",
     unread: 1,
     isOnline: true,
-    type: "rider"
+    type: "sales"
   },
   {
-    id: "branch1",
-    name: "Branch Manager",
+    id: "chatbot",
+    name: "Rider Assistant",
     avatar: null,
-    lastMessage: "Please check the new inventory",
-    timestamp: "Yesterday",
+    lastMessage: "How can I help you today?",
+    timestamp: "Just now",
     unread: 0,
     isOnline: true,
-    type: "branch"
-  },
+    type: "chatbot"
+  }
 ];
 
 const chatbotResponses = [
   {
-    text: "Welcome to Coffee House! How can I help you today?",
+    text: "Hello Rider! How can I assist you today?",
     options: [
-      "Tell me about your menu",
-      "What are today's specials?",
-      "Do you offer delivery?",
-      "What are your operating hours?"
+      "View my assigned deliveries",
+      "Report a delivery issue",
+      "Request day off",
+      "Contact sales team"
     ]
   },
   {
-    text: "Our menu includes a variety of coffee drinks, pastries, and light meals. Would you like to see our full menu?",
+    text: "You have 3 deliveries assigned today. Next delivery is to House #45, Street 10, North Karachi.",
     options: [
-      "Yes, show me the menu",
-      "Do you have non-coffee options?",
-      "What's your most popular item?",
-      "Talk to a human"
+      "Get directions",
+      "View customer details",
+      "Report problem",
+      "Contact sales"
     ]
   },
   {
-    text: "Today's specials include our Signature Caramel Macchiato at 20% off and a free croissant with any large coffee purchase!",
+    text: "To report a delivery issue, please describe the problem:",
     options: [
-      "How do I order?",
-      "Are these available for delivery?",
-      "Any other promotions?",
-      "Talk to a human"
+      "Customer not available",
+      "Wrong address",
+      "Item damaged",
+      "Other issue"
     ]
   },
   {
-    text: "Yes, we offer delivery within a 5km radius. Delivery is free for orders over Rs. 1000. Would you like to place an order?",
+    text: "Your day off request has been noted. Would you like to request a substitute rider?",
     options: [
-      "Yes, I want to order",
-      "What's the delivery time?",
-      "Show me the menu first",
-      "Talk to a human"
+      "Yes, find substitute",
+      "No, just note my absence",
+      "Cancel request",
+      "Contact manager"
     ]
   },
   {
-    text: "Our operating hours are: Monday to Friday: 8:00 AM - 10:00 PM, Saturday and Sunday: 9:00 AM - 11:00 PM",
+    text: "Connecting you to sales team. Please describe your issue:",
     options: [
-      "Do you have any holiday hours?",
-      "Where are you located?",
-      "Can I make a reservation?",
-      "Talk to a human"
+      "Delivery instructions unclear",
+      "Need additional information",
+      "Customer complaint",
+      "Other issue"
     ]
   }
 ];
 
 // Sample messages for each conversation
 const mockMessages = {
-  "user1": [
+  "sales1": [
     {
       id: "msg1",
-      sender: "user1",
-      text: "Hi there! Can you help me with my order?",
+      sender: "sales1",
+      text: "New delivery assigned to you - Order #4567",
       timestamp: "10:30 AM",
       status: "read",
       type: "text"
@@ -192,15 +171,15 @@ const mockMessages = {
     {
       id: "msg2",
       sender: "me",
-      text: "Of course! What seems to be the issue with your order?",
+      text: "Received. What's the delivery address?",
       timestamp: "10:31 AM",
       status: "sent",
       type: "text"
     },
     {
       id: "msg3",
-      sender: "user1",
-      text: "I ordered a Cappuccino but received a Latte instead.",
+      sender: "sales1",
+      text: "House #45, Street 10, North Karachi. Customer phone: 0300-1234567",
       timestamp: "10:32 AM",
       status: "read",
       type: "text"
@@ -208,34 +187,34 @@ const mockMessages = {
     {
       id: "msg4",
       sender: "me",
-      text: "I'm so sorry about that mix-up! Let me help you get this resolved right away.",
+      text: "On my way. ETA 20 minutes",
       timestamp: "10:33 AM",
       status: "sent",
       type: "text"
     },
     {
       id: "msg5",
-      sender: "user1",
-      text: "Thank you! Can you send someone to replace it?",
+      sender: "sales1",
+      text: "Customer called, they're waiting. Please hurry.",
       timestamp: "10:34 AM",
       status: "read",
       type: "text"
     },
     {
       id: "msg6",
-      sender: "user1",
+      sender: "me",
       image: "/api/placeholder/300/300",
-      caption: "This is what I received",
+      caption: "Traffic at this point",
       timestamp: "10:35 AM",
-      status: "read",
+      status: "sent",
       type: "image"
     }
   ],
-  "user2": [
+  "sales2": [
     {
       id: "msg7",
-      sender: "user2",
-      text: "When will my order be delivered?",
+      sender: "sales2",
+      text: "Customer is waiting at location - Order #7890",
       timestamp: "9:15 AM",
       status: "read",
       type: "text"
@@ -243,26 +222,8 @@ const mockMessages = {
     {
       id: "msg8",
       sender: "me",
-      text: "Let me check that for you. Could you provide your order number?",
+      text: "Will be there in 10 minutes",
       timestamp: "9:17 AM",
-      status: "sent",
-      type: "text"
-    }
-  ],
-  "rider1": [
-    {
-      id: "msg9",
-      sender: "rider1",
-      text: "The customer is not available at the location",
-      timestamp: "10:40 AM",
-      status: "read",
-      type: "text"
-    },
-    {
-      id: "msg10",
-      sender: "me",
-      text: "Please try calling them on their phone number. If they don't respond, bring the order back to the store.",
-      timestamp: "10:42 AM",
       status: "sent",
       type: "text"
     }
@@ -271,13 +232,13 @@ const mockMessages = {
     {
       id: "bot1",
       sender: "chatbot",
-      text: "Welcome to Coffee House! How can I help you today?",
+      text: "Hello Rider! How can I assist you today?",
       timestamp: "Just now",
       options: [
-        "Tell me about your menu",
-        "What are today's specials?",
-        "Do you offer delivery?",
-        "What are your operating hours?"
+        "View my assigned deliveries",
+        "Report a delivery issue",
+        "Request day off",
+        "Contact sales team"
       ],
       type: "text"
     }
@@ -300,34 +261,6 @@ const DeleteMessageDialog = ({ open, handleClose, handleConfirm }) => {
         </Button>
         <Button onClick={handleConfirm} color="error" variant="contained">
           Delete
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
-// Component for the block user confirmation dialog
-const BlockUserDialog = ({ open, handleClose, handleConfirm, isBlocking = true }) => {
-  return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>{isBlocking ? "Block" : "Unblock"} User</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          {isBlocking
-            ? "Are you sure you want to block this customer? They will not be able to send you messages once blocked."
-            : "Are you sure you want to unblock this customer? They will be able to send you messages again."}
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          Cancel
-        </Button>
-        <Button 
-          onClick={handleConfirm} 
-          color={isBlocking ? "error" : "success"} 
-          variant="contained"
-        >
-          {isBlocking ? "Block" : "Unblock"}
         </Button>
       </DialogActions>
     </Dialog>
@@ -358,7 +291,7 @@ const ImagePreviewDialog = ({ open, handleClose, imageUrl }) => {
 };
 
 // Message component
-const Message = ({ message, onDelete, onImageClick, isUserBlocked }) => {
+const Message = ({ message, onDelete, onImageClick }) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
   const isSender = message.sender === "me";
 
@@ -415,7 +348,7 @@ const Message = ({ message, onDelete, onImageClick, isUserBlocked }) => {
               </span>
             )}
           </Typography>
-          {isSender && !isUserBlocked && (
+          {isSender && (
             <Box
               className="message-actions"
               sx={{
@@ -483,7 +416,7 @@ const Message = ({ message, onDelete, onImageClick, isUserBlocked }) => {
               </span>
             )}
           </Typography>
-          {isSender && !isUserBlocked && (
+          {isSender && (
             <Box
               className="message-actions"
               sx={{
@@ -515,7 +448,7 @@ const Message = ({ message, onDelete, onImageClick, isUserBlocked }) => {
             <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
               <SmartToyIcon sx={{ mr: 1, color: "#603F26" }} />
               <Typography variant="body1" sx={{ fontWeight: "500" }}>
-                Chat Assistant
+                Rider Assistant
               </Typography>
             </Box>
             <Typography variant="body1">{message.text}</Typography>
@@ -560,98 +493,79 @@ const Message = ({ message, onDelete, onImageClick, isUserBlocked }) => {
   );
 };
 
-// Main Chat component
-const ChatModule = () => {
-  const [contacts, setContacts] = useState(mockContacts);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedContact, setSelectedContact] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const [imagePreview, setImagePreview] = useState(null);
-  const [imageFile, setImageFile] = useState(null);
-  const [imageCaption, setImageCaption] = useState("");
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [messageToDelete, setMessageToDelete] = useState(null);
-  const [blockDialogOpen, setBlockDialogOpen] = useState(false);
-  const [unblockDialogOpen, setUnblockDialogOpen] = useState(false);
-  const [contactsMenuAnchorEl, setContactsMenuAnchorEl] = useState(null);
-  const [imagePreviewDialogOpen, setImagePreviewDialogOpen] = useState(false);
-  const [previewImageUrl, setPreviewImageUrl] = useState("");
-  const [currentTab, setCurrentTab] = useState(0);
-  const [showChatbot, setShowChatbot] = useState(false);
-  const [mobileView, setMobileView] = useState(false);
-  const [showContactList, setShowContactList] = useState(true);
-  const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
-
-  // Filter contacts by search query and tab
-  const filteredContacts = contacts.filter(contact => {
-    // First filter by search query
-    const matchesSearch = contact.name.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Then filter by tab
-    if (currentTab === 0) return matchesSearch; // All contacts
-    if (currentTab === 1) return matchesSearch && contact.type === "customer" && !contact.isBlocked; // Only customers
-    if (currentTab === 2) return matchesSearch && contact.type === "rider"; // Only riders
-    if (currentTab === 3) return matchesSearch && contact.type === "customer" && contact.isBlocked; // Blocked
-    
-    return matchesSearch;
-  });
-
-  // Handle window resize for responsive design
-  useEffect(() => {
-    const handleResize = () => {
-      setMobileView(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
-        setShowContactList(true);
-      }
-    };
-    
-    handleResize(); // Initial check
-    window.addEventListener('resize', handleResize);
-    
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages]);
-
-  // Load messages when selected contact changes
-  useEffect(() => {
-    if (selectedContact) {
-      // For chatbot, use default messages
-      if (selectedContact.id === "chatbot") {
-        setMessages(mockMessages.chatbot || []);
-      } else {
-        // For regular contacts, use their messages or empty array
-        setMessages(mockMessages[selectedContact.id] || []);
-      }
+// Main Chat component for Riders
+const RiderChatModule = () => {
+    const [contacts, setContacts] = useState(mockContacts);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedContact, setSelectedContact] = useState(null);
+    const [messages, setMessages] = useState([]);
+    const [newMessage, setNewMessage] = useState("");
+    const [imagePreview, setImagePreview] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
+    const [imageCaption, setImageCaption] = useState("");
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [messageToDelete, setMessageToDelete] = useState(null);
+    const [contactsMenuAnchorEl, setContactsMenuAnchorEl] = useState(null);
+    const [imagePreviewDialogOpen, setImagePreviewDialogOpen] = useState(false);
+    const [previewImageUrl, setPreviewImageUrl] = useState("");
+    const [currentTab, setCurrentTab] = useState(0);
+    const [showChatbot, setShowChatbot] = useState(false);
+    const [mobileView, setMobileView] = useState(false);
+    const [showContactList, setShowContactList] = useState(true);
+    const messagesEndRef = useRef(null);
+    const fileInputRef = useRef(null);
+  
+    const filteredContacts = contacts.filter(contact => {
+      return contact.name.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+  
+    useEffect(() => {
+      const handleResize = () => {
+        setMobileView(window.innerWidth < 768);
+        if (window.innerWidth >= 768) {
+          setShowContactList(true);
+        }
+      };
       
-      // In mobile view, hide the contact list when a contact is selected
-      if (mobileView) {
-        setShowContactList(false);
-      }
+      handleResize();
+      window.addEventListener('resize', handleResize);
       
-      // Mark unread messages as read
-      if (selectedContact.unread > 0) {
-        const updatedContacts = contacts.map(contact => 
-          contact.id === selectedContact.id ? { ...contact, unread: 0 } : contact
-        );
-        setContacts(updatedContacts);
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+  
+    useEffect(() => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
       }
-    }
-  }, [selectedContact]);
+    }, [messages]);
+  
+    useEffect(() => {
+      if (selectedContact) {
+        if (selectedContact.id === "chatbot") {
+          setMessages(mockMessages.chatbot || []);
+        } else {
+          setMessages(mockMessages[selectedContact.id] || []);
+        }
+        
+        if (mobileView) {
+          setShowContactList(false);
+        }
+        
+        if (selectedContact.unread > 0) {
+          const updatedContacts = contacts.map(contact => 
+            contact.id === selectedContact.id ? { ...contact, unread: 0 } : contact
+          );
+          setContacts(updatedContacts);
+        }
+      }
+    }, [selectedContact]);
 
   const handleMessageSubmit = (e) => {
     e.preventDefault();
     
-    if ((!newMessage.trim() && !imageFile) || (selectedContact && selectedContact.isBlocked)) {
+    if (!newMessage.trim() && !imageFile) {
       return;
     }
     
@@ -724,16 +638,14 @@ const ChatModule = () => {
   };
 
   const simulateReceivedMessage = () => {
-    // Don't simulate responses for blocked users
-    if (selectedContact.isBlocked) return;
-    
     // Simulate typing and response
     setTimeout(() => {
       const responses = [
-        "Thanks for your message!",
-        "I'll look into that for you.",
-        "Got it, I'll update you shortly.",
-        "Is there anything else you need help with?"
+        "Received. Will update the customer.",
+        "Thanks for the update!",
+        "Please proceed to next delivery.",
+        "Customer has been notified.",
+        "Please confirm when delivered."
       ];
       
       const randomResponse = responses[Math.floor(Math.random() * responses.length)];
@@ -794,48 +706,6 @@ const ChatModule = () => {
     showToast("SUCCESS", "Message deleted successfully");
   };
 
-  const handleBlockUser = () => {
-    setBlockDialogOpen(true);
-  };
-
-  const confirmBlockUser = () => {
-    // Block the user
-    const updatedContacts = contacts.map(contact => 
-      contact.id === selectedContact.id 
-        ? { ...contact, isBlocked: true } 
-        : contact
-    );
-    setContacts(updatedContacts);
-    setSelectedContact({...selectedContact, isBlocked: true});
-    
-    // Close dialog
-    setBlockDialogOpen(false);
-    
-    // Show toast notification
-    showToast("SUCCESS", `${selectedContact.name} has been blocked`);
-  };
-
-  const handleUnblockUser = () => {
-    setUnblockDialogOpen(true);
-  };
-
-  const confirmUnblockUser = () => {
-    // Unblock the user
-    const updatedContacts = contacts.map(contact => 
-      contact.id === selectedContact.id 
-        ? { ...contact, isBlocked: false } 
-        : contact
-    );
-    setContacts(updatedContacts);
-    setSelectedContact({...selectedContact, isBlocked: false});
-    
-    // Close dialog
-    setUnblockDialogOpen(false);
-    
-    // Show toast notification
-    showToast("SUCCESS", `${selectedContact.name} has been unblocked`);
-  };
-
   const handleContactsMenuOpen = (event) => {
     setContactsMenuAnchorEl(event.currentTarget);
   };
@@ -864,15 +734,11 @@ const ChatModule = () => {
     setImagePreviewDialogOpen(true);
   };
 
-  const handleTabChange = (event, newValue) => {
-    setCurrentTab(newValue);
-  };
-
   const handleNewChat = () => {
     setShowChatbot(true);
     const chatbotContact = {
       id: "chatbot",
-      name: "Coffee House Assistant",
+      name: "Rider Assistant",
       avatar: null,
       lastMessage: "How can I help you today?",
       timestamp: "Just now",
@@ -903,13 +769,25 @@ const ChatModule = () => {
       .toUpperCase();
   };
 
+  // Get appropriate icon based on contact type
+  const getContactIcon = (type) => {
+    switch(type) {
+      case "sales":
+        return <PersonIcon />;
+      case "chatbot":
+        return <SmartToyIcon />;
+      default:
+        return <PersonIcon />;
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col">
         {/* Header */}
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, py: 3, backgroundColor: "#603F26", color: "white" }}>
           <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-            Messages
+            Rider Messages
           </Typography>
         </Box>
 
@@ -931,8 +809,8 @@ const ChatModule = () => {
                 borderRadius: 0,
                 display: "flex",
                 flexDirection: "column",
-                position: { xs: "absolute", md: "relative" },
-                zIndex: { xs: 10, md: 1 },
+                position: { xs: mobileView ? "absolute" : "relative", md: "relative" },
+                zIndex: { xs: mobileView ? 10 : 1, md: 1 },
                 top: 0,
                 left: 0,
                 backgroundColor: "white"
@@ -966,31 +844,9 @@ const ChatModule = () => {
                 >
                   <MenuItem onClick={handleNewChat}>
                     <SmartToyIcon sx={{ mr: 1 }} />
-                    New Chat with Bot
+                    New Chat with Assistant
                   </MenuItem>
                 </Menu>
-              </Box>
-
-              {/* Tabs for filtering contacts */}
-              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <Tabs 
-                  value={currentTab} 
-                  onChange={handleTabChange} 
-                  variant="scrollable"
-                  scrollButtons="auto"
-                  sx={{ 
-                    '& .MuiTab-root': { 
-                      minWidth: 'auto', 
-                      py: 1,
-                      px: { xs: 1, sm: 2 }
-                    } 
-                  }}
-                >
-                  <Tab label="All" />
-                  <Tab label="Customers" />
-                  <Tab label="Riders" />
-                  <Tab label="Blocked" />
-                </Tabs>
               </Box>
 
               {/* Contact list */}
@@ -1011,8 +867,7 @@ const ChatModule = () => {
                       selected={selectedContact && selectedContact.id === contact.id}
                       onClick={() => setSelectedContact(contact)}
                       sx={{
-                        backgroundColor: selectedContact && selectedContact.id === contact.id ? "#f5f5f5" : "inherit",
-                        opacity: contact.isBlocked ? 0.7 : 1
+                        backgroundColor: selectedContact && selectedContact.id === contact.id ? "#f5f5f5" : "inherit"
                       }}
                     >
                       <ListItemAvatar>
@@ -1027,20 +882,13 @@ const ChatModule = () => {
                             }
                           }}
                         >
-                          <Avatar sx={{ bgcolor: contact.type === "chatbot" ? "#603F26" : "#8B5E3C" }}>
-                            {contact.type === "chatbot" ? <SmartToyIcon /> : getInitials(contact.name)}
+                          <Avatar sx={{ bgcolor: "#603F26" }}>
+                            {getContactIcon(contact.type)}
                           </Avatar>
                         </Badge>
                       </ListItemAvatar>
                       <ListItemText
-                        primary={
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            {contact.name}
-                            {contact.isBlocked && (
-                              <BlockIcon sx={{ ml: 1, fontSize: 16, color: 'error.main' }} />
-                            )}
-                          </Box>
-                        }
+                        primary={contact.name}
                         secondary={contact.lastMessage}
                         primaryTypographyProps={{
                           fontWeight: contact.unread > 0 ? "bold" : "normal"
@@ -1074,258 +922,213 @@ const ChatModule = () => {
             </Paper>
           )}
 
-          {/* Chat Area */}
-          <Box 
-            sx={{ 
-              flex: 1, 
-              display: "flex", 
-              flexDirection: "column", 
-              height: "100%", 
-              overflow: "hidden",
-              bgcolor: "background.default"
-            }}
-          >
-            {selectedContact ? (
-              <>
-                {/* Chat header */}
-                <Box 
-                  sx={{ 
-                    p: 2, 
-                    backgroundColor: "#fafafa", 
-                    borderBottom: "1px solid #e0e0e0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {mobileView && (
-                      <IconButton onClick={toggleContactList} sx={{ mr: 1 }}>
-                        <ArrowBackIcon />
-                      </IconButton>
-                    )}
-                    <Avatar 
-                      sx={{ 
-                        bgcolor: selectedContact.type === "chatbot" ? "#603F26" : "#8B5E3C",
-                        mr: 1 
-                      }}
-                    >
-                      {selectedContact.type === "chatbot" ? (
-                        <SmartToyIcon />
-                      ) : (
-                        getInitials(selectedContact.name)
+          {/* Chat Area - Only shown when a contact is selected in mobile view */}
+          {(!showContactList || !mobileView) && (
+            <Box 
+              sx={{ 
+                flex: 1, 
+                display: "flex", 
+                flexDirection: "column", 
+                height: "100%", 
+                overflow: "hidden",
+                bgcolor: "background.default"
+              }}
+            >
+              {selectedContact ? (
+                <>
+                  {/* Chat header */}
+                  <Box 
+                    sx={{ 
+                      p: 2, 
+                      backgroundColor: "#fafafa", 
+                      borderBottom: "1px solid #e0e0e0",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between"
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      {mobileView && (
+                        <IconButton onClick={toggleContactList} sx={{ mr: 1 }}>
+                          <ArrowBackIcon />
+                        </IconButton>
                       )}
-                    </Avatar>
-                    <Box>
-                      <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
-                          {selectedContact.name}
-                        </Typography>
-                        {selectedContact.isOnline && (
-                          <Chip 
-                            label="Online" 
-                            size="small" 
-                            sx={{ ml: 1, height: 20, bgcolor: "#44b700", color: "white" }} 
-                          />
-                        )}
-                        {selectedContact.type === "rider" && (
-                          <Chip 
-                            label="Rider" 
-                            size="small" 
-                            sx={{ ml: 1, height: 20 }} 
-                            color="secondary"
-                          />
-                        )}
-                      </Box>
-                      {selectedContact.isBlocked ? (
-                        <Typography variant="caption" color="error">
-                          Blocked
-                        </Typography>
-                      ) : (
+                      <Avatar 
+                        sx={{ 
+                          bgcolor: "#603F26",
+                          mr: 1 
+                        }}
+                      >
+                        {getContactIcon(selectedContact.type)}
+                      </Avatar>
+                      <Box>
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                            {selectedContact.name}
+                          </Typography>
+                          {selectedContact.isOnline && (
+                            <Chip 
+                              label="Online" 
+                              size="small" 
+                              sx={{ ml: 1, height: 20, bgcolor: "#44b700", color: "white" }} 
+                            />
+                          )}
+                          {selectedContact.type === "chatbot" && (
+                            <Chip 
+                              label="Assistant" 
+                              size="small" 
+                              sx={{ ml: 1, height: 20 }} 
+                              color="primary"
+                            />
+                          )}
+                        </Box>
                         <Typography variant="caption" color="textSecondary">
                           {selectedContact.isOnline ? "Active now" : "Last seen at " + selectedContact.timestamp}
                         </Typography>
-                      )}
+                      </Box>
                     </Box>
                   </Box>
-                  {selectedContact.type === "customer" && (
-                    <Box>
-                      {selectedContact.isBlocked ? (
-                        <Tooltip title="Unblock User">
-                          <IconButton onClick={handleUnblockUser} color="primary">
-                            <PersonAddDisabledIcon />
-                          </IconButton>
-                        </Tooltip>
-                      ) : (
-                        <Tooltip title="Block User">
-                          <IconButton onClick={handleBlockUser} color="error">
-                            <BlockIcon />
-                          </IconButton>
-                        </Tooltip>
-                      )}
-                    </Box>
-                  )}
-                </Box>
 
-                {/* Messages */}
-                <Box 
-                  sx={{ 
-                    flex: 1, 
-                    overflowY: "auto", 
-                    p: 2, 
-                    backgroundColor: "#f5f5f5" 
-                  }}
-                >
-                  {messages.map((message) => (
-                    <Message 
-                      key={message.id} 
-                      message={message} 
-                      onDelete={handleDeleteMessage}
-                      onImageClick={openImagePreviewDialog}
-                      isUserBlocked={selectedContact.isBlocked}
-                    />
-                  ))}
-                  <div ref={messagesEndRef} />
-                </Box>
+                  {/* Messages */}
+                  <Box 
+                    sx={{ 
+                      flex: 1, 
+                      overflowY: "auto", 
+                      p: 2, 
+                      backgroundColor: "#f5f5f5" 
+                    }}
+                  >
+                    {messages.map((message) => (
+                      <Message 
+                        key={message.id} 
+                        message={message} 
+                        onDelete={handleDeleteMessage}
+                        onImageClick={openImagePreviewDialog}
+                      />
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </Box>
 
-                {/* Message input */}
-                <Box 
-                  component="form" 
-                  onSubmit={handleMessageSubmit}
-                  sx={{ 
-                    p: 2, 
-                    backgroundColor: "#fafafa", 
-                    borderTop: "1px solid #e0e0e0",
-                    display: "flex",
-                    flexDirection: "column"
-                  }}
-                >
-                  {/* Image preview */}
-                  {imagePreview && (
-                    <Box sx={{ mb: 2, p: 2, backgroundColor: "#eaeaea", borderRadius: 1 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                        <Typography variant="subtitle2">Image Preview</Typography>
-                        <IconButton size="small" onClick={cancelImageUpload}>
-                          <CloseIcon fontSize="small" />
-                        </IconButton>
-                      </Box>
-                      <Box sx={{ display: "flex", mb: 2 }}>
-                        <img 
-                          src={imagePreview} 
-                          alt="Preview" 
-                          style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "4px" }} 
+                  {/* Message input */}
+                  <Box 
+                    component="form" 
+                    onSubmit={handleMessageSubmit}
+                    sx={{ 
+                      p: 2, 
+                      backgroundColor: "#fafafa", 
+                      borderTop: "1px solid #e0e0e0",
+                      display: "flex",
+                      flexDirection: "column"
+                    }}
+                  >
+                    {/* Image preview */}
+                    {imagePreview && (
+                      <Box sx={{ mb: 2, p: 2, backgroundColor: "#eaeaea", borderRadius: 1 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                          <Typography variant="subtitle2">Image Preview</Typography>
+                          <IconButton size="small" onClick={cancelImageUpload}>
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                        <Box sx={{ display: "flex", mb: 2 }}>
+                          <img 
+                            src={imagePreview} 
+                            alt="Preview" 
+                            style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "4px" }} 
+                          />
+                        </Box>
+                        <TextField
+                          fullWidth
+                          placeholder="Add a caption..."
+                          variant="outlined"
+                          size="small"
+                          value={imageCaption}
+                          onChange={(e) => setImageCaption(e.target.value)}
                         />
                       </Box>
+                    )}
+
+                    {/* Input field and buttons */}
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                      <input
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="image-upload"
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileUpload}
+                      />
+                      <label htmlFor="image-upload">
+                        <IconButton component="span">
+                          <ImageIcon />
+                        </IconButton>
+                      </label>
                       <TextField
                         fullWidth
-                        placeholder="Add a caption..."
+                        placeholder="Type a message..."
                         variant="outlined"
                         size="small"
-                        value={imageCaption}
-                        onChange={(e) => setImageCaption(e.target.value)}
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        sx={{ mx: 1 }}
                       />
-                    </Box>
-                  )}
-
-                  {/* Input field and buttons */}
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <input
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      id="image-upload"
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleFileUpload}
-                      disabled={selectedContact && selectedContact.isBlocked}
-                    />
-                    <label htmlFor="image-upload">
                       <IconButton 
-                        component="span" 
-                        disabled={selectedContact && selectedContact.isBlocked}
+                        type="submit" 
+                        color="primary"
+                        disabled={!newMessage.trim() && !imageFile}
                       >
-                        <ImageIcon />
+                        <SendIcon />
                       </IconButton>
-                    </label>
-                    <TextField
-                      fullWidth
-                      placeholder={selectedContact && selectedContact.isBlocked 
-                        ? "You cannot send messages to this contact" 
-                        : "Type a message..."
-                      }
-                      variant="outlined"
-                      size="small"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      disabled={selectedContact && selectedContact.isBlocked}
-                      sx={{ mx: 1 }}
-                    />
-                    <IconButton 
-                      type="submit" 
-                      color="primary"
-                      disabled={((!newMessage.trim() && !imageFile) || (selectedContact && selectedContact.isBlocked))}
-                    >
-                      <SendIcon />
-                    </IconButton>
+                    </Box>
                   </Box>
-                </Box>
-              </>
-            ) : (
-              <Box 
-                sx={{ 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  alignItems: "center", 
-                  justifyContent: "center", 
-                  height: "100%" 
-                }}
-              >
-                <ChatIcon sx={{ fontSize: 60, color: "text.secondary", mb: 2 }} />
-                <Typography variant="h6" color="textSecondary">
-                  Select a contact to start chatting
-                </Typography>
-                <Button 
-                  variant="contained" 
-                  color="primary" 
-                  startIcon={<SmartToyIcon />}
-                  onClick={handleNewChat}
-                  sx={{ mt: 2 }}
-                >
-                  Chat with Bot
-                </Button>
-              </Box>
-            )}
-          </Box>
+                </>
+              ) : (
+                /* Empty state when no contact is selected (only shown in desktop view) */
+                !mobileView && (
+                  <Box 
+                    sx={{ 
+                      display: "flex", 
+                      flexDirection: "column", 
+                      alignItems: "center", 
+                      justifyContent: "center", 
+                      height: "100%" 
+                    }}
+                  >
+                    <ChatIcon sx={{ fontSize: 60, color: "text.secondary", mb: 2 }} />
+                    <Typography variant="h6" color="textSecondary">
+                      Select a contact to start chatting
+                    </Typography>
+                    <Button 
+                      variant="contained" 
+                      color="primary" 
+                      startIcon={<SmartToyIcon />}
+                      onClick={handleNewChat}
+                      sx={{ mt: 2 }}
+                    >
+                      Chat with Assistant
+                    </Button>
+                  </Box>
+                )
+              )}
+            </Box>
+          )}
         </Box>
-      </div>
 
-      {/* Dialogs */}
-      <DeleteMessageDialog 
-        open={deleteDialogOpen}
-        handleClose={() => setDeleteDialogOpen(false)}
-        handleConfirm={confirmDeleteMessage}
-      />
-      
-      <BlockUserDialog 
-        open={blockDialogOpen}
-        handleClose={() => setBlockDialogOpen(false)}
-        handleConfirm={confirmBlockUser}
-        isBlocking={true}
-      />
-      
-      <BlockUserDialog 
-        open={unblockDialogOpen}
-        handleClose={() => setUnblockDialogOpen(false)}
-        handleConfirm={confirmUnblockUser}
-        isBlocking={false}
-      />
-      
-      <ImagePreviewDialog 
-        open={imagePreviewDialogOpen}
-        handleClose={() => setImagePreviewDialogOpen(false)}
-        imageUrl={previewImageUrl}
-      />
+        {/* Dialogs */}
+        <DeleteMessageDialog 
+          open={deleteDialogOpen}
+          handleClose={() => setDeleteDialogOpen(false)}
+          handleConfirm={confirmDeleteMessage}
+        />
+        
+        <ImagePreviewDialog 
+          open={imagePreviewDialogOpen}
+          handleClose={() => setImagePreviewDialogOpen(false)}
+          imageUrl={previewImageUrl}
+        />
+      </div>
     </ThemeProvider>
   );
 };
 
-export default ChatModule;
+export default RiderChatModule; 

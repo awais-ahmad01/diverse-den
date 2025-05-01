@@ -1,5 +1,10 @@
 // src/pages/LoyaltyPerks.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { customerLoyaltyPoints } from '../../../store/actions/loyaltyPerks';
+import { Loader } from '../../../tools';
+
 import {
   Tabs,
   Tab,
@@ -62,6 +67,7 @@ const DUMMY_ACHIEVEMENTS = [
     target: 1
   },
   { 
+
     id: 2, 
     title: "Loyal Customer", 
     description: "Make 5 purchases", 
@@ -90,6 +96,7 @@ const DUMMY_ACHIEVEMENTS = [
   },
 ];
 
+
 const DUMMY_REWARDS = [
   { id: 1, title: "10% Discount Coupon", description: "Get 10% off your next purchase", points: 200, type: "discount" },
   { id: 2, title: "15% Discount Coupon", description: "Get 15% off your next purchase", points: 350, type: "discount" },
@@ -99,6 +106,21 @@ const DUMMY_REWARDS = [
 ];
 
 const LoyaltyPerks = () => {
+
+
+  const {user} = useSelector((state) => state.auth);
+  const { customerLoyaltyData, isloading } = useSelector((state) => state.loyaltyPerks);
+  console.log("customerLoyaltyData:", customerLoyaltyData);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const userId = user?._id;
+    dispatch(customerLoyaltyPoints(userId));
+  }, [dispatch]);
+
+
+
+
   const [tabValue, setTabValue] = useState(0);
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
   const [selectedReward, setSelectedReward] = useState(null);
@@ -125,10 +147,15 @@ const LoyaltyPerks = () => {
   };
 
   // Calculate completed missions
-  const completedMissions = DUMMY_DAILY_MISSIONS.filter(mission => mission.completed).length;
+  const completedMissions = customerLoyaltyData?.dailyMissions?.filter(mission => mission.completed).length;
   
   // Calculate completed achievements
-  const completedAchievements = DUMMY_ACHIEVEMENTS.filter(achievement => achievement.completed).length;
+  const completedAchievements = customerLoyaltyData?.achievementMilestones?.filter(achievement => achievement.completed).length;
+
+ if (isloading) {
+    return <Loader />;
+  }
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -139,8 +166,8 @@ const LoyaltyPerks = () => {
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold">Your Points Balance</h2>
-            <div className="text-4xl font-bold my-3">{DUMMY_USER.points} points</div>
-            <p className="text-sm opacity-80">Member since {new Date(DUMMY_USER.joinDate).toLocaleDateString()}</p>
+            <div className="text-4xl font-bold my-3">{customerLoyaltyData?.totalPoints} points</div>
+            <p className="text-sm opacity-80">Member since {new Date(customerLoyaltyData?.createdAt).toLocaleDateString()}</p>
           </div>
           <div className="mt-4 md:mt-0">
             <Button 
@@ -185,14 +212,14 @@ const LoyaltyPerks = () => {
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-semibold">Daily Missions</h3>
                     <Chip 
-                      label={`${completedMissions}/${DUMMY_DAILY_MISSIONS.length} Completed`} 
+                      label={`${completedMissions}/${customerLoyaltyData?.dailyMissions?.length} Completed`} 
                       color="primary" 
                       variant="outlined" 
                     />
                   </div>
                   <LinearProgress 
                     variant="determinate" 
-                    value={(completedMissions / DUMMY_DAILY_MISSIONS.length) * 100} 
+                    value={(completedMissions / customerLoyaltyData?.dailyMissions?.length) * 100} 
                     className="h-2 rounded-full mb-4"
                   />
                   <p className="text-gray-600">Complete today's missions to earn extra points!</p>
@@ -208,14 +235,14 @@ const LoyaltyPerks = () => {
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-semibold">Achievements</h3>
                     <Chip 
-                      label={`${completedAchievements}/${DUMMY_ACHIEVEMENTS.length} Completed`} 
+                      label={`${completedAchievements}/${customerLoyaltyData?.achievementMilestones?.length} Completed`} 
                       color="primary" 
                       variant="outlined" 
                     />
                   </div>
                   <LinearProgress 
                     variant="determinate" 
-                    value={(completedAchievements / DUMMY_ACHIEVEMENTS.length) * 100} 
+                    value={(completedAchievements / customerLoyaltyData?.achievementMilestones?.length) * 100} 
                     className="h-2 rounded-full mb-4"
                   />
                   <p className="text-gray-600">Unlock achievements through your shopping journey.</p>
@@ -229,14 +256,14 @@ const LoyaltyPerks = () => {
             {/* Recent Point Activity */}
             <h3 className="text-xl font-semibold mb-4">Recent Point Activity</h3>
             <div className="bg-gray-50 rounded-lg p-4">
-              {DUMMY_HISTORY.slice(0, 3).map((item) => (
-                <div key={item.id} className="flex justify-between items-center py-3 border-b last:border-b-0">
+              {customerLoyaltyData?.pointHistory?.slice(0, 3).map((item) => (
+                <div key={item?._id} className="flex justify-between items-center py-3 border-b last:border-b-0">
                   <div>
-                    <div className="font-medium">{item.description}</div>
-                    <div className="text-sm text-gray-500">{new Date(item.date).toLocaleDateString()}</div>
+                    <div className="font-medium">{item?.description}</div>
+                    <div className="text-sm text-gray-500">{new Date(item?.date).toLocaleDateString()}</div>
                   </div>
                   <div className={`font-bold ${item.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
-                    {item.type === 'earned' ? '+' : ''}{item.points} pts
+                    {item?.type === 'earned' ? '+' : ''}{item?.points} pts
                   </div>
                 </div>
               ))}
@@ -257,12 +284,12 @@ const LoyaltyPerks = () => {
                 <div className="w-2/4">Description</div>
                 <div className="w-1/4 text-right">Points</div>
               </div>
-              {DUMMY_HISTORY.map((item) => (
-                <div key={item.id} className="p-4 border-b last:border-b-0 flex justify-between items-center">
-                  <div className="w-1/4 text-gray-600">{new Date(item.date).toLocaleDateString()}</div>
-                  <div className="w-2/4">{item.description}</div>
-                  <div className={`w-1/4 text-right font-bold ${item.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
-                    {item.type === 'earned' ? '+' : ''}{item.points} pts
+              {customerLoyaltyData?.pointHistory?.map((item) => (
+                <div key={item?._id} className="p-4 border-b last:border-b-0 flex justify-between items-center">
+                  <div className="w-1/4 text-gray-600">{new Date(item?.date).toLocaleDateString()}</div>
+                  <div className="w-2/4">{item?.description}</div>
+                  <div className={`w-1/4 text-right font-bold ${item?.type === 'earned' ? 'text-green-600' : 'text-red-600'}`}>
+                    {item.type === 'earned' ? '+' : ''}{item?.points} pts
                   </div>
                 </div>
               ))}
@@ -282,35 +309,27 @@ const LoyaltyPerks = () => {
                 <span className="ml-2 text-sm font-normal text-gray-500">Resets at midnight</span>
               </h3>
               <div className="space-y-4">
-                {DUMMY_DAILY_MISSIONS.map((mission) => (
+                {customerLoyaltyData?.dailyMissions?.map((mission) => (
                   <Paper key={mission.id} className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <div className={`p-2 rounded-full mr-4 ${mission.completed ? 'bg-green-100' : 'bg-gray-100'}`}>
-                          {mission.completed ? (
-                            <CheckCircle className="text-green-600" />
+                        <div className={`p-2 rounded-full mr-4 ${mission?.completed ? 'bg-green-100' : 'bg-gray-100'}`}>
+                          {mission?.completed ? (
+                 
+                 <CheckCircle className="text-green-600" />
                           ) : (
                             <DonutLarge className="text-gray-400" />
                           )}
                         </div>
                         <div>
-                          <h4 className="font-medium">{mission.title}</h4>
-                          <p className="text-sm text-gray-600">{mission.description}</p>
+                          <h4 className="font-medium">{mission?.title}</h4>
+                          <p className="text-sm text-gray-600">{mission?.description}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-purple-600">+{mission.points} pts</div>
-                        {mission.completed ? (
+                        <div className="font-bold text-purple-600">+{mission?.points} pts</div>
+                        {mission.completed && (
                           <span className="text-sm text-green-600">Completed</span>
-                        ) : (
-                          <Button 
-                            size="small" 
-                            variant="outlined" 
-                            color="primary"
-                            disabled={mission.completed}
-                          >
-                            Complete
-                          </Button>
                         )}
                       </div>
                     </div>
@@ -323,25 +342,25 @@ const LoyaltyPerks = () => {
             <div>
               <h3 className="text-xl font-semibold mb-4">Achievements</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {DUMMY_ACHIEVEMENTS.map((achievement) => (
-                  <Paper key={achievement.id} className="p-4">
+                {customerLoyaltyData?.achievementMilestones?.map((achievement) => (
+                  <Paper key={achievement?._id} className="p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium">{achievement.title}</h4>
-                      <div className="font-bold text-purple-600">+{achievement.points} pts</div>
+                      <h4 className="font-medium">{achievement?.title}</h4>
+                      <div className="font-bold text-purple-600">+{achievement?.points} pts</div>
                     </div>
-                    <p className="text-sm text-gray-600 mb-3">{achievement.description}</p>
+                    <p className="text-sm text-gray-600 mb-3">{achievement?.description}</p>
                     
                     <div className="mb-1 flex justify-between text-xs">
-                      <span>{achievement.progress} / {achievement.target}</span>
-                      <span>{Math.round((achievement.progress / achievement.target) * 100)}%</span>
+                      <span>{achievement?.progress} / {achievement?.target}</span>
+                      <span>{Math.round((achievement?.progress / achievement?.target) * 100)}%</span>
                     </div>
                     <LinearProgress 
                       variant="determinate" 
-                      value={(achievement.progress / achievement.target) * 100} 
+                      value={(achievement?.progress / achievement?.target) * 100} 
                       className="h-1 rounded-full"
                     />
                     
-                    {achievement.completed && (
+                    {achievement?.completed && (
                       <div className="mt-3 flex items-center text-green-600 text-sm">
                         <CheckCircle fontSize="small" className="mr-1" />
                         <span>Completed</span>

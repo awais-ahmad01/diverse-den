@@ -132,7 +132,7 @@ const PreventSignin = (props) => {
             }
 
             if(userRole === 'Rider'){
-                return <Navigate to='/riderPanel' state={{from:location}} replace/>
+                return <Navigate to='/riderPanel/riderDashboard' state={{from:location}} replace/>
             }
 
             if(userRole === 'Customer'){

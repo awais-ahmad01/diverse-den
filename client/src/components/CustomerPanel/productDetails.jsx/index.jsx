@@ -161,14 +161,14 @@ const ProductDetails = () => {
     const defaultVariant = customerProduct?.variants[0];
     const initialSize = variantAvailability.hasSize
       ? defaultVariant.size
-      : null;
+      : '';
     const initialColors = getColorsBySelectedSize(initialSize);
     const allUniqueMaterials = getUniqueMaterials();
 
     setSelectedVariant({
       size: initialSize,
-      color: initialColors.length > 0 ? initialColors[0] : null,
-      material: allUniqueMaterials.length > 0 ? allUniqueMaterials[0] : null,
+      color: initialColors.length > 0 ? initialColors[0] : '',
+      material: allUniqueMaterials.length > 0 ? allUniqueMaterials[0] : '',
     });
 
     setViewImage(customerProduct?.imagePath[0]);

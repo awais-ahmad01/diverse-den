@@ -315,95 +315,119 @@ const Header = () => {
               <AccountCircleIcon />
             </Button>
             <Menu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              MenuListProps={{
-                "aria-labelledby": "basic-button",
-              }}
-              PaperProps={{
-                style: {
-                  width: "150px",
-                  backgroundColor: "#603F26",
-                  color: "white",
-                  padding: "5px",
-                },
-              }}
-              disableScrollLock={true}
-            >
-              {!isauthenticated ? (
-                <div>
-                  <MenuItem
-                    onClick={handleClose}
-                    sx={{
-                      "&:hover": {
-                        backgroundColor: "#8e6c4f",
-                      },
-                      fontWeight: "bold",
-                    }}
-                  >
-                    <Link
-                      to="/signin"
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      Signin
-                    </Link>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={handleClose}
-                    sx={{
-                      "&:hover": {
-                        backgroundColor: "#8e6c4f",
-                      },
-                      fontWeight: "bold",
-                    }}
-                  >
-                    <Link
-                      to="/signup"
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      Signup
-                    </Link>
-                  </MenuItem>
-                </div>
-              ) : (
-                <div>
-                  <MenuItem
-                    onClick={handleClose}
-                    sx={{
-                      "&:hover": {
-                        backgroundColor: "#8e6c4f",
-                      },
-                      fontWeight: "bold",
-                    }}
-                  >
-                    <Link
-                      to="/"
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      Profile
-                    </Link>
-                  </MenuItem>
-                  <MenuItem
-                    onClick={handleClose}
-                    sx={{
-                      "&:hover": {
-                        backgroundColor: "#8e6c4f",
-                      },
-                      fontWeight: "bold",
-                    }}
-                  >
-                    <Link
-                      onClick={signOutUser}
-                      style={{ textDecoration: "none", color: "inherit" }}
-                    >
-                      Logout
-                    </Link>
-                  </MenuItem>
-                </div>
-              )}
-            </Menu>
+  id="basic-menu"
+  anchorEl={anchorEl}
+  open={open}
+  onClose={handleClose}
+  MenuListProps={{
+    "aria-labelledby": "basic-button",
+  }}
+  PaperProps={{
+    style: {
+      width: "170px",
+      backgroundColor: "#603F26",
+      color: "white",
+      padding: "5px",
+    },
+  }}
+  transformOrigin={{
+    vertical: 'top',
+    horizontal: 'right',
+  }}
+  anchorOrigin={{
+    vertical: 'bottom',
+    horizontal: 'right',
+  }}
+  disableScrollLock={true}
+>
+  {!isauthenticated ? (
+    <div>
+      <MenuItem
+        onClick={handleClose}
+        sx={{
+          "&:hover": {
+            backgroundColor: "#8e6c4f",
+          },
+          fontWeight: "bold",
+        }}
+      >
+        <Link
+          to="/signin"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          Signin
+        </Link>
+      </MenuItem>
+      <MenuItem
+        onClick={handleClose}
+        sx={{
+          "&:hover": {
+            backgroundColor: "#8e6c4f",
+          },
+          fontWeight: "bold",
+        }}
+      >
+        <Link
+          to="/signup"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          Signup
+        </Link>
+      </MenuItem>
+    </div>
+  ) : (
+    <div>
+      <MenuItem
+        onClick={handleClose}
+        sx={{
+          "&:hover": {
+            backgroundColor: "#8e6c4f",
+          },
+          fontWeight: "bold",
+        }}
+      >
+        <Link
+          to="/"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          Profile
+        </Link>
+      </MenuItem>
+      <MenuItem
+        onClick={handleClose}
+        sx={{
+          "&:hover": {
+            backgroundColor: "#8e6c4f",
+          },
+          fontWeight: "bold",
+        }}
+      >
+        <Link
+          to="loyalty"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          Loyalty Dashboard
+        </Link>
+      </MenuItem>
+      <MenuItem
+        onClick={handleClose}
+        sx={{
+          "&:hover": {
+            backgroundColor: "#8e6c4f",
+          },
+          fontWeight: "bold",
+        }}
+      >
+        <Link
+          onClick={signOutUser}
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          Logout
+        </Link>
+      </MenuItem>
+    </div>
+  )}
+</Menu>
           </div>
 
           <div>
