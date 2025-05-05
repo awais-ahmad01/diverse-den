@@ -17,7 +17,6 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
-  
   Paper,
   Typography,
   Divider,
@@ -26,7 +25,7 @@ import { useSelector } from "react-redux";
 import { getCartItems } from "../../../store/actions/products";
 import { showToast } from "../../../tools";
 import { placeOrder } from "../../../store/actions/products";
-import { emptyCart } from "../../../store/actions/cart";
+import { emptyCart, getDiscountData } from "../../../store/actions/cart";
 
 const checkoutSchema = yup.object().shape({
   firstName: yup
@@ -65,21 +64,28 @@ const checkoutSchema = yup.object().shape({
 const Checkout = () => {
   const { user, isauthenticated } = useSelector((state) => state.auth);
   const { cartItems, isloading } = useSelector((state) => state.products);
+  const { discountedData } = useSelector((state) => state.cart);
+  console.log("discountedData:", discountedData);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [error, setError] = useState(null);
-  const [orderSuccess, setOrderSuccess] = useState(false);
-  const [isPayment, setIsPayment] = useState(false);
 
-  console.log("items:", cartItems);
+  const [isPayment, setIsPayment] = useState(false);
 
   useEffect(() => {
     if (isauthenticated) {
       const userId = user._id;
+      // Fetch cart items
       dispatch(getCartItems(userId))
         .unwrap()
         .catch((error) => {
           showToast("ERROR", "Failed to fetch cart items");
+        });
+      
+      // Fetch discount data if available
+      dispatch(getDiscountData(userId))
+        .unwrap()
+        .catch((error) => {
+          console.log("No discount data available or error fetching discount data");
         });
     }
   }, []);
@@ -113,6 +119,20 @@ const Checkout = () => {
     );
   };
 
+  // Use the total from discount data if available, otherwise calculate it
+  const calculateTotal = () => {
+    // If discount data exists, use the pre-calculated orderTotal
+    if (discountedData && discountedData.orderTotal) {
+      console.log("discountedData.orderTotal: ", discountedData.orderTotal);
+      return discountedData.orderTotal;
+    }
+    
+    // Otherwise calculate total normally
+    const subtotal = calculateSubtotal();
+    const shippingCost = 200;
+    return subtotal + shippingCost;
+  };
+
   const makePayment = (token) => {
     const tokenId = localStorage.getItem("token");
 
@@ -123,11 +143,11 @@ const Checkout = () => {
 
     const body = {
       token,
-      totalAmount: calculateSubtotal(),
+      totalAmount: calculateTotal(),
       userId: user._id,
+      // Include discountData if available
+      ...(discountedData && { discountData: discountedData })
     };
-
-    console.log("body: ", body);
 
     return axios
       .post("http://localhost:3000/orderPayment", body, {
@@ -137,8 +157,7 @@ const Checkout = () => {
         },
       })
       .then((response) => {
-        console.log(response.data);
-        showToast("SUCCESS", "Payment Successfull!!");
+        showToast("SUCCESS", "Payment Successful!!");
         setIsPayment(true);
       })
       .catch((error) => {
@@ -148,17 +167,23 @@ const Checkout = () => {
   };
 
   const onSubmit = (data) => {
-    const body = {
+    // Create order data object
+    const orderData = {
       data,
       cartItems,
-      totalAmount: calculateSubtotal(),
-      shippingCost: 200,
+      totalAmount: calculateTotal(),
+      shippingCost: discountedData?.shippingCost || 200,
       orderType: "Online",
     };
 
-    console.log("orderrrrrr:", body);
+    // If discount data exists, include it in the order
+    if (discountedData) {
+      orderData.discountData = discountedData;
+    }
 
-    dispatch(placeOrder(body))
+    console.log('order data:', orderData)
+
+    dispatch(placeOrder(orderData))
       .unwrap()
       .then(() => {
         showToast("SUCCESS", "Order Placed Successfully!");
@@ -179,9 +204,7 @@ const Checkout = () => {
   };
 
   if (isloading) {
-    return (
-      <Loader/>
-    );
+    return <Loader />;
   }
 
   return (
@@ -376,8 +399,6 @@ const Checkout = () => {
                     makePayment(token);
                   }}
                   name="payment"
-                  // amount={plan.price * 100}
-                  // currency="PKR"
                   disabled={!isValid}
                 >
                   <button
@@ -408,7 +429,16 @@ const Checkout = () => {
 
           <Paper
             elevation={3}
-            className="p-6 bg-white rounded-lg shadow-md h-fit"
+            className="p-6 bg-white rounded-lg shadow-md h-fit w-full max-w-md mx-auto"
+            sx={{
+              minWidth: '300px',
+              width: '100%',
+              maxWidth: '420px', 
+              '@media (min-width: 768px)': {
+                width: 'auto', 
+                minWidth: '350px' 
+              }
+            }}
           >
             <Typography variant="h5" className="font-bold pb-6 text-gray-900">
               Order Summary
@@ -447,17 +477,10 @@ const Checkout = () => {
                             {item?.selectedVariant?.size &&
                               `Size: ${item?.selectedVariant?.size} `}
                           </div>
-
                           <div>
                             {item?.selectedVariant?.material &&
                               `Material: ${item?.selectedVariant?.material}`}
                           </div>
-                          {/* {item?.selectedVariant.color &&
-                            `Color: ${item?.selectedVariant?.color} | `}
-                          {item?.selectedVariant?.size &&
-                            `Size: ${item?.selectedVariant?.size} | `}
-                          {item?.selectedVariant?.material &&
-                            `Material: ${item?.selectedVariant?.material}`} */}
                         </Typography>
                       </div>
                     </div>
@@ -472,12 +495,51 @@ const Checkout = () => {
                   </div>
                 ))}
                 <Divider />
+                
+                {/* Order Calculation Details */}
+                <div className="space-y-2">
+                  <div className="flex justify-between">
+                    <Typography variant="body1">Subtotal</Typography>
+                    <Typography variant="body1">
+                      Rs {discountedData?.orderSubtotal?.toFixed(2) || calculateSubtotal().toFixed(2)}
+                    </Typography>
+                  </div>
+                  
+                  <div className="flex justify-between">
+                    <Typography variant="body1">Shipping</Typography>
+                    <Typography variant="body1">
+                      Rs {discountedData?.shippingCost?.toFixed(2) || "200.00"}
+                    </Typography>
+                  </div>
+                  
+                  {/* Display discount if available */}
+                  {discountedData && discountedData.discountAmount > 0 && (
+                    <div className="flex justify-between text-[#603f26] font-medium">
+                      <Typography variant="body1">
+                        Points Discount ({discountedData.pointsRedeemed} points)
+                      </Typography>
+                      <Typography variant="body1">
+                        - Rs {discountedData.discountAmount.toFixed(2)}
+                      </Typography>
+                    </div>
+                  )}
+                </div>
+                
+                <Divider />
+                
                 <div className="flex justify-between font-bold">
                   <Typography variant="h6">Total</Typography>
                   <Typography variant="h6">
-                    Rs {cartItems.length > 0 && calculateSubtotal().toFixed(2)}
+                    Rs {calculateTotal().toFixed(2)}
                   </Typography>
                 </div>
+                
+                {/* Show points discount message if applicable */}
+                {discountedData && discountedData.discountAmount > 0 && (
+                  <div className="text-xs text-[#603f26] font-medium text-right">
+                    You saved Rs {discountedData.discountAmount.toFixed(2)} with your loyalty points!
+                  </div>
+                )}
               </div>
             )}
           </Paper>

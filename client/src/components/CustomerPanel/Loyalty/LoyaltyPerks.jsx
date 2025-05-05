@@ -2,6 +2,8 @@
 import React, { useState, useEffect, use } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
+import { useNavigate } from 'react-router-dom';
+
 import { customerLoyaltyPoints } from '../../../store/actions/loyaltyPerks';
 import { Loader } from '../../../tools';
 
@@ -107,8 +109,11 @@ const DUMMY_REWARDS = [
 
 const LoyaltyPerks = () => {
 
+  
+  const navigate = useNavigate();
 
-  const {user} = useSelector((state) => state.auth);
+  const {user, isauthenticated} = useSelector((state) => state.auth);
+
   const { customerLoyaltyData, isloading } = useSelector((state) => state.loyaltyPerks);
   console.log("customerLoyaltyData:", customerLoyaltyData);
   const dispatch = useDispatch();
@@ -151,6 +156,19 @@ const LoyaltyPerks = () => {
   
   // Calculate completed achievements
   const completedAchievements = customerLoyaltyData?.achievementMilestones?.filter(achievement => achievement.completed).length;
+
+
+  if (!isauthenticated) {
+    navigate("/signin");
+    return;
+  }
+
+
+  if (user?.role !== "Customer") {
+    navigate("/");
+    return ;
+  }
+
 
  if (isloading) {
     return <Loader />;

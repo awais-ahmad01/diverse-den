@@ -43,3 +43,45 @@ export const emptyCart = createAsyncThunk(
     }
 
 )
+
+
+
+export const getDiscountData = createAsyncThunk(
+  "cart/getDiscountData",
+  async (userId, thunkAPI) => {
+    try {
+      console.log("Get Cart discounted Data.....");
+    
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+
+      const response = await axios.get(
+        "http://localhost:3000/customer/viewDiscountSummary",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          params: {
+            userId
+          },
+        }
+      );
+
+      console.log("Sicounted data:", response.data);
+
+      return { data: response.data.discountData };
+    } catch (error) {
+     
+      console.log(error.response.data.msg);
+      throw error;
+    }
+  }
+);

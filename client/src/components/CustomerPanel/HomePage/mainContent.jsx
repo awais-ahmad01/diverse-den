@@ -63,7 +63,7 @@ const Section = ({ title, categorySlug }) => {
       <h1 className="text-center font-bold text-3xl my-10">{title}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
         {products && products.length > 0 &&
-          products.slice(0,4).map((product) => (
+          products.slice(0,8).map((product) => (
           <Link to={`/customer/productDetails/${product._id}`} key={product._id}>
             <div
               className="bg-white shadow-lg rounded-lg overflow-hidden transition-transform transform hover:scale-105 hover:shadow-xl"
