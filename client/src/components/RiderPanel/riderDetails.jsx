@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../../tools";
+import { addRiderDetails } from "../../store/actions/rider";
 
 import {
   TextField,
@@ -22,6 +24,7 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 const RiderDetails = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth);
   const { _id: userId } = userData?.user || { _id: "dummyUserId" };
 
@@ -153,22 +156,22 @@ const RiderDetails = () => {
 
     console.log("Form data submitted:", {
       ...data,
-      cnicFront: cnicFront?.name,
-      cnicBack: cnicBack?.name,
-      bikeDocuments: bikeDocuments?.name
+      cnicFront,
+      cnicBack,
+      bikeDocuments
     });
 
+
     // In a real implementation, this would be an API call
-    try {
-      // Mock API call
-      setTimeout(() => {
-        showToast("SUCCESS", "Rider information added successfully!");
-        navigate('/riderDashboard');
-      }, 1000);
-    } catch (error) {
-      showToast("ERROR", error.message || "Error adding rider information");
-      console.error("Error submitting form:", error);
-    }
+    dispatch(addRiderDetails(formData))
+    .then(() => {
+      
+        dispatch(showToast("SUCCESS","Rider added successfully"));
+      
+    })
+    .catch(() => {
+      dispatch(errorGlobal("ERROR","Failed to add rider"));
+    })
   };
 
   return (

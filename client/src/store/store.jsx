@@ -12,6 +12,7 @@ import saleEventsReducer from "./reducers/saleEvents";
 import cartReducer from "./reducers/cart";
 import analyticsReducer from "./reducers/analytics";
 import loyaltyPerksReducer from "./reducers/loyaltyPerks";
+import riderReducer from "./reducers/rider";
 
 const store = configureStore({
     reducer: {
@@ -27,7 +28,8 @@ const store = configureStore({
         saleEvents: saleEventsReducer,
         cart: cartReducer,
         analytics: analyticsReducer,
-        loyaltyPerks: loyaltyPerksReducer
+        loyaltyPerks: loyaltyPerksReducer,
+        rider: riderReducer
 
 
     },

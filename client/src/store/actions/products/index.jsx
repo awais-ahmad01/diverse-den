@@ -17,6 +17,7 @@ export const addProduct = createAsyncThunk(
         thunkAPI.dispatch(errorGlobal("No token found"));
         return;
       }
+      
 
       const formdata = new FormData();
 
