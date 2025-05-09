@@ -13,6 +13,8 @@ import cartReducer from "./reducers/cart";
 import analyticsReducer from "./reducers/analytics";
 import loyaltyPerksReducer from "./reducers/loyaltyPerks";
 import riderReducer from "./reducers/rider";
+import giftCardsReducer from "./reducers/giftCards";
+import giftCards from "./reducers/giftCards";
 
 const store = configureStore({
     reducer: {
@@ -29,7 +31,8 @@ const store = configureStore({
         cart: cartReducer,
         analytics: analyticsReducer,
         loyaltyPerks: loyaltyPerksReducer,
-        rider: riderReducer
+        rider: riderReducer,
+        giftCards: giftCardsReducer
 
 
     },

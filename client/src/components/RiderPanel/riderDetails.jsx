@@ -166,6 +166,8 @@ const RiderDetails = () => {
       bikeDocuments
     });
 
+    console.log('formData:', formData)
+   
 
     // In a real implementation, this would be an API call
     dispatch(addRiderDetails(formData))

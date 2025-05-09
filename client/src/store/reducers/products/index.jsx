@@ -10,7 +10,7 @@ import {
   getCartItems,
   getProductReviews,
   getSaleProductById,
-  addGiftCard
+ 
 
 } from "../../actions/products";
 

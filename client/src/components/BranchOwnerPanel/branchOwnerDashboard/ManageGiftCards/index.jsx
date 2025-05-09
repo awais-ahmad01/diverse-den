@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { showToast, Loader } from "../../../../tools";
-
-import { addGiftCard } from "../../../../store/actions/products";
-
+import { getGiftCards, addGiftCard, updateGiftCard, deleteGiftCard } from "../../../../store/actions/giftCards";
 import {
   Button,
   Card,
@@ -42,60 +40,6 @@ import {
   CloudUpload as CloudUploadIcon
 } from "@mui/icons-material";
 
-// Mock data
-const MOCK_GIFT_CARDS = [
-  {
-    _id: "gc1",
-    code: "GIFT100",
-    minPrice: 80,
-    maxPrice: 100,
-    status: "active",
-    description: "Holiday special gift card",
-    imageUrl: null,
-    createdAt: "2023-11-15"
-  },
-  {
-    _id: "gc2",
-    code: "BDAY50",
-    minPrice: 40,
-    maxPrice: 50,
-    status: "active",
-    description: "Birthday celebration gift card",
-    imageUrl: null,
-    createdAt: "2023-10-20"
-  },
-  {
-    _id: "gc3",
-    code: "WELCOME25",
-    minPrice: 20,
-    maxPrice: 25,
-    status: "redeemed",
-    description: "Welcome bonus for new customers",
-    imageUrl: null,
-    createdAt: "2023-09-05"
-  },
-  {
-    _id: "gc4",
-    code: "LOYAL200",
-    minPrice: 150,
-    maxPrice: 200,
-    status: "expired",
-    description: "Loyalty reward for premium customers",
-    imageUrl: null,
-    createdAt: "2023-08-10"
-  },
-  {
-    _id: "gc5",
-    code: "PROMO75",
-    minPrice: 50,
-    maxPrice: 75,
-    status: "active",
-    description: "Promotional gift card for special events",
-    imageUrl: null,
-    createdAt: "2023-11-01"
-  }
-];
-
 const theme = createTheme({
   palette: {
     primary: {
@@ -107,19 +51,20 @@ const theme = createTheme({
   },
 });
 
-
 const ManageGiftCards = () => {
   const { user } = useSelector(state => state.auth);
-
+  const { giftCardsList, meta, isloading } = useSelector(state => state.giftCards);
+  console.log("giftCardsList:", giftCardsList);
+  console.log("meta:", meta);
   const dispatch = useDispatch();
   
-  // State for mock data
-  const [giftCards, setGiftCards] = useState(MOCK_GIFT_CARDS);
+  // State for gift cards data
+  const [giftCards, setGiftCards] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   
   // States for filter functionality
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredGiftCards, setFilteredGiftCards] = useState(MOCK_GIFT_CARDS);
+  const [filteredGiftCards, setFilteredGiftCards] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
   const [codeFilter, setCodeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -144,10 +89,23 @@ const ManageGiftCards = () => {
   // Error state
   const [formErrors, setFormErrors] = useState({});
   
+  // Initialize gift cards data from API response
+  useEffect(() => {
+    if (giftCardsList && giftCardsList.giftCards) {
+      setGiftCards(giftCardsList.giftCards);
+      setFilteredGiftCards(giftCardsList.giftCards);
+    }
+  }, [giftCardsList]);
+
   // Filter gift cards when filters change
   useEffect(() => {
     applyFilters();
   }, [searchTerm, giftCards]);
+
+  useEffect(() => {
+    const businessId = user?.business;
+    dispatch(getGiftCards({ businessId }));
+  }, [user, dispatch]);
   
   const applyFilters = () => {
     let filtered = [...giftCards];
@@ -155,7 +113,7 @@ const ManageGiftCards = () => {
     if (searchTerm.trim() !== "") {
       filtered = filtered.filter(card => 
         card.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        card.description.toLowerCase().includes(searchTerm.toLowerCase())
+        (card.description && card.description.toLowerCase().includes(searchTerm.toLowerCase()))
       );
     }
     
@@ -180,6 +138,28 @@ const ManageGiftCards = () => {
     
     setFilteredGiftCards(filtered);
   };
+
+
+
+  const handleNextPage = (page) => {
+      const businessId = user?.business;
+      if (businessId && page) {
+        console.log("Next Page:", page);
+        dispatch(getGiftCards({ businessId, pageNo: page }));
+      }
+    };
+  
+    const handlePrevPage = (page) => {
+      const businessId = user?.business;
+      if (businessId && page) {
+        console.log("Previous Page:", page);
+        dispatch(getGiftCards({ businessId, pageNo: page }));
+      }
+    };
+  
+
+
+
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -233,107 +213,95 @@ const ManageGiftCards = () => {
   const handleAddGiftCard = () => {
     if (!validateForm()) return;
     
-    // Simulate API delay
-    setIsLoading(true);
+
     
-    setTimeout(() => {
-      const newGiftCard = {
-        // _id: `gc${Date.now()}`,
-        code: formData.code,
-        minPrice: parseFloat(formData.minPrice),
-        maxPrice: parseFloat(formData.maxPrice),
-        description: formData.description,
-        imageUrl: formData.imageFile, // In a real app, you'd upload and store the URL
-        // status: "active", // Default status
-        // createdAt: new Date().toISOString().split('T')[0]
-      };
-
-      const businessId = user?.business;
-
-    const formdata = new FormData();
-    formdata.append("code", formData.code);
-    formData.append("minPrice", formData.minPrice);
-    formData.append("maxPrice", formData.maxPrice);
-    formData.append("description", formData.description);
-    formData.append("imageUrl", formData.imageFile);
-
-    dispatch(addGiftCard({businessId, formdata}))
-    .unwrap()
-    .then((response) => {
-      showToast("SUCCESS", "Gift card added successfully");
-    })
-    .catch((error) => {
-      showToast("ERROR", "Failed to add gift card");
-    })
-
-
-   
+    const businessId = user?.business;
+  
+    const formDataToSend = new FormData();
+    formDataToSend.append("code", formData.code);
+    formDataToSend.append("minPrice", formData.minPrice);
+    formDataToSend.append("maxPrice", formData.maxPrice);
+    formDataToSend.append("description", formData.description || "");
     
+    if (formData.imageFile) {
+      formDataToSend.append("imageUrl", formData.imageFile);
+    }
 
-      console.log("New gift card:", newGiftCard);
-
+    dispatch(addGiftCard({ businessId, formdata: formDataToSend }))
+      .unwrap()
+      .then((response) => {
+        showToast("SUCCESS", "Gift card added successfully");
+        setShowAddDialog(false);
+        resetForm();
+        
+        // Refresh gift cards list
+        dispatch(getGiftCards({ businessId }));
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed to add gift card");
+        console.error("Error adding gift card:", error);
+      })
       
-      setGiftCards([...giftCards, newGiftCard]);
-      showToast("SUCCESS", "Gift card added successfully");
-      setShowAddDialog(false);
-      resetForm();
-      setIsLoading(false);
-    }, 500);
   };
   
-  const handleEditGiftCard = () => {
-    if (!validateForm()) return;
-    
-    // Simulate API delay
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      const updatedGiftCards = giftCards.map(card => 
-        card._id === currentGiftCard._id 
-          ? { 
-              ...card, 
-              code: formData.code,
-              minPrice: parseFloat(formData.minPrice),
-              maxPrice: parseFloat(formData.maxPrice),
-              description: formData.description,
-              imageUrl: formData.imagePreview || card.imageUrl
-            } 
-          : card
-      );
-      
-      setGiftCards(updatedGiftCards);
+
+// Update the handleEditGiftCard function
+const handleEditGiftCard = () => {
+  if (!validateForm()) return;
+  
+  
+  const businessId = user?.business;
+
+  const formDataToSend = new FormData();
+  formDataToSend.append("giftCardId", currentGiftCard._id);
+  formDataToSend.append("code", formData.code);
+  formDataToSend.append("minPrice", formData.minPrice);
+  formDataToSend.append("maxPrice", formData.maxPrice);
+  formDataToSend.append("description", formData.description || "");
+  
+  // Only append image if it exists
+  if (formData.imageFile) {
+    formDataToSend.append("imageUrl", formData.imageFile);
+  }
+
+  dispatch(updateGiftCard({ businessId, formdata: formDataToSend }))
+    .unwrap()
+    .then((response) => {
       showToast("SUCCESS", "Gift card updated successfully");
       setShowEditDialog(false);
       resetForm();
-      setIsLoading(false);
-    }, 500);
-  };
+      
+      // Refresh the gift cards list
+      dispatch(getGiftCards({ businessId }));
+    })
+    .catch((error) => {
+      showToast("ERROR", "Failed to update gift card");
+      console.error("Error updating gift card:", error);
+    })
+   
+};
   
-  const handleDeleteGiftCard = () => {
-    // Simulate API delay
-    setIsLoading(true);
-    
-    setTimeout(() => {
-      const updatedGiftCards = giftCards.filter(card => card._id !== currentGiftCard._id);
-      setGiftCards(updatedGiftCards);
+
+const handleDeleteGiftCard = () => {
+
+  const giftCardId = currentGiftCard._id
+  
+  dispatch(deleteGiftCard(giftCardId))
+    .unwrap()
+    .then((response) => {
       showToast("SUCCESS", "Gift card deleted successfully");
       setShowDeleteDialog(false);
-      setIsLoading(false);
-    }, 500);
-  };
-  
-  const openEditDialog = (giftCard) => {
-    setCurrentGiftCard(giftCard);
-    setFormData({
-      code: giftCard.code,
-      minPrice: giftCard.minPrice.toString(),
-      maxPrice: giftCard.maxPrice.toString(),
-      description: giftCard.description || "",
-      imageFile: null,
-      imagePreview: giftCard.imageUrl
-    });
-    setShowEditDialog(true);
-  };
+      
+      // // Refresh the gift cards list
+      // const businessId = user?.business;
+      // dispatch(getGiftCards({ businessId }));
+    })
+    .catch((error) => {
+      showToast("ERROR", "Failed to delete gift card");
+      console.error("Error deleting gift card:", error);
+    })
+   
+};
   
   const openDeleteDialog = (giftCard) => {
     setCurrentGiftCard(giftCard);
@@ -388,7 +356,7 @@ const ManageGiftCards = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
   
-  if (isLoading) {
+  if (isloading) {
     return <Loader />;
   }
   
@@ -400,7 +368,7 @@ const ManageGiftCards = () => {
             variant="h4"
             sx={{ color: "#603F26", fontWeight: "bold" }}
           >
-            Gift Card Management
+            Gift Cards
           </Typography>
           <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
             Create, view, update, and manage gift cards for your customers
@@ -548,7 +516,7 @@ const ManageGiftCards = () => {
                         >
                           Price Range
                         </TableCell>
-                        {/* <TableCell
+                        <TableCell
                           sx={{
                             color: "white",
                             fontSize: "16px",
@@ -556,7 +524,7 @@ const ManageGiftCards = () => {
                           }}
                         >
                           Status
-                        </TableCell> */}
+                        </TableCell>
                         <TableCell
                           sx={{
                             color: "white",
@@ -600,13 +568,13 @@ const ManageGiftCards = () => {
                         <TableRow key={giftCard._id}>
                           <TableCell className="font-medium">{giftCard.code}</TableCell>
                           <TableCell>{formatCurrency(giftCard.minPrice)} - {formatCurrency(giftCard.maxPrice)}</TableCell>
-                          {/* <TableCell>
+                          <TableCell>
                             <Chip
-                              label={giftCard?.status.charAt(0).toUpperCase() + giftCard.status.slice(1)}
+                              label={giftCard?.status?.charAt(0).toUpperCase() + giftCard.status.slice(1)}
                               color={getStatusChipColor(giftCard.status)}
                               size="small"
                             />
-                          </TableCell> */}
+                          </TableCell>
                           <TableCell>
                             {giftCard.description ? (
                               giftCard.description.length > 30 
@@ -618,9 +586,9 @@ const ManageGiftCards = () => {
                           </TableCell>
                           <TableCell>{formatDate(giftCard.createdAt)}</TableCell>
                           <TableCell>
-                            {giftCard.imageUrl ? (
+                            {giftCard.imagePath ? (
                               <img 
-                                src={giftCard.imageUrl} 
+                                src={giftCard.imagePath} 
                                 alt={giftCard.code}
                                 style={{ width: '60px', height: '40px', objectFit: 'cover' }}
                               />
@@ -671,19 +639,19 @@ const ManageGiftCards = () => {
                           {formatDate(giftCard.createdAt)}
                         </p>
                       </div>
-                      {/* <Chip
-                        label={giftCard.status.charAt(0).toUpperCase() + giftCard.status.slice(1)}
+                      <Chip
+                        label={giftCard.status?.charAt(0).toUpperCase() + giftCard.status.slice(1)}
                         className={getStatusColorClass(giftCard.status)}
-                      /> */}
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <p>Price Range: {formatCurrency(giftCard.minPrice)} - {formatCurrency(giftCard.maxPrice)}</p>
                       <p>Description: {giftCard.description || "—"}</p>
-                      {giftCard.imageUrl && (
+                      {giftCard.imagePath && (
                         <div className="mt-2">
                           <img 
-                            src={giftCard.imageUrl} 
+                            src={giftCard.imagePath} 
                             alt={giftCard.code}
                             className="h-20 object-cover rounded"
                           />
@@ -717,6 +685,50 @@ const ManageGiftCards = () => {
             </>
           )}
         </div>
+
+
+         {/* Pagination */}
+         {meta?.nextPage || meta?.previousPage ? (
+          <nav className="w-full flex justify-center items-center my-16">
+            <ul className="inline-flex items-center -space-x-px text-sm">
+              {meta?.previousPage && (
+                <>
+                  <li 
+                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer"
+                  >
+                    Previous
+                  </li>
+                  <li 
+                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
+                  >
+                    {meta?.previousPage}
+                  </li>
+                </>
+              )}
+              <li className="px-4 py-2 bg-[#603F26] text-white border">
+                {meta?.currentPage}
+              </li>
+              {meta?.nextPage && (
+                <>
+                  <li 
+                    onClick={() => handleNextPage(meta?.nextPage)}
+                    className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
+                  >
+                    {meta?.nextPage}
+                  </li>
+                  <li 
+                    onClick={() => handleNextPage(meta?.nextPage)}
+                    className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer"
+                  >
+                    Next
+                  </li>
+                </>
+              )}
+            </ul>
+          </nav>
+        ) : null}
         
         {/* Add Gift Card Dialog */}
         <Dialog
@@ -997,35 +1009,36 @@ const ManageGiftCards = () => {
             </Button>
           </DialogActions>
         </Dialog>
-                        {/* Delete Confirmation Dialog */}
+        
+        {/* Delete Confirmation Dialog */}
         <Dialog
-        open={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-      >
-        <DialogTitle className="text-red-600">
-          Delete Gift Card
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText className="mb-3">
-            Are you sure you want to delete the gift card <strong>{currentGiftCard?.code}</strong>? This action cannot be undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowDeleteDialog(false)}>
-            Cancel
-          </Button>
-          <Button
-            color="error"
-            variant="contained"
-            onClick={handleDeleteGiftCard}
-          >
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </div>
-  </ThemeProvider>
-);
+          open={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+        >
+          <DialogTitle className="text-red-600">
+            Delete Gift Card
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText className="mb-3">
+              Are you sure you want to delete the gift card <strong>{currentGiftCard?.code}</strong>? This action cannot be undone.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowDeleteDialog(false)}>
+              Cancel
+            </Button>
+            <Button
+              color="error"
+              variant="contained"
+              onClick={handleDeleteGiftCard}
+            >
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    </ThemeProvider>
+  );
 };
 
 export default ManageGiftCards;

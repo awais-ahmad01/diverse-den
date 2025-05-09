@@ -88,6 +88,12 @@ import RiderOrders from "./components/RiderPanel/riderDashboard/assignedOrders.j
 import ChatModule from "./components/RiderPanel/riderDashboard/riderChats.jsx";
 
 
+import GiftCardDisplay from "./components/CustomerPanel/giftCards/index.jsx";
+import GiftCardPurchase from "./components/CustomerPanel/giftCards/purchaseGiftCard.jsx";
+
+
+import NotFound from "./components/NotFound/index.jsx";
+
 function App() {
   const dispatch = useDispatch();
 
@@ -349,6 +355,10 @@ function App() {
 
             <Route path="loyalty" element={<LoyaltyPerks />} />
 
+            <Route path="giftCards" element={<GiftCardDisplay />} />
+
+            <Route path="giftCardPurchase" element={<GiftCardPurchase />} />
+
             <Route path="events/:eventId" element={<DealsPage />} />
 
 
@@ -392,7 +402,7 @@ function App() {
           </Route>
 
        
-          
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </>
