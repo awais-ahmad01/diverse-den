@@ -677,11 +677,12 @@ export const getProductReviews = createAsyncThunk(
 
 export const addGiftCard= createAsyncThunk(
   "products/addGiftCard",
-  async (formdata, thunkAPI) => {
+  async ({businessId,formdata}, thunkAPI) => {
     try {
       console.log("Add Gift Card.....");
 
       console.log("formdata:", formdata);
+      console.log("businessId:", businessId);
 
       const token = localStorage.getItem("token");
       console.log("myToken:", token);
@@ -690,13 +691,17 @@ export const addGiftCard= createAsyncThunk(
         thunkAPI.dispatch(errorGlobal("No token found"));
         return;
       }
-      
+
+      const body = {
+        businessId,
+        formdata
+      }  
 
       
 
       const response = await axios.post(
         "http://localhost:3000/branchOwner/addGiftCard",
-        formdata,
+        body,
         {
           headers: {
             Authorization: `Bearer ${token}`,
