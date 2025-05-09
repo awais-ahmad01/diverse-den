@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../../tools";
+import { io } from "socket.io-client";
+import { getListOfSalesperson, getUserChats } from "../../../store/actions/rider";
 import {
   Button,
   Dialog,
@@ -122,8 +124,8 @@ const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
               required
             >
               {users.map(user => (
-                <MenuItem key={user._id} value={user._id}>
-                  {user.name}
+                <MenuItem key={user._id} value={user?.salespersonDetails?._id}>
+                  {user?.salespersonDetails?.firstname } {user?.salespersonDetails?.lastname }
                 </MenuItem>
               ))}
             </Select>
@@ -196,6 +198,10 @@ const Message = ({ message, onDelete, onImageClick, currentUserId }) => {
 };
 
 const RiderChatModule = () => {
+  const dispatch = useDispatch();
+  const { listOfSalespersons, userChats, isloading } = useSelector((state) => state.rider);
+  const currentUser = useSelector(state => state.auth.user);
+
   // State declarations
   const [contacts, setContacts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -214,15 +220,16 @@ const RiderChatModule = () => {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState([]);
   const [newChatModalOpen, setNewChatModalOpen] = useState(false);
+  const [socket, setSocket] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
-
-  const currentUser = useSelector(state => state.auth.user);
+  const socketRef = useRef(null);
 
   // Helper functions
   const getOtherUser = (chat) => {
     if (!chat?.members) return null;
-    return chat.members.find(member => member._id !== currentUser._id);
+    return chat.members.find(member => member.userId !== currentUser._id);
   };
 
   const getInitials = (name) => {
@@ -246,10 +253,89 @@ const RiderChatModule = () => {
     return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
-  const filteredContacts = contacts.filter(chat => {
+  const filteredContacts = contacts?.filter(chat => {
     const otherUser = getOtherUser(chat);
     return otherUser?.name?.toLowerCase().includes(searchQuery.toLowerCase());
   });
+
+  // Socket.IO setup function
+  const setupSocket = useCallback(() => {
+    if (currentUser?._id && !socketRef.current) {
+      const newSocket = io("http://localhost:5000", {
+        withCredentials: true,
+        transports: ["websocket"],
+        autoConnect: true,
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000
+      });
+
+      // Connection events
+      newSocket.on("connect", () => {
+        console.log("Socket connected with ID:", newSocket.id);
+        newSocket.emit("addNewUser", currentUser._id);
+      });
+
+      newSocket.on("disconnect", (reason) => {
+        console.log("Socket disconnected:", reason);
+      });
+
+      newSocket.on("connect_error", (error) => {
+        console.log("Socket connection error:", error);
+      });
+
+      // Message reception event
+      newSocket.on("receiveMessage", (message) => {
+        console.log("New message received:", message);
+        console.log("Current selected chat:", selectedChat?._id);
+        console.log("Message chatId:", message.chatId);
+        
+        // Update messages if in the same chat
+        setMessages(prev => {
+          // Check if this message is already in our list to prevent duplicates
+          if (!prev.some(m => m._id === message._id || 
+              (m.senderId === message.senderId && 
+               m.text === message.text && 
+               new Date(m.createdAt).getTime() === new Date(message.createdAt).getTime()))) {
+            return [...prev, message];
+          }
+          return prev;
+        });
+
+        // Update last message in contacts list regardless of selected chat
+        setContacts(prev => {
+          return prev.map(contact => {
+            if (contact._id === message.chatId) {
+              return { 
+                ...contact, 
+                lastMessage: message.text, 
+                updatedAt: message.createdAt || new Date() 
+              };
+            }
+            return contact;
+          });
+        });
+      });
+
+      // Message sent confirmation
+      newSocket.on("messageSent", (message) => {
+        console.log("Message sent confirmation received:", message);
+      });
+
+      // Online users update
+      newSocket.on("getOnlineUsers", (users) => {
+        console.log("Online users updated:", users);
+        setOnlineUsers(users);
+      });
+
+      socketRef.current = newSocket;
+      setSocket(newSocket);
+      
+      return newSocket;
+    }
+    return socketRef.current;
+  }, [currentUser?._id]);
 
   // Handlers
   const handleContactsMenuOpen = (event) => setContactsMenuAnchorEl(event.currentTarget);
@@ -277,21 +363,23 @@ const RiderChatModule = () => {
 
   const toggleContactList = () => setShowContactList(!showContactList);
 
-  // API functions
   const fetchUserChats = async () => {
     try {
-      setLoading(true);
-      const response = await axios.get(`http://localhost:3000/api/chats/${currentUser._id}`);
-      setContacts(response.data);
-    } catch (error) {
+      const userId = currentUser?._id;
+      const response = await dispatch(getUserChats(userId)).unwrap();
+      
+      if(response){
+        setContacts(response?.data);
+      }
+    } catch(error) {
       console.error("Error fetching chats:", error);
       showToast("ERROR", "Failed to load chats");
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchMessages = async () => {
+    if (!selectedChat?._id) return;
+    
     try {
       setLoading(true);
       const response = await axios.get(`http://localhost:3000/api/messages/${selectedChat._id}`);
@@ -306,24 +394,30 @@ const RiderChatModule = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get('/api/users');
-      const filteredUsers = response?.data?.filter(user => 
-        user._id !== currentUser._id && 
-        !contacts.some(chat => chat.members.some(m => m._id === user._id))
-      );
-      setUsers(filteredUsers);
+      const riderId = currentUser._id;
+      const response = await dispatch(getListOfSalesperson(riderId)).unwrap();
+      
+      if (response) {
+        const filteredUsers = response?.data?.filter(user => 
+          user?.salespersonDetails?._id !== currentUser._id && 
+          !contacts.some(chat => chat.members.some(m => m._id === user?.salespersonDetails?._id))
+        );
+     
+        setUsers(filteredUsers || []);
+      }
     } catch (error) {
       console.error("Error fetching users:", error);
-      showToast("ERROR", "Failed to load users");
+      setUsers([]);
     }
   };
 
   const handleCreateChat = async (userId) => {
     try {
       const response = await axios.post('http://localhost:3000/api/chats/', {
-        firstId: currentUser._id,
+        firstId: currentUser?._id,
         secondId: userId
       });
+
       setContacts(prev => [response.data, ...prev]);
       setSelectedChat(response.data);
       showToast("SUCCESS", "Chat created successfully");
@@ -350,28 +444,63 @@ const RiderChatModule = () => {
   const handleMessageSubmit = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() && !imageFile) return;
-
+    if (!selectedChat) return;
+  
     try {
+      const recipient = getOtherUser(selectedChat);
+      if (!recipient) {
+        console.error("Recipient not found");
+        return;
+      }
+
+      // Create a message object with a temporary ID for optimistic updates
+      const tempId = `temp-${Date.now()}`;
+      const timestamp = new Date();
       const messageData = {
+        _id: tempId, // Temporary ID for local tracking
+        chatId: selectedChat._id,
+        senderId: currentUser._id,
+        text: newMessage,
+        recipientId: recipient.userId,
+        createdAt: timestamp
+      };
+  
+      // Optimistically add to UI
+      setMessages(prev => [...prev, messageData]);
+      setNewMessage("");
+  
+      // Update last message in contacts
+      setContacts(prev => prev.map(contact => 
+        contact._id === messageData.chatId 
+          ? { ...contact, lastMessage: messageData.text, updatedAt: timestamp } 
+          : contact
+      ));
+  
+      // Send via Socket.IO
+      if (socketRef.current) {
+        console.log("Sending message via socket:", messageData);
+        socketRef.current.emit("sendMessage", messageData);
+      } else {
+        console.error("Socket not available");
+      }
+  
+      // Also persist to database
+      const savedMessage = await axios.post('http://localhost:3000/api/messages', {
         chatId: selectedChat._id,
         senderId: currentUser._id,
         text: newMessage
-      };
+      });
       
-      const response = await axios.post('http://localhost:3000/api/messages', messageData);
-      setMessages([...messages, response.data]);
-      setNewMessage("");
-      
-      // Update last message in contacts
-      const updatedContacts = contacts.map(contact => 
-        contact._id === response.data.chatId 
-          ? { ...contact, lastMessage: response.data.text, updatedAt: new Date() } 
-          : contact
-      );
-      setContacts(updatedContacts);
+      // Replace temporary message with saved one
+      setMessages(prev => prev.map(msg => 
+        msg._id === tempId ? savedMessage.data : msg
+      ));
+  
     } catch (error) {
       console.error("Error sending message:", error);
       showToast("ERROR", "Failed to send message");
+      // Rollback optimistic update
+      setMessages(prev => prev.filter(msg => msg._id !== tempId));
     } finally {
       if (imageFile) {
         setImageFile(null);
@@ -410,6 +539,21 @@ const RiderChatModule = () => {
       fetchUsers();
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    // Setup socket connection
+    const socket = setupSocket();
+    
+    // Cleanup function
+    return () => {
+      if (socket) {
+        console.log("Cleaning up socket listeners");
+        socket.off("receiveMessage");
+        socket.off("messageSent");
+        socket.off("getOnlineUsers");
+      }
+    };
+  }, [setupSocket]);
 
   useEffect(() => {
     if (selectedChat) {
@@ -463,6 +607,8 @@ const RiderChatModule = () => {
                 ) : filteredContacts.length > 0 ? (
                   filteredContacts.map(chat => {
                     const otherUser = getOtherUser(chat);
+                    const isOnline = onlineUsers.some(user => user.userId === otherUser?.userId);
+                    
                     return (
                       <ListItem
                         key={chat._id}
@@ -472,10 +618,41 @@ const RiderChatModule = () => {
                         sx={{ backgroundColor: selectedChat?._id === chat._id ? "#f5f5f5" : "inherit" }}
                       >
                         <ListItemAvatar>
-                          <Avatar sx={{ bgcolor: "#603F26" }}>{getInitials(otherUser?.name)}</Avatar>
+                          <Avatar sx={{ bgcolor: "#603F26", position: 'relative' }}>
+                            {getInitials(otherUser?.name)}
+                            {isOnline && (
+                              <Box sx={{
+                                position: 'absolute',
+                                bottom: 0,
+                                right: 0,
+                                width: 12,
+                                height: 12,
+                                backgroundColor: '#4CAF50',
+                                borderRadius: '50%',
+                                border: '2px solid white'
+                              }} />
+                            )}
+                          </Avatar>
                         </ListItemAvatar>
                         <ListItemText
-                          primary={otherUser?.name || 'Unknown User'}
+                          primary={
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <Typography>{otherUser?.name || 'Unknown User'}</Typography>
+                              {isOnline && (
+                                <Chip 
+                                  label="Online" 
+                                  size="small" 
+                                  sx={{ 
+                                    ml: 1, 
+                                    height: 18, 
+                                    fontSize: '0.65rem',
+                                    backgroundColor: '#4CAF50',
+                                    color: 'white'
+                                  }} 
+                                />
+                              )}
+                            </Box>
+                          }
                           secondary={chat?.lastMessage || 'No messages yet'}
                         />
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
@@ -535,7 +712,10 @@ const RiderChatModule = () => {
                         <Message 
                           key={message._id} 
                           message={message} 
-                          onDelete={handleDeleteMessage}
+                          onDelete={(id) => {
+                            setMessageToDelete(id);
+                            setDeleteDialogOpen(true);
+                          }}
                           onImageClick={openImagePreviewDialog}
                           currentUserId={currentUser._id}
                         />
@@ -601,7 +781,7 @@ const RiderChatModule = () => {
         <NewChatModal
           open={newChatModalOpen}
           handleClose={() => setNewChatModalOpen(false)}
-          handleCreateChat={findOrCreateChat}
+          handleCreateChat={handleCreateChat}
           users={users}
         />
 
@@ -621,5 +801,4 @@ const RiderChatModule = () => {
   );
 };
 
-
-export default RiderChatModule;
+export default RiderChatModule; 

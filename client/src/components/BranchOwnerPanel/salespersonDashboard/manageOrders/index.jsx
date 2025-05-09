@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { getListOfRiders } from "../../../../store/actions/rider";
+import { assignOrderToRider } from "../../../../store/actions/orders";
 import { showToast } from "../../../../tools";
 import { Link } from "react-router-dom";
 import {
@@ -365,8 +367,22 @@ const ReceiptDialog = ({ open, onClose, order }) => {
 };
 
 // Order Details Dialog Component
-const OrderDetailsDialog = ({ open, onClose, order }) => {
+const OrderDetailsDialog = ({ open, onClose, order, riders, handleAssignRider }) => {
+
+  console.log("riders", riders);
+
+  const [selectedRider, setSelectedRider] = useState(null);
+
+  console.log("selectedRider", selectedRider);
+
+  const riderAssign = ()=>{
+    handleAssignRider(order._id, selectedRider);
+  }
+ 
+
+
   if (!order) return null;
+
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -491,35 +507,50 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
           </Grid>
 
           {/* Assign Rider Section (if order is ready for delivery) */}
-          {(order?.status === "Processing" || order?.status === "Shipped") && (
-            <Grid item xs={12}>
-              <Divider className="my-4" />
-              <Typography variant="h6" className="font-bold mb-2">
-                Delivery Management
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <TextField
-                  select
-                  label="Assign Rider"
-                  fullWidth
-                  variant="outlined"
-                  defaultValue=""
-                >
-                  <MenuItem value="">Select a rider</MenuItem>
-                  <MenuItem value="rider1">John Doe</MenuItem>
-                  <MenuItem value="rider2">Jane Smith</MenuItem>
-                  <MenuItem value="rider3">Alex Johnson</MenuItem>
-                </TextField>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  startIcon={<LocalShippingIcon />}
-                >
-                  Assign
-                </Button>
-              </Box>
-            </Grid>
-          )}
+
+          {(order?.status === "Processing" || order?.status === "Shipped") &&
+            order?.orderType === "Online" && (
+              <Grid item xs={12}>
+                <Divider className="my-4" />
+                <Typography variant="h6" className="font-bold mb-2">
+                  Delivery Management
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <TextField
+                    select
+                    label="Assign Rider"
+                    fullWidth
+                    variant="outlined"
+                    onChange={(e) => setSelectedRider(e.target.value)}
+                    defaultValue={order?.rider || ""}
+                  >
+                    {/* <MenuItem value="">Select a rider</MenuItem> */}
+                    {/* Dummy riders data - replace with API data later */}
+                    {riders?.riders?.map((rider) => (
+                      <MenuItem key={rider._id} value={rider?.riderId}>
+                        {rider.name}
+                      </MenuItem>
+                    ))
+
+                    }
+                    {/* <MenuItem value="rider1">John Doe (Rider 1)</MenuItem>
+                    <MenuItem value="rider2">Jane Smith (Rider 2)</MenuItem>
+                    <MenuItem value="rider3">Alex Johnson (Rider 3)</MenuItem>
+                    <MenuItem value="rider4">Sarah Williams (Rider 4)</MenuItem>
+                    <MenuItem value="rider5">Michael Brown (Rider 5)</MenuItem> */}
+                  </TextField>
+
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<LocalShippingIcon />}
+                    onClick={riderAssign}
+                  >
+                    {order?.rider ? "Reassign" : "Assign"}
+                  </Button>
+                </Box>
+              </Grid>
+            )}
         </Grid>
       </DialogContent>
       <DialogActions>
@@ -944,9 +975,9 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit, branchCode }) => {
           productId: product?.product, // Include full product object if available
           quantity: product.totalQuantity,
           selectedVariant: {
-            color: null,
-            material: null,
-            size: null,
+            color: "",
+            material: "",
+            size: "",
           },
           updatedAt: new Date().toISOString(),
           userId: user?._id,
@@ -960,9 +991,9 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit, branchCode }) => {
               productId: product?.product, // Include full product object
               quantity: item.quantity,
               selectedVariant: {
-                color: item.color || null,
-                material: item.material || null,
-                size: item.size || null,
+                color: item.color || "",
+                material: item.material || "",
+                size: item.size || "",
               },
               updatedAt: new Date().toISOString(),
               userId: user?._id,
@@ -1498,6 +1529,10 @@ const InStoreOrderDialog = ({ open, onClose, onSubmit, branchCode }) => {
 const SalespersonOrderManagement = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+
+  const {listOfRiders} = useSelector((state) => state.rider);
+    console.log("listOfRiders:", listOfRiders);
+
   const branchCode = user?.assignedBranch;
 
   const { salespersonOrders, isloading, meta } = useSelector(
@@ -1524,13 +1559,19 @@ const SalespersonOrderManagement = () => {
   console.log("filteredOrders:", filteredOrders);
   console.log("allOrders:", allOrders);
 
+
   useEffect(() => {
     const branchCode = user?.assignedBranch;
+
+    const userId = user?._id;
 
     dispatch(getSalespersonOrders({ branchCode }));
 
     const business = user?.business;
     dispatch(getBranches({ business }));
+
+    dispatch(getListOfRiders(userId))
+
   }, [dispatch, user]);
 
   useEffect(() => {
@@ -1540,7 +1581,20 @@ const SalespersonOrderManagement = () => {
     }
   }, [salespersonOrders]);
 
-  
+
+  const handleAssignRider = (orderId, riderId) => {
+    console.log("handleAssignRider", orderId, riderId);
+    dispatch(assignOrderToRider({ orderId, riderId }))
+    .unwrap()
+    .then(() => {
+      showToast("SUCCESS", "Order assigned to rider Successfully!!");
+    })
+    .catch((error) => {
+      showToast("ERROR", "Failed to assigned order to rider");
+    });
+  }
+
+
   const totalOrders = salespersonOrders?.length || 0;
   const totalOnlineOrders =
     allOrders.filter((o) => o.orderType === "Online").length || 0;
@@ -1551,11 +1605,9 @@ const SalespersonOrderManagement = () => {
     setTabValue(newValue);
 
     if (newValue === 0) {
-     
       setFilteredOrders(allOrders);
       setOrderTypeFilter("");
     } else if (newValue === 1) {
-      
       setFilteredOrders(
         allOrders.filter((order) => order.orderType === "Online")
       );
@@ -1630,7 +1682,6 @@ const SalespersonOrderManagement = () => {
     setSelectedOrderForReceipt(null);
   };
 
-
   const isMainSalesperson = () => {
     return user?.hasMainBranch === true;
   };
@@ -1665,7 +1716,6 @@ const SalespersonOrderManagement = () => {
       baseOrders = allOrders.filter((order) => order.orderType === "In-Store");
     }
 
-    
     let filtered = [...baseOrders];
 
     if (orderNumber) {
@@ -1674,12 +1724,10 @@ const SalespersonOrderManagement = () => {
       );
     }
 
-    
     if (statusFilter) {
       filtered = filtered.filter((order) => order.status === statusFilter);
     }
 
-    
     setFilteredOrders(filtered);
   };
 
@@ -1861,7 +1909,6 @@ const SalespersonOrderManagement = () => {
           </Tabs>
         </Box>
 
-       
         {showFilters && (
           <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
             <Paper sx={{ p: 3 }}>
@@ -1904,7 +1951,6 @@ const SalespersonOrderManagement = () => {
           </Box>
         )}
 
-       
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!filteredOrders || filteredOrders.length === 0 ? (
             <div className="bg-white p-8 rounded-lg shadow text-center">
@@ -2270,6 +2316,9 @@ const SalespersonOrderManagement = () => {
           open={!!viewOrderDetails}
           onClose={() => setViewOrderDetails(null)}
           order={viewOrderDetails}
+          riders={listOfRiders}
+          handleAssignRider={handleAssignRider}
+          
         />
 
         {/* Delete Confirmation Dialog */}
@@ -2300,4 +2349,3 @@ const SalespersonOrderManagement = () => {
 };
 
 export default SalespersonOrderManagement;
-

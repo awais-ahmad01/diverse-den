@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { showToast, Loader } from "../../../../tools";
+
+import { addGiftCard } from "../../../../store/actions/products";
+
 import {
   Button,
   Card,
   CardContent,
-  CardActions,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -23,10 +26,10 @@ import {
   TableRow,
   Paper,
   InputAdornment,
-  FormControl,
-  InputLabel,
+  Box,
   Select,
-  MenuItem
+  MenuItem,
+  Tooltip
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import {
@@ -35,56 +38,60 @@ import {
   Delete as DeleteIcon,
   Search as SearchIcon,
   CardGiftcard as GiftCardIcon,
-  CheckCircle as CheckCircleIcon,
-  Cancel as CancelIcon
+  FilterList as FilterListIcon,
+  CloudUpload as CloudUploadIcon
 } from "@mui/icons-material";
-import { useSelector } from "react-redux";
 
 // Mock data
 const MOCK_GIFT_CARDS = [
   {
     _id: "gc1",
     code: "GIFT100",
-    value: 100,
-    expiryDate: "2025-12-31",
+    minPrice: 80,
+    maxPrice: 100,
     status: "active",
     description: "Holiday special gift card",
+    imageUrl: null,
     createdAt: "2023-11-15"
   },
   {
     _id: "gc2",
     code: "BDAY50",
-    value: 50,
-    expiryDate: "2025-06-30",
+    minPrice: 40,
+    maxPrice: 50,
     status: "active",
     description: "Birthday celebration gift card",
+    imageUrl: null,
     createdAt: "2023-10-20"
   },
   {
     _id: "gc3",
     code: "WELCOME25",
-    value: 25,
-    expiryDate: "2025-04-15",
+    minPrice: 20,
+    maxPrice: 25,
     status: "redeemed",
     description: "Welcome bonus for new customers",
+    imageUrl: null,
     createdAt: "2023-09-05"
   },
   {
     _id: "gc4",
     code: "LOYAL200",
-    value: 200,
-    expiryDate: "2024-12-31",
+    minPrice: 150,
+    maxPrice: 200,
     status: "expired",
     description: "Loyalty reward for premium customers",
+    imageUrl: null,
     createdAt: "2023-08-10"
   },
   {
     _id: "gc5",
     code: "PROMO75",
-    value: 75,
-    expiryDate: "2025-09-30",
+    minPrice: 50,
+    maxPrice: 75,
     status: "active",
     description: "Promotional gift card for special events",
+    imageUrl: null,
     createdAt: "2023-11-01"
   }
 ];
@@ -100,16 +107,23 @@ const theme = createTheme({
   },
 });
 
+
 const ManageGiftCards = () => {
   const { user } = useSelector(state => state.auth);
+
+  const dispatch = useDispatch();
   
   // State for mock data
   const [giftCards, setGiftCards] = useState(MOCK_GIFT_CARDS);
   const [isLoading, setIsLoading] = useState(false);
   
-  // State for search functionality
+  // States for filter functionality
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredGiftCards, setFilteredGiftCards] = useState(MOCK_GIFT_CARDS);
+  const [showFilters, setShowFilters] = useState(false);
+  const [codeFilter, setCodeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [priceFilter, setPriceFilter] = useState("");
   
   // States for dialog management
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -120,23 +134,52 @@ const ManageGiftCards = () => {
   const [currentGiftCard, setCurrentGiftCard] = useState(null);
   const [formData, setFormData] = useState({
     code: "",
-    value: "",
-    expiryDate: "",
-    status: "active",
-    description: ""
+    minPrice: "",
+    maxPrice: "",
+    description: "",
+    imageFile: null,
+    imagePreview: null
   });
   
   // Error state
   const [formErrors, setFormErrors] = useState({});
   
-  // Filter gift cards when search term changes
+  // Filter gift cards when filters change
   useEffect(() => {
-    const filtered = giftCards.filter(card => 
-      card.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredGiftCards(filtered);
+    applyFilters();
   }, [searchTerm, giftCards]);
+  
+  const applyFilters = () => {
+    let filtered = [...giftCards];
+    
+    if (searchTerm.trim() !== "") {
+      filtered = filtered.filter(card => 
+        card.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        card.description.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+    
+    if (codeFilter.trim() !== "") {
+      filtered = filtered.filter(card =>
+        card.code.toLowerCase().includes(codeFilter.toLowerCase())
+      );
+    }
+    
+    if (statusFilter !== "") {
+      filtered = filtered.filter(card => card.status === statusFilter);
+    }
+    
+    if (priceFilter !== "") {
+      const price = parseFloat(priceFilter);
+      if (!isNaN(price)) {
+        filtered = filtered.filter(card => 
+          parseFloat(card.minPrice) <= price && parseFloat(card.maxPrice) >= price
+        );
+      }
+    }
+    
+    setFilteredGiftCards(filtered);
+  };
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -145,7 +188,6 @@ const ManageGiftCards = () => {
       [name]: value
     });
     
-    // Clear error for this field if it exists
     if (formErrors[name]) {
       setFormErrors({
         ...formErrors,
@@ -153,21 +195,36 @@ const ManageGiftCards = () => {
       });
     }
   };
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({
+          ...formData,
+          imageFile: file,
+          imagePreview: reader.result
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   
   const validateForm = () => {
     const errors = {};
     
     if (!formData.code) errors.code = "Gift card code is required";
-    if (!formData.value) errors.value = "Value is required";
-    else if (isNaN(formData.value) || parseFloat(formData.value) <= 0) 
-      errors.value = "Value must be a positive number";
+    if (!formData.minPrice) errors.minPrice = "Minimum price is required";
+    else if (isNaN(formData.minPrice) || parseFloat(formData.minPrice) <= 0) 
+      errors.minPrice = "Minimum price must be a positive number";
     
-    if (!formData.expiryDate) errors.expiryDate = "Expiry date is required";
-    else {
-      const today = new Date();
-      const expiryDate = new Date(formData.expiryDate);
-      if (expiryDate < today) errors.expiryDate = "Expiry date cannot be in the past";
-    }
+    if (!formData.maxPrice) errors.maxPrice = "Maximum price is required";
+    else if (isNaN(formData.maxPrice) || parseFloat(formData.maxPrice) <= 0) 
+      errors.maxPrice = "Maximum price must be a positive number";
+    
+    if (parseFloat(formData.minPrice) >= parseFloat(formData.maxPrice))
+      errors.maxPrice = "Maximum price must be greater than minimum price";
     
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -181,11 +238,40 @@ const ManageGiftCards = () => {
     
     setTimeout(() => {
       const newGiftCard = {
-        _id: `gc${Date.now()}`,
-        ...formData,
-        value: parseFloat(formData.value),
-        createdAt: new Date().toISOString().split('T')[0]
+        // _id: `gc${Date.now()}`,
+        code: formData.code,
+        minPrice: parseFloat(formData.minPrice),
+        maxPrice: parseFloat(formData.maxPrice),
+        description: formData.description,
+        imageUrl: formData.imageFile, // In a real app, you'd upload and store the URL
+        // status: "active", // Default status
+        // createdAt: new Date().toISOString().split('T')[0]
       };
+
+      const businessId = user?.business;
+
+    const formdata = new FormData();
+    formdata.append("code", formData.code);
+    formData.append("minPrice", formData.minPrice);
+    formData.append("maxPrice", formData.maxPrice);
+    formData.append("description", formData.description);
+    formData.append("imageUrl", formData.imageFile);
+
+    dispatch(addGiftCard({businessId, formdata}))
+    .unwrap()
+    .then((response) => {
+      showToast("SUCCESS", "Gift card added successfully");
+    })
+    .catch((error) => {
+      showToast("ERROR", "Failed to add gift card");
+    })
+
+
+   
+    
+
+      console.log("New gift card:", newGiftCard);
+
       
       setGiftCards([...giftCards, newGiftCard]);
       showToast("SUCCESS", "Gift card added successfully");
@@ -207,10 +293,10 @@ const ManageGiftCards = () => {
           ? { 
               ...card, 
               code: formData.code,
-              value: parseFloat(formData.value),
-              expiryDate: formData.expiryDate,
-              status: formData.status,
-              description: formData.description
+              minPrice: parseFloat(formData.minPrice),
+              maxPrice: parseFloat(formData.maxPrice),
+              description: formData.description,
+              imageUrl: formData.imagePreview || card.imageUrl
             } 
           : card
       );
@@ -240,10 +326,11 @@ const ManageGiftCards = () => {
     setCurrentGiftCard(giftCard);
     setFormData({
       code: giftCard.code,
-      value: giftCard.value.toString(),
-      expiryDate: giftCard.expiryDate,
-      status: giftCard.status,
-      description: giftCard.description || ""
+      minPrice: giftCard.minPrice.toString(),
+      maxPrice: giftCard.maxPrice.toString(),
+      description: giftCard.description || "",
+      imageFile: null,
+      imagePreview: giftCard.imageUrl
     });
     setShowEditDialog(true);
   };
@@ -256,10 +343,11 @@ const ManageGiftCards = () => {
   const resetForm = () => {
     setFormData({
       code: "",
-      value: "",
-      expiryDate: "",
-      status: "active",
-      description: ""
+      minPrice: "",
+      maxPrice: "",
+      description: "",
+      imageFile: null,
+      imagePreview: null
     });
     setFormErrors({});
     setCurrentGiftCard(null);
@@ -275,6 +363,19 @@ const ManageGiftCards = () => {
         return "error";
       default:
         return "default";
+    }
+  };
+  
+  const getStatusColorClass = (status) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "redeemed":
+        return "bg-blue-100 text-blue-800";
+      case "expired":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
     }
   };
   
@@ -294,79 +395,218 @@ const ManageGiftCards = () => {
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
-        <div className="px-4 md:px-8 lg:px-12 mb-3">
-          <h1 className="text-2xl md:text-3xl font-bold text-[#603F26]">
+        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
+          <Typography
+            variant="h4"
+            sx={{ color: "#603F26", fontWeight: "bold" }}
+          >
             Gift Card Management
-          </h1>
-          <p className="text-sm text-gray-500">
+          </Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
             Create, view, update, and manage gift cards for your customers
-          </p>
-        </div>
-        
-        <div className="w-full px-4 md:px-8 lg:px-12 mt-4">
-          <Card elevation={2} className="mb-6">
-            <CardContent>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            px: { xs: 2, md: 4, lg: 6 },
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
+          <Box>
+            <Paper
+              sx={{
+                bgcolor: "#603F26",
+                color: "white",
+                px: 3,
+                py: 2,
+                borderRadius: 2,
+              }}
+            >
+              <Typography variant="h4" component="div">
+                {String(filteredGiftCards.length).padStart(2, "0")}
+              </Typography>
+              <Typography variant="body2">Total Gift Cards</Typography>
+            </Paper>
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 2 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={() => setShowAddDialog(true)}
+            >
+              Add New Gift Card
+            </Button>
+
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<FilterListIcon />}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? "Hide Filters" : "Show Filters"}
+            </Button>
+          </Box>
+        </Box>
+
+        {showFilters && (
+          <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
+            <Paper sx={{ p: 3 }}>
+              <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
                 <TextField
-                  placeholder="Search gift cards..."
-                  variant="outlined"
-                  size="small"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon />
-                      </InputAdornment>
-                    ),
-                  }}
-                  sx={{ width: { xs: '100%', md: '300px' } }}
+                  label="Gift Card Code"
+                  placeholder="Search by code"
+                  value={codeFilter}
+                  onChange={(e) => setCodeFilter(e.target.value)}
                 />
+                <TextField
+                  label="Price Range"
+                  placeholder="Search by price"
+                  type="number"
+                  value={priceFilter}
+                  onChange={(e) => setPriceFilter(e.target.value)}
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">Rs</InputAdornment>,
+                  }}
+                />
+                <Select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  displayEmpty
+                  sx={{ minWidth: 200 }}
+                >
+                  <MenuItem value="">All Statuses</MenuItem>
+                  <MenuItem value="active">Active</MenuItem>
+                  <MenuItem value="redeemed">Redeemed</MenuItem>
+                  <MenuItem value="expired">Expired</MenuItem>
+                </Select>
                 <Button
                   variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={() => setShowAddDialog(true)}
+                  color="primary"
+                  onClick={applyFilters}
                 >
-                  Add New Gift Card
+                  Apply Filters
                 </Button>
-              </div>
-              
-              {filteredGiftCards.length === 0 ? (
-                <div className="text-center py-8">
-                  <GiftCardIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-                  <Typography variant="h6" color="textSecondary">
-                    No gift cards found
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                    {searchTerm ? "Try a different search term" : "Create your first gift card to get started"}
-                  </Typography>
-                </div>
-              ) : (
-                <TableContainer component={Paper} variant="outlined">
-                  <Table sx={{ minWidth: 650 }}>
-                    <TableHead>
-                      <TableRow sx={{ backgroundColor: theme.palette.action.hover }}>
-                        <TableCell><strong>Code</strong></TableCell>
-                        <TableCell><strong>Value</strong></TableCell>
-                        <TableCell><strong>Expiry Date</strong></TableCell>
-                        <TableCell><strong>Status</strong></TableCell>
-                        <TableCell><strong>Description</strong></TableCell>
-                        <TableCell align="right"><strong>Actions</strong></TableCell>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    setCodeFilter("");
+                    setStatusFilter("");
+                    setPriceFilter("");
+                    setFilteredGiftCards(giftCards);
+                  }}
+                >
+                  Clear Filters
+                </Button>
+              </Box>
+            </Paper>
+          </Box>
+        )}
+        
+        <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
+          {filteredGiftCards.length === 0 ? (
+            <div className="text-center py-8">
+              <GiftCardIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="h6" color="textSecondary">
+                No gift cards found
+              </Typography>
+              <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+                {searchTerm || codeFilter || statusFilter || priceFilter ? 
+                  "Try different filter options" : 
+                  "Create your first gift card to get started"}
+              </Typography>
+            </div>
+          ) : (
+            <>
+              {/* Desktop view */}
+              <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 650 }} aria-label="gift cards table">
+                    <TableHead sx={{ backgroundColor: "#603F26" }}>
+                      <TableRow>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Code
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Price Range
+                        </TableCell>
+                        {/* <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Status
+                        </TableCell> */}
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Description
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Created On
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Image
+                        </TableCell>
+                        <TableCell
+                          sx={{
+                            color: "white",
+                            fontSize: "16px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          Actions
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {filteredGiftCards.map((giftCard) => (
                         <TableRow key={giftCard._id}>
                           <TableCell className="font-medium">{giftCard.code}</TableCell>
-                          <TableCell>{formatCurrency(giftCard.value)}</TableCell>
-                          <TableCell>{formatDate(giftCard.expiryDate)}</TableCell>
-                          <TableCell>
+                          <TableCell>{formatCurrency(giftCard.minPrice)} - {formatCurrency(giftCard.maxPrice)}</TableCell>
+                          {/* <TableCell>
                             <Chip
-                              label={giftCard.status.charAt(0).toUpperCase() + giftCard.status.slice(1)}
+                              label={giftCard?.status.charAt(0).toUpperCase() + giftCard.status.slice(1)}
                               color={getStatusChipColor(giftCard.status)}
                               size="small"
                             />
-                          </TableCell>
+                          </TableCell> */}
                           <TableCell>
                             {giftCard.description ? (
                               giftCard.description.length > 30 
@@ -376,30 +616,106 @@ const ManageGiftCards = () => {
                               <span className="text-gray-400">—</span>
                             )}
                           </TableCell>
-                          <TableCell align="right">
-                            <IconButton
-                              color="primary"
-                              onClick={() => openEditDialog(giftCard)}
-                              disabled={giftCard.status !== "active"}
-                            >
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton
-                              color="error"
-                              onClick={() => openDeleteDialog(giftCard)}
-                              disabled={giftCard.status !== "active"}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
+                          <TableCell>{formatDate(giftCard.createdAt)}</TableCell>
+                          <TableCell>
+                            {giftCard.imageUrl ? (
+                              <img 
+                                src={giftCard.imageUrl} 
+                                alt={giftCard.code}
+                                style={{ width: '60px', height: '40px', objectFit: 'cover' }}
+                              />
+                            ) : (
+                              <span className="text-gray-400">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2">
+                              <Tooltip title="Edit Gift Card">
+                                <IconButton
+                                  color="primary"
+                                  onClick={() => openEditDialog(giftCard)}
+                                  disabled={giftCard.status !== "active"}
+                                >
+                                  <EditIcon />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Delete Gift Card">
+                                <IconButton
+                                  color="error"
+                                  onClick={() => openDeleteDialog(giftCard)}
+                                  disabled={giftCard.status !== "active"}
+                                >
+                                  <DeleteIcon />
+                                </IconButton>
+                              </Tooltip>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
-              )}
-            </CardContent>
-          </Card>
+              </div>
+
+              {/* Mobile View */}
+              <div className="block xl:hidden space-y-4">
+                {filteredGiftCards.map((giftCard) => (
+                  <div
+                    key={giftCard._id}
+                    className="bg-white p-4 rounded-lg shadow"
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <p className="font-bold">{giftCard.code}</p>
+                        <p className="text-sm text-gray-600">
+                          {formatDate(giftCard.createdAt)}
+                        </p>
+                      </div>
+                      {/* <Chip
+                        label={giftCard.status.charAt(0).toUpperCase() + giftCard.status.slice(1)}
+                        className={getStatusColorClass(giftCard.status)}
+                      /> */}
+                    </div>
+
+                    <div className="space-y-2">
+                      <p>Price Range: {formatCurrency(giftCard.minPrice)} - {formatCurrency(giftCard.maxPrice)}</p>
+                      <p>Description: {giftCard.description || "—"}</p>
+                      {giftCard.imageUrl && (
+                        <div className="mt-2">
+                          <img 
+                            src={giftCard.imageUrl} 
+                            alt={giftCard.code}
+                            className="h-20 object-cover rounded"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-4 flex gap-2">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => openEditDialog(giftCard)}
+                        disabled={giftCard.status !== "active"}
+                        fullWidth
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => openDeleteDialog(giftCard)}
+                        disabled={giftCard.status !== "active"}
+                        fullWidth
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
         </div>
         
         {/* Add Gift Card Dialog */}
@@ -427,10 +743,10 @@ const ManageGiftCards = () => {
                   helperText={formErrors.code}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={3}>
                 <TextField
-                  name="value"
-                  label="Value"
+                  name="minPrice"
+                  label="Min Price"
                   type="number"
                   variant="outlined"
                   fullWidth
@@ -438,43 +754,76 @@ const ManageGiftCards = () => {
                   InputProps={{
                     startAdornment: <InputAdornment position="start">Rs</InputAdornment>,
                   }}
-                  value={formData.value}
+                  value={formData.minPrice}
                   onChange={handleInputChange}
-                  error={!!formErrors.value}
-                  helperText={formErrors.value}
+                  error={!!formErrors.minPrice}
+                  helperText={formErrors.minPrice}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={3}>
                 <TextField
-                  name="expiryDate"
-                  label="Expiry Date"
-                  type="date"
+                  name="maxPrice"
+                  label="Max Price"
+                  type="number"
                   variant="outlined"
                   fullWidth
                   required
-                  InputLabelProps={{
-                    shrink: true,
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">Rs</InputAdornment>,
                   }}
-                  value={formData.expiryDate}
+                  value={formData.maxPrice}
                   onChange={handleInputChange}
-                  error={!!formErrors.expiryDate}
-                  helperText={formErrors.expiryDate}
+                  error={!!formErrors.maxPrice}
+                  helperText={formErrors.maxPrice}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    label="Status"
-                  >
-                    <MenuItem value="active">Active</MenuItem>
-                    <MenuItem value="redeemed">Redeemed</MenuItem>
-                    <MenuItem value="expired">Expired</MenuItem>
-                  </Select>
-                </FormControl>
+              <Grid item xs={12}>
+                <Box sx={{ 
+                  border: '1px dashed #ccc', 
+                  p: 2, 
+                  borderRadius: 1,
+                  textAlign: 'center',
+                  mb: 2
+                }}>
+                  {formData.imagePreview ? (
+                    <Box>
+                      <img 
+                        src={formData.imagePreview} 
+                        alt="Gift card preview" 
+                        style={{ maxHeight: '150px', maxWidth: '100%', marginBottom: '16px' }}
+                      />
+                      <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        onClick={() => setFormData({...formData, imageFile: null, imagePreview: null})}
+                      >
+                        Remove Image
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Box>
+                      <input
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="contained-button-file"
+                        type="file"
+                        onChange={handleImageUpload}
+                      />
+                      <label htmlFor="contained-button-file">
+                        <Button 
+                          variant="outlined" 
+                          component="span" 
+                          startIcon={<CloudUploadIcon />}
+                        >
+                          Upload Gift Card Image
+                        </Button>
+                      </label>
+                      <Typography variant="caption" display="block" color="textSecondary" sx={{ mt: 1 }}>
+                        Recommended size: 300x200 pixels
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -534,10 +883,10 @@ const ManageGiftCards = () => {
                   helperText={formErrors.code}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={3}>
                 <TextField
-                  name="value"
-                  label="Value"
+                  name="minPrice"
+                  label="Min Price"
                   type="number"
                   variant="outlined"
                   fullWidth
@@ -545,43 +894,76 @@ const ManageGiftCards = () => {
                   InputProps={{
                     startAdornment: <InputAdornment position="start">Rs</InputAdornment>,
                   }}
-                  value={formData.value}
+                  value={formData.minPrice}
                   onChange={handleInputChange}
-                  error={!!formErrors.value}
-                  helperText={formErrors.value}
+                  error={!!formErrors.minPrice}
+                  helperText={formErrors.minPrice}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={3}>
                 <TextField
-                  name="expiryDate"
-                  label="Expiry Date"
-                  type="date"
+                  name="maxPrice"
+                  label="Max Price"
+                  type="number"
                   variant="outlined"
                   fullWidth
                   required
-                  InputLabelProps={{
-                    shrink: true,
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">Rs</InputAdornment>,
                   }}
-                  value={formData.expiryDate}
+                  value={formData.maxPrice}
                   onChange={handleInputChange}
-                  error={!!formErrors.expiryDate}
-                  helperText={formErrors.expiryDate}
+                  error={!!formErrors.maxPrice}
+                  helperText={formErrors.maxPrice}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth variant="outlined">
-                  <InputLabel>Status</InputLabel>
-                  <Select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                    label="Status"
-                  >
-                    <MenuItem value="active">Active</MenuItem>
-                    <MenuItem value="redeemed">Redeemed</MenuItem>
-                    <MenuItem value="expired">Expired</MenuItem>
-                  </Select>
-                </FormControl>
+              <Grid item xs={12}>
+                <Box sx={{ 
+                  border: '1px dashed #ccc', 
+                  p: 2, 
+                  borderRadius: 1,
+                  textAlign: 'center',
+                  mb: 2
+                }}>
+                  {formData.imagePreview ? (
+                    <Box>
+                      <img 
+                        src={formData.imagePreview} 
+                        alt="Gift card preview" 
+                        style={{ maxHeight: '150px', maxWidth: '100%', marginBottom: '16px' }}
+                      />
+                      <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        onClick={() => setFormData({...formData, imageFile: null, imagePreview: null})}
+                      >
+                        Remove Image
+                      </Button>
+                    </Box>
+                  ) : (
+                    <Box>
+                      <input
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        id="edit-contained-button-file"
+                        type="file"
+                        onChange={handleImageUpload}
+                      />
+                      <label htmlFor="edit-contained-button-file">
+                        <Button 
+                          variant="outlined" 
+                          component="span" 
+                          startIcon={<CloudUploadIcon />}
+                        >
+                          Upload Gift Card Image
+                        </Button>
+                      </label>
+                      <Typography variant="caption" display="block" color="textSecondary" sx={{ mt: 1 }}>
+                        Recommended size: 300x200 pixels
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
               </Grid>
               <Grid item xs={12}>
                 <TextField
@@ -615,38 +997,35 @@ const ManageGiftCards = () => {
             </Button>
           </DialogActions>
         </Dialog>
-        
-        {/* Delete Confirmation Dialog */}
+                        {/* Delete Confirmation Dialog */}
         <Dialog
-          open={showDeleteDialog}
-          onClose={() => setShowDeleteDialog(false)}
-        >
-          <DialogTitle className="text-red-600">
-            Delete Gift Card
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText className="mb-3">
-              Are you sure you want to delete the gift card <strong>{currentGiftCard?.code}</strong>? This action cannot be undone.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setShowDeleteDialog(false)}>
-              Cancel
-            </Button>
-            <Button
-              color="error"
-              variant="contained"
-              onClick={handleDeleteGiftCard}
-            >
-              Delete
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-    </ThemeProvider>
-  );
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+      >
+        <DialogTitle className="text-red-600">
+          Delete Gift Card
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText className="mb-3">
+            Are you sure you want to delete the gift card <strong>{currentGiftCard?.code}</strong>? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDeleteDialog(false)}>
+            Cancel
+          </Button>
+          <Button
+            color="error"
+            variant="contained"
+            onClick={handleDeleteGiftCard}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
+  </ThemeProvider>
+);
 };
 
 export default ManageGiftCards;
-
-

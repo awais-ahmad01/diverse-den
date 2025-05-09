@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../../tools";
+import {Loader} from "../../../tools";
+import { getRiderOrders } from "../../../store/actions/orders";
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Table,
   TableBody,
@@ -25,8 +26,6 @@ import {
   Tooltip,
   Box,
   TextField,
-  Avatar,
-  Badge,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { format } from "date-fns";
@@ -45,183 +44,42 @@ const theme = createTheme({
   },
 });
 
-// Mock order data
-const mockOrders = [
-  {
-    _id: "ORD123456",
-    userInfo: {
-      firstname: "Ali",
-      lastname: "Ahmad",
-      email: "ali.ahmad@example.com",
-      phone: "03001234567",
-      address: "123 Main Street, Block F, DHA Phase 1, Lahore",
-      paymentMethod: "Cash on Delivery",
-    },
-    cartItems: [
-      {
-        quantity: 2,
-        productId: {
-          title: "Espresso Coffee",
-          price: 350,
-        },
-      },
-      {
-        quantity: 1,
-        productId: {
-          title: "Chocolate Croissant",
-          price: 220,
-        },
-      },
-    ],
-    status: "Pending",
-    subTotal: 920,
-    shippingCost: 150,
-    totalAmount: 1070,
-    cartItemCount: 3,
-    createdAt: "2025-04-25T10:30:00.000Z",
-    assignedTo: "Rider123",
-    estimatedDeliveryTime: "30-45 minutes",
-    deliveryInstructions: "Please call when at the gate",
-  },
-  {
-    _id: "ORD789012",
-    userInfo: {
-      firstname: "Sara",
-      lastname: "Khan",
-      email: "sara.khan@example.com",
-      phone: "03123456789",
-      address: "45 Park Avenue, Gulberg III, Lahore",
-      paymentMethod: "Cash on Delivery",
-    },
-    cartItems: [
-      {
-        quantity: 1,
-        productId: {
-          title: "Cappuccino",
-          price: 400,
-        },
-      },
-      {
-        quantity: 2,
-        productId: {
-          title: "Blueberry Muffin",
-          price: 180,
-        },
-      },
-    ],
-    status: "Out for Delivery",
-    subTotal: 760,
-    shippingCost: 150,
-    totalAmount: 910,
-    cartItemCount: 3,
-    createdAt: "2025-04-26T09:15:00.000Z",
-    assignedTo: "Rider123",
-    estimatedDeliveryTime: "15-30 minutes",
-    deliveryInstructions: "Apartment 3B, 2nd floor",
-  },
-  {
-    _id: "ORD345678",
-    userInfo: {
-      firstname: "Mohammad",
-      lastname: "Asif",
-      email: "m.asif@example.com",
-      phone: "03214567890",
-      address: "789 Railway Road, Cantt, Karachi",
-      paymentMethod: "Online Payment",
-    },
-    cartItems: [
-      {
-        quantity: 3,
-        productId: {
-          title: "Cold Brew Coffee",
-          price: 450,
-        },
-      },
-      {
-        quantity: 1,
-        productId: {
-          title: "Almond Biscotti",
-          price: 200,
-        },
-      },
-    ],
-    status: "Delivered",
-    subTotal: 1550,
-    shippingCost: 200,
-    totalAmount: 1750,
-    cartItemCount: 4,
-    createdAt: "2025-04-24T14:45:00.000Z",
-    assignedTo: "Rider123",
-    estimatedDeliveryTime: "Delivered at 15:30",
-    deliveryInstructions: "",
-  },
-  {
-    _id: "ORD901234",
-    userInfo: {
-      firstname: "Ayesha",
-      lastname: "Malik",
-      email: "ayesha.m@example.com",
-      phone: "03331234567",
-      address: "56 Jinnah Road, Block B, Bahria Town, Islamabad",
-      paymentMethod: "Cash on Delivery",
-    },
-    cartItems: [
-      {
-        quantity: 1,
-        productId: {
-          title: "Latte",
-          price: 380,
-        },
-      },
-      {
-        quantity: 2,
-        productId: {
-          title: "Cheese Danish",
-          price: 250,
-        },
-      },
-    ],
-    status: "Returned",
-    subTotal: 880,
-    shippingCost: 150,
-    totalAmount: 1030,
-    cartItemCount: 3,
-    createdAt: "2025-04-23T11:20:00.000Z",
-    assignedTo: "Rider123",
-    estimatedDeliveryTime: "N/A",
-    deliveryInstructions: "Call before delivery",
-    returnReason: "Customer unavailable at location",
-  },
-];
-
-const OrderDetailsDialog = ({ open, onClose, order }) => {
+const OrderDetailsDialog = ({ open, onClose, order, handleStatus }) => {
   if (!order) return null;
 
   const [status, setStatus] = useState(order.status);
   const [statusUpdateLoading, setStatusUpdateLoading] = useState(false);
 
-  const handleStatusChange = async (newStatus) => {
-    setStatusUpdateLoading(true);
-    setStatus(newStatus);
+  console.log("status:", status);
+
+  const handleStatusChange =(newStatus) => {
     
-    // Simulate API call
-    setTimeout(() => {
-      setStatusUpdateLoading(false);
-      showToast("SUCCESS", `Order status updated to ${newStatus}`);
-      onClose(newStatus);
-    }, 1000);
+    setStatus(newStatus);
+    handleStatus(newStatus);
+    onClose()
+  };
+
+  const calculateTotal = (cartItems) => {
+    if (!cartItems || !Array.isArray(cartItems)) return 0;
+    return cartItems.reduce(
+      (total, item) => 
+        total + (item.quantity * (item.productId?.price || 0)), 
+      0
+    );
   };
 
   return (
     <Dialog open={open} onClose={() => onClose(null)} maxWidth="md" fullWidth>
       <DialogTitle className="bg-[#603F26] text-white flex items-center justify-between">
-        <div>Order Details - #{order._id.slice(-6)}</div>
+        <div>Order Details - #{order._id?.slice(-6)}</div>
         <Chip 
           label={order.status} 
           color={
             order.status === "Delivered" ? "success" :
             order.status === "Returned" ? "error" :
-            order.status === "Out for Delivery" ? "primary" : "warning"
+            order.status === "Pending" ? "warning" :
+            order.status === "Online" ? "warning" :
+            order.status === "Out for Delivery" ? "primary" : "default"
           }
           sx={{ ml: 2 }}
         />
@@ -262,16 +120,14 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
               <strong>Address:</strong> {order.userInfo?.address}
             </Typography>
             <Typography>
+              <strong>City:</strong> {order.userInfo?.city || "N/A"}
+            </Typography>
+            <Typography>
               <strong>Payment Method:</strong> {order.userInfo?.paymentMethod}
             </Typography>
-            {order.estimatedDeliveryTime && (
+            {order.branch && (
               <Typography>
-                <strong>Estimated Time:</strong> {order.estimatedDeliveryTime}
-              </Typography>
-            )}
-            {order.deliveryInstructions && (
-              <Typography>
-                <strong>Instructions:</strong> {order.deliveryInstructions}
+                <strong>Branch:</strong> {order.branch?.name} ({order.branchCode})
               </Typography>
             )}
           </Grid>
@@ -362,11 +218,10 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
               </Typography>
             )}
           </Grid>
-
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onClose(null)} color="primary">
+        <Button onClick={onClose} color="primary">
           Close
         </Button>
       </DialogActions>
@@ -375,36 +230,50 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
 };
 
 const RiderOrders = () => {
-  const [orders, setOrders] = useState(mockOrders);
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+  const { riderOrders, isloading } = useSelector((state) => state.orders);
+
   const [viewOrderDetails, setViewOrderDetails] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [filteredOrders, setFilteredOrders] = useState(mockOrders);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+
+  // Initialize filtered orders from riderOrders when available
+  useEffect(() => {
+    if (riderOrders && riderOrders.length) {
+      setFilteredOrders(riderOrders);
+    }
+  }, [riderOrders]);
 
   const handleViewDetails = (order) => {
     setViewOrderDetails(order);
   };
 
-  const handleStatusUpdate = (newStatus) => {
-    if (newStatus && viewOrderDetails) {
-      // Update the order in the list
-      const updatedOrders = orders.map(order => 
-        order._id === viewOrderDetails._id 
-          ? { ...order, status: newStatus } 
-          : order
-      );
-      setOrders(updatedOrders);
-      setFilteredOrders(
-        updatedOrders.filter(order => 
-          filterOrder(order, orderNumber, statusFilter)
-        )
-      );
-      setViewOrderDetails(null);
-    } else {
-      setViewOrderDetails(null);
-    }
+  const handleCloseDialog = () => {
+    setViewOrderDetails(null);
   };
+
+  // const handleStatusUpdate = (newStatus) => {
+  //   if (newStatus && viewOrderDetails) {
+  //     // Update the order in the list
+  //     const updatedOrders = riderOrders.map(order => 
+  //       order._id === viewOrderDetails._id 
+  //         ? { ...order, status: newStatus } 
+  //         : order
+  //     );
+      
+  //     setFilteredOrders(
+  //       updatedOrders.filter(order => 
+  //         filterOrder(order, orderNumber, statusFilter)
+  //       )
+  //     );
+  //     setViewOrderDetails(null);
+  //   } else {
+  //     setViewOrderDetails(null);
+  //   }
+  // };
 
   const filterOrder = (order, orderNum, status) => {
     const matchesOrderNum = orderNum ? 
@@ -417,7 +286,7 @@ const RiderOrders = () => {
   };
 
   const applyFilters = () => {
-    const filtered = orders.filter(order => 
+    const filtered = riderOrders.filter(order => 
       filterOrder(order, orderNumber, statusFilter)
     );
     setFilteredOrders(filtered);
@@ -426,7 +295,7 @@ const RiderOrders = () => {
   const clearFilters = () => {
     setOrderNumber("");
     setStatusFilter("");
-    setFilteredOrders(orders);
+    setFilteredOrders(riderOrders);
   };
 
   const getStatusColor = (status) => {
@@ -437,6 +306,8 @@ const RiderOrders = () => {
         return "bg-red-100 text-red-800";
       case "Pending":
         return "bg-yellow-100 text-yellow-800";
+      case "Online":
+        return "bg-yellow-100 text-yellow-800";
       case "Out for Delivery":
         return "bg-blue-100 text-blue-800";
       default:
@@ -444,20 +315,43 @@ const RiderOrders = () => {
     }
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "Delivered":
-        return <DeliveryDiningIcon sx={{ color: "green" }} />;
-      case "Returned":
-        return <LocalShippingIcon sx={{ color: "red" }} />;
-      case "Pending":
-        return <DirectionsBikeIcon sx={{ color: "orange" }} />;
-      case "Out for Delivery":
-        return <DirectionsBikeIcon sx={{ color: "blue" }} />;
-      default:
-        return <DirectionsBikeIcon />;
+  // const getStatusIcon = (status) => {
+  //   switch (status) {
+  //     case "Delivered":
+  //       return <DeliveryDiningIcon sx={{ color: "green" }} />;
+  //     case "Returned":
+  //       return <LocalShippingIcon sx={{ color: "red" }} />;
+  //     case "Pending":
+  //     case "Online":
+  //       return <DirectionsBikeIcon sx={{ color: "orange" }} />;
+  //     case "Out for Delivery":
+  //       return <DirectionsBikeIcon sx={{ color: "blue" }} />;
+  //     default:
+  //       return <DirectionsBikeIcon />;
+  //   }
+  // };
+
+
+  const handleStatusUpdate = (newStatus) => {
+    if(newStatus){
+      console.log("Status data:", newStatus);
+      // dispatch(updateOrderStatus({ orderId: viewOrderDetails._id, status: newStatus }));
+      // .unwrap()
+      // .then(() => {
+      //   showToast("SUCCESS", `Order status updated to ${newStatus}`);
+      // })
+      // .catch(() => {
+      //   showToast("ERROR", "Failed to update status");
+      // })
     }
-  };
+  }
+
+
+  useEffect(() => {
+    if (user && user._id) {
+      dispatch(getRiderOrders(user._id));
+    }
+  }, [user, dispatch]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -492,7 +386,7 @@ const RiderOrders = () => {
               }}
             >
               <Typography variant="h4" component="div">
-                {String(filteredOrders.filter(o => o.status === "Pending" || o.status === "Out for Delivery").length).padStart(2, "0")}
+                {String(filteredOrders.filter(o => o.status === "Pending" || o.status === "Online").length).padStart(2, "0")}
               </Typography>
               <Typography variant="body2">Pending Deliveries</Typography>
             </Paper>
@@ -542,6 +436,7 @@ const RiderOrders = () => {
                 >
                   <MenuItem value="">All Statuses</MenuItem>
                   <MenuItem value="Pending">Pending</MenuItem>
+                  <MenuItem value="Online">Online</MenuItem>
                   <MenuItem value="Out for Delivery">Out for Delivery</MenuItem>
                   <MenuItem value="Delivered">Delivered</MenuItem>
                   <MenuItem value="Returned">Returned</MenuItem>
@@ -559,8 +454,12 @@ const RiderOrders = () => {
 
         {/* Order List */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
-          {!filteredOrders || filteredOrders.length === 0 ? (
-            <div className="text-3xl font-bold flex justify-center">
+          {isloading ? (
+            <div className="text-center py-10">
+              <Loader />
+            </div>
+          ) : (!filteredOrders || filteredOrders.length === 0) ? (
+            <div className="text-3xl font-bold flex justify-center py-10">
               No Orders found
             </div>
           ) : (
@@ -588,15 +487,19 @@ const RiderOrders = () => {
                             {order?.userInfo?.firstname} {order?.userInfo?.lastname}
                           </TableCell>
                           <TableCell>
-                            {order?.userInfo?.address.length > 30
+                            {order?.userInfo?.address?.length > 30
                               ? `${order?.userInfo?.address.slice(0, 30)}...`
                               : order?.userInfo?.address}
                           </TableCell>
-                          <TableCell>{format(new Date(order?.createdAt), "PP")}</TableCell>
+                          <TableCell>
+                            {order?.createdAt 
+                              ? format(new Date(order.createdAt), "PP") 
+                              : "N/A"}
+                          </TableCell>
                           <TableCell>Rs {order?.totalAmount}</TableCell>
                           <TableCell>
                             <Box display="flex" alignItems="center" gap={1}>
-                              {getStatusIcon(order.status)}
+                              {/* {getStatusIcon(order.status)} */}
                               <Chip
                                 label={order.status}
                                 className={getStatusColor(order.status)}
@@ -632,7 +535,7 @@ const RiderOrders = () => {
                         </p>
                       </div>
                       <Chip
-                        icon={getStatusIcon(order.status)}
+                        // icon={getStatusIcon(order.status)}
                         label={order.status}
                         className={getStatusColor(order.status)}
                       />
@@ -641,7 +544,11 @@ const RiderOrders = () => {
                     <div className="space-y-2">
                       <Typography noWrap><strong>Address:</strong> {order?.userInfo?.address}</Typography>
                       <div className="flex justify-between">
-                        <Typography><strong>Date:</strong> {format(new Date(order?.createdAt), "PP")}</Typography>
+                        <Typography>
+                          <strong>Date:</strong> {order?.createdAt 
+                            ? format(new Date(order.createdAt), "PP")
+                            : "N/A"}
+                        </Typography>
                         <Typography><strong>Rs:</strong> {order?.totalAmount}</Typography>
                       </div>
                     </div>
@@ -665,8 +572,9 @@ const RiderOrders = () => {
         {/* Order Details Dialog */}
         <OrderDetailsDialog
           open={!!viewOrderDetails}
-          onClose={handleStatusUpdate}
+          onClose={handleCloseDialog}
           order={viewOrderDetails}
+          handleStatus={handleStatusUpdate}
         />
 
       </div>

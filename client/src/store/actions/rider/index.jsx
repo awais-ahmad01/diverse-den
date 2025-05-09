@@ -21,7 +21,7 @@ export const addRiderDetails = createAsyncThunk(
 
 
       const response = await axios.post(
-        "http://localhost:3000/branchOwner/addProduct",
+        "http://localhost:3000/rider/addRiderDetails",
         formData,
         {
           headers: {
@@ -44,6 +44,156 @@ export const addRiderDetails = createAsyncThunk(
 );
 
 
+
+
+
+export const getListOfSalesperson = createAsyncThunk(
+    "rider/getListOfSalesperson",
+    async (riderId, thunkAPI) => {
+      try {
+        console.log("get list of salesperson.....");
+  
+      console.log("riderId:", riderId);
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+          thunkAPI.dispatch(errorGlobal("No token found"));
+          return;
+        }
+        
+  
+  
+        const response = await axios.get(
+          "http://localhost:3000/rider/listOfSalesperson/",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+            params: {
+              riderId,
+            },
+          }
+        );
+  
+        console.log("salesperson List:", response.data);
+  
+       
+  
+        return {data: response.data.branches};
+      } catch (error) {
+        
+        console.log(error.response.data.message);
+        throw error;
+      }
+    }
+  );
+
+
+
+
+
+  
+export const getUserChats = createAsyncThunk(
+    "rider/getUserChats",
+    async (userId, thunkAPI) => {
+      try {
+        console.log("get user chats.....");
+  
+     console.log("userId:", userId);
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+          thunkAPI.dispatch(errorGlobal("No token found"));
+          return;
+        }
+        
+  
+  
+        const response = await axios.get(
+          "http://localhost:3000/api/chats/fetchChats",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+            params: {
+              userId,
+            },
+          }
+        );
+  
+        console.log("UserChatssssss:", response.data);
+  
+       
+  
+        return {data: response.data};
+      } catch (error) {
+        
+        console.log(error.response.data.message);
+        throw error;
+      }
+    }
+  );
+
+
+
+
+//   salesperson chat
+
+export const getListOfRiders = createAsyncThunk(
+    "rider/getListOfRiders",
+    async (userId, thunkAPI) => {
+      try {
+        console.log("get list of riders....");
+  
+      console.log("iserId:", userId);
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+          thunkAPI.dispatch(errorGlobal("No token found"));
+          return;
+        }
+        
+  
+  
+        const response = await axios.get(
+          "http://localhost:3000/branchOwner/listAllRiders",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+            params: {
+              userId
+            },
+          }
+        );
+  
+        console.log("Ridersssss List:", response.data);
+  
+       
+  
+        return {data: response.data};
+      } catch (error) {
+        
+        console.log("errorrrr:",error.response.data.message);
+        throw error;
+      }
+    }
+  );
+
+
+
+  
+  
+  
 
 
 

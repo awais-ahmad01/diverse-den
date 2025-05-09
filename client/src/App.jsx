@@ -62,7 +62,7 @@ import ManageBusinesses from "./components/AdminPanel/ManageBusinesses/index.jsx
 import ManageSubscriptionPlans from "./components/AdminPanel/ManageSubscriptions/index.jsx";
 import SalespersonDashboard from "./components/BranchOwnerPanel/salespersonDashboard/index.jsx";
 import OrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/manageOrders/index.jsx";
-import ChatSection from "./components/BranchOwnerPanel/salespersonDashboard/manageChats/index.jsx";
+import SalespersonChatModule from "./components/BranchOwnerPanel/salespersonDashboard/manageChats/index.jsx";
 import SalespersonOrderManagement from "./components/BranchOwnerPanel/salespersonDashboard/manageOrders/index.jsx";
 import ProductList from "./components/BranchOwnerPanel/branchOwnerDashboard/Branches/assignProduct.jsx";
 import LandingPage from "./components/LandingPage/index.jsx";
@@ -294,7 +294,7 @@ function App() {
                 element={<ProductList />}
               />
 
-              <Route path="manageChats" element={<ChatSection />} />
+              <Route path="manageChats" element={<SalespersonChatModule />} />
             </Route>
           </Route>
 

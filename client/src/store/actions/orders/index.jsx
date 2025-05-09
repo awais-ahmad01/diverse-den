@@ -286,3 +286,99 @@ export const listPaymentHistory = createAsyncThunk(
   }
 );
 
+
+
+
+
+
+
+
+export const assignOrderToRider= createAsyncThunk(
+  "orders/assignOrderToRider",
+  async ({orderId, riderId}, thunkAPI) => {
+    try {
+
+      console.log("Status data:", orderId, riderId);
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      const response = await axios.post(
+        "http://localhost:3000/assignOrderToRider",
+        {
+          orderId,
+          riderId
+        },
+        
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          
+        }
+      );
+
+      console.log("order assigned:", response.data);
+      return true;
+     
+    } catch (error) {
+      console.log("errro000r................");
+     
+      console.log(error.response.data.message); 
+      throw error;
+    }
+  }
+);
+
+
+
+
+export const getRiderOrders = createAsyncThunk(
+  "orders/getRiderOrders",
+  async (riderId, thunkAPI) => {
+    try {
+      console.log("List Orders.....");
+
+      console.log('riderId:',riderId)
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      
+      
+
+      const response = await axios.get(
+        "http://localhost:3000/rider/riderOrdersById",
+        
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params:{
+            riderId
+          }
+        }
+      );
+
+      console.log("rider Orders:", response.data);
+      return { data: response.data.orders };
+    } catch (error) {
+      console.log("errro000r................");
+    
+      console.log(error?.response?.data?.message);
+      throw error;
+    }
+  }
+);
+

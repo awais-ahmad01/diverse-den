@@ -154,6 +154,11 @@ const RiderDetails = () => {
     formData.append("cnicBack", cnicBack);
     formData.append("bikeDocuments", bikeDocuments);
 
+
+
+
+    
+
     console.log("Form data submitted:", {
       ...data,
       cnicFront,

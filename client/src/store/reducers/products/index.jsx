@@ -9,7 +9,8 @@ import {
   getCustomerProductById,
   getCartItems,
   getProductReviews,
-  getSaleProductById
+  getSaleProductById,
+  addGiftCard
 
 } from "../../actions/products";
 
@@ -21,7 +22,8 @@ const default_State = {
   subCategoryProducts:[],
   cartItems:[],
   productReviews:[],
-  saleProduct:[]
+  saleProduct:[],
+
 
   
 };
@@ -158,6 +160,8 @@ export const addProductSlice = createSlice({
       .addCase(getProductReviews.rejected, (state) => {
         state.isloading = false;
       })
+
+      .add
 
 
 
