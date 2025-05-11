@@ -1,9 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getGiftCards } from "../../actions/giftCards";
+import { getGiftCards, getAllGiftCards, getGiftCardById } from "../../actions/giftCards";
 
 const default_State = {
   isloading: false,
-  giftCardsList:[]
+  giftCardsList:[],
+  giftCardsData:[],
+  giftCardById:[]
 
   
 };
@@ -28,14 +30,33 @@ export const giftCardsSlice = createSlice({
     .addCase(getGiftCards.rejected, (state) => {
       state.isloading = false;
       state.giftCardsList = [];
-    })  
+    }) 
+    
+    .addCase(getAllGiftCards.pending, (state) => {
+      state.isloading = true;
+    })
+    .addCase(getAllGiftCards.fulfilled, (state, action) => {
+      state.isloading = false;
+      state.giftCardsData = action.payload.data
+   
+    })
+    .addCase(getAllGiftCards.rejected, (state) => {
+      state.isloading = false;
+      state.giftCardsData = [];
+    })
 
-      
+    .addCase(getGiftCardById.pending, (state) => {
+      state.isloading = true;
+    })
+    .addCase(getGiftCardById.fulfilled, (state, action) => {
+      state.isloading = false;
+      state.giftCardById = action.payload.data
+    })
+    .addCase(getGiftCardById.rejected, (state) => {
+      state.isloading = false;
+      state.giftCardById = [];
+    })
 
-
-  
- 
- 
  
       
   },

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../../tools";
 import {Loader} from "../../../tools";
-import { getRiderOrders } from "../../../store/actions/orders";
+import { getRiderOrders, statusChangeByRider } from "../../../store/actions/orders";
 import {
   Button,
   Dialog,
@@ -335,14 +335,14 @@ const RiderOrders = () => {
   const handleStatusUpdate = (newStatus) => {
     if(newStatus){
       console.log("Status data:", newStatus);
-      // dispatch(updateOrderStatus({ orderId: viewOrderDetails._id, status: newStatus }));
-      // .unwrap()
-      // .then(() => {
-      //   showToast("SUCCESS", `Order status updated to ${newStatus}`);
-      // })
-      // .catch(() => {
-      //   showToast("ERROR", "Failed to update status");
-      // })
+      dispatch(statusChangeByRider({ orderId: viewOrderDetails._id, status: newStatus, riderId: user._id }))
+      .unwrap()
+      .then(() => {
+        showToast("SUCCESS", `Order status updated to ${newStatus}`);
+      })
+      .catch(() => {
+        showToast("ERROR", "Failed to update status");
+      })
     }
   }
 

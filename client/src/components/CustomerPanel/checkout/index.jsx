@@ -512,7 +512,7 @@ const Checkout = () => {
                     </Typography>
                   </div>
                   
-                  {/* Display discount if available */}
+                  {/* Display points discount if available */}
                   {discountedData && discountedData.discountAmount > 0 && (
                     <div className="flex justify-between text-[#603f26] font-medium">
                       <Typography variant="body1">
@@ -520,6 +520,18 @@ const Checkout = () => {
                       </Typography>
                       <Typography variant="body1">
                         - Rs {discountedData.discountAmount.toFixed(2)}
+                      </Typography>
+                    </div>
+                  )}
+                  
+                  {/* Display gift card discount if available */}
+                  {discountedData && discountedData.giftCardAmount > 0 && (
+                    <div className="flex justify-between text-blue-600 font-medium">
+                      <Typography variant="body1">
+                        Gift Card Discount
+                      </Typography>
+                      <Typography variant="body1">
+                        - Rs {discountedData.giftCardAmount.toFixed(2)}
                       </Typography>
                     </div>
                   )}
@@ -534,10 +546,13 @@ const Checkout = () => {
                   </Typography>
                 </div>
                 
-                {/* Show points discount message if applicable */}
-                {discountedData && discountedData.discountAmount > 0 && (
+                {/* Show savings message if applicable */}
+                {(discountedData?.discountAmount > 0 || discountedData?.giftCardAmount > 0) && (
                   <div className="text-xs text-[#603f26] font-medium text-right">
-                    You saved Rs {discountedData.discountAmount.toFixed(2)} with your loyalty points!
+                    You saved Rs {(
+                      (discountedData?.discountAmount || 0) + 
+                      (discountedData?.giftCardAmount || 0)
+                    ).toFixed(2)} with your rewards!
                   </div>
                 )}
               </div>

@@ -382,3 +382,47 @@ export const getRiderOrders = createAsyncThunk(
   }
 );
 
+
+export const statusChangeByRider= createAsyncThunk(
+  "orders/statusChangeByRider",
+  async ({orderId, status, riderId}, thunkAPI) => {
+    try {
+
+      console.log("Status data:", orderId, riderId, status);
+
+      const token = localStorage.getItem("token");
+      console.log("myToken:", token);
+
+      if (!token) {
+        thunkAPI.dispatch(errorGlobal("No token found"));
+        return;
+      }
+
+      const response = await axios.post(
+        "http://localhost:3000/rider/riderOrderStatus",
+        {
+          orderId,
+          riderId, status
+        },
+        
+
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          
+        }
+      );
+
+      console.log("status changed:", response.data);
+      return true;
+     
+    } catch (error) {
+      console.log("errro000r................");
+     
+      console.log(error.response.data.message); 
+      throw error;
+    }
+  }
+);
+

@@ -158,6 +158,20 @@ const ManageGiftCards = () => {
     };
   
 
+// Add this function with your other handler functions
+const openEditDialog = (giftCard) => {
+  setCurrentGiftCard(giftCard);
+  setFormData({
+    code: giftCard.code,
+    minPrice: giftCard.minPrice.toString(),
+    maxPrice: giftCard.maxPrice.toString(),
+    description: giftCard.description || "",
+    imageFile: null,
+    imagePreview: giftCard.imagePath
+  });
+  setShowEditDialog(true);
+};
+
 
 
   
@@ -285,6 +299,8 @@ const handleEditGiftCard = () => {
 const handleDeleteGiftCard = () => {
 
   const giftCardId = currentGiftCard._id
+
+  console.log("giftCardId:", giftCardId);
   
   dispatch(deleteGiftCard(giftCardId))
     .unwrap()

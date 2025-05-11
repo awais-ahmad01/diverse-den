@@ -83,7 +83,7 @@ export const addGiftCard = createAsyncThunk(
 
 
 export const getGiftCards = createAsyncThunk(
-  "products/getGiftCards",
+  "giftCards/getGiftCards",
   async ({ businessId, pageNo = 1, limit = 7 }, thunkAPI) => {
     try {
       console.log("Get Gift Cards.....");
@@ -131,6 +131,102 @@ export const getGiftCards = createAsyncThunk(
 
 
 
+export const getAllGiftCards = createAsyncThunk(
+    "giftCards/getAllGiftCards",
+    async ( thunkAPI) => {
+      try {
+        console.log("Get All Gift Cards.....");
+  
+   
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+        
+          return;
+        }
+  
+        const response = await axios.get(
+          "http://localhost:3000/branchOwner/listAllGiftCards",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            }
+          }
+        );
+  
+        console.log("Gift Cards data:", response.data);
+  
+     
+  
+        return {
+          data: response.data,
+     
+        };
+      } catch (error) {
+        
+        console.log(error.response.data);
+        throw error;
+      }
+    }
+
+  );
+
+
+
+  export const getGiftCardById = createAsyncThunk(
+    "products/getGiftCardById",
+    async (id, thunkAPI) => {
+      try {
+        console.log("Get Gift Card.....");
+  
+        console.log("giftCardId:", id);
+  
+        
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+        
+          return;
+        }
+  
+        const response = await axios.get(
+          "http://localhost:3000/branchOwner/viewGiftCardDetails",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            params: {
+              giftCardId: id
+            },
+          }
+        );
+  
+        console.log("Gift Cards data:", response.data);
+  
+  
+        return {
+          data: response.data,
+      
+        };
+      } catch (error) {
+        
+        console.log(error.response.data);
+        throw error;
+      }
+    }
+  );
+  
+
+
+
+
+
 export const deleteGiftCard = createAsyncThunk(
   "giftCards/deleteGiftCard",
   async (giftCardId, { dispatch, getState }) => {
@@ -150,7 +246,7 @@ export const deleteGiftCard = createAsyncThunk(
 
       const response = await axios.post(
         "http://localhost:3000/branchOwner/deleteGiftCard",
-        giftCardId,
+        {giftCardId},
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -174,3 +270,44 @@ export const deleteGiftCard = createAsyncThunk(
     }
   }
 );
+
+
+
+
+export const placeGiftCardOrder = createAsyncThunk(
+    "giftCards/placeGiftCardOrder",
+    async (orderData, thunkAPI) => {
+      try {
+
+        console.log("Place Gift Card Order.....");
+
+        console.log("orderData:", orderData);
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+         
+          return;
+        }
+  
+    
+  
+        const response = await axios.post(
+          "http://localhost:3000/customer/purchaseAndSendGiftCard",
+          orderData, 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        console.log("Gift Card Order:", response.data);
+
+        return true;
+      } catch (error) {
+        console.error("Error adding gift card:", error.response?.data?.message || error.message);
+        throw error;
+      }
+    }
+  );

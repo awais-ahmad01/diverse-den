@@ -357,7 +357,7 @@ function App() {
 
             <Route path="giftCards" element={<GiftCardDisplay />} />
 
-            <Route path="giftCardPurchase" element={<GiftCardPurchase />} />
+            <Route path="giftCardPurchase/:id" element={<GiftCardPurchase />} />
 
             <Route path="events/:eventId" element={<DealsPage />} />
 

@@ -1,6 +1,9 @@
 
 
 import React, { useState, useEffect } from "react";
+
+
+
 import axios from "axios";
 import {
   Rating,
@@ -24,6 +27,8 @@ import { showToast } from "../../../tools";
 
 const ProductDetails = () => {
   const { user, isauthenticated } = useSelector((state) => state.auth);
+
+  
 
   const { productId } = useParams();
 
