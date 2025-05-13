@@ -4,8 +4,6 @@ import { Link } from "react-router-dom";
 import { getBranches, removeBranch } from "../../../../store/actions/branches";
 import { Loader, showToast } from "../../../../tools";
 
-
-
 import {
   Button,
   Dialog,
@@ -25,7 +23,8 @@ import {
   Chip,
   IconButton,
   Tooltip,
-  Grid
+  Grid,
+  TextField
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
@@ -34,6 +33,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 const theme = createTheme({
   palette: {
@@ -48,9 +49,12 @@ const ListBranches = () => {
   const { user } = useSelector((state) => state.auth);
   const { branches, meta, isloading } = useSelector((state) => state.branches);
 
-   
-
   const totalBranches = meta?.totalItems || 0;
+  const [open, setOpen] = useState(false);
+  const [toRemove, setToRemove] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filteredBranches, setFilteredBranches] = useState([]);
 
   const handleNextPage = (page) => {
     const business = user?.business;
@@ -65,9 +69,6 @@ const ListBranches = () => {
       dispatch(getBranches({ business, pageNo: page }));
     }
   };
-
-  const [open, setOpen] = useState(false);
-  const [toRemove, setToRemove] = useState(null);
 
   const handleClickOpen = (branchCode) => {
     setToRemove(branchCode);
@@ -95,11 +96,31 @@ const ListBranches = () => {
       });
   };
 
+  const applyFilters = () => {
+    if (!branches) return;
+
+    let filtered = [...branches];
+
+    if (searchQuery) {
+      filtered = filtered.filter(
+        (branch) =>
+          branch.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          branch.branchCode.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredBranches(filtered);
+  };
+
+  useEffect(() => {
+    if (branches) {
+      setFilteredBranches(branches);
+    }
+  }, [branches]);
+
   useEffect(() => {
     const business = user?.business;
     dispatch(getBranches({ business }));
-
-   
   }, [dispatch, user]);
 
   if (isloading) {
@@ -148,6 +169,14 @@ const ListBranches = () => {
 
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<FilterListIcon />}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? "Hide Filters" : "Show Filters"}
+            </Button>
+            <Button
               variant="contained"
               color="primary"
               startIcon={<AddCircleIcon />}
@@ -159,9 +188,54 @@ const ListBranches = () => {
           </Box>
         </Box>
 
+        {/* Filters */}
+        {showFilters && (
+          <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
+            <Paper sx={{ p: 3 }}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Search"
+                    placeholder="Search by branch name or code"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <SearchIcon sx={{ color: "gray", mr: 1 }} />
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={applyFilters}
+                    >
+                      Apply Filters
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setFilteredBranches(branches);
+                      }}
+                    >
+                      Clear Filters
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Box>
+        )}
+
         {/* Branches Content */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
-          {!branches || branches.length === 0 ? (
+          {!filteredBranches || filteredBranches.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
               No Branches found
             </div>
@@ -248,7 +322,7 @@ const ListBranches = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {branches.map((branch, index) => (
+                      {filteredBranches.map((branch, index) => (
                         <TableRow
                           key={index}
                           sx={{
@@ -303,7 +377,7 @@ const ListBranches = () => {
 
               {/* Mobile View */}
               <div className="block xl:hidden space-y-4">
-                {branches.map((branch, index) => (
+                {filteredBranches.map((branch, index) => (
                   <div
                     key={index}
                     className="bg-white p-4 rounded-lg shadow"
@@ -358,6 +432,7 @@ const ListBranches = () => {
             </>
           )}
         </div>
+        
 
         {/* Pagination */}
         {meta?.nextPage || meta?.previousPage ? (
@@ -431,9 +506,3 @@ const ListBranches = () => {
 };
 
 export default ListBranches;
-
-
-
-
-
-

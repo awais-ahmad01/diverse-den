@@ -588,6 +588,10 @@
 
 // export default Cart;
 
+
+
+
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Delete, Add, Remove, InfoOutlined } from "@mui/icons-material";
@@ -989,6 +993,7 @@ const Cart = () => {
               giftCardRedeemCode: null,
             }),
       };
+
 
       console.log("bodyyyy: ", body);
 

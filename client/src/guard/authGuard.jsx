@@ -194,6 +194,91 @@ export default AuthGuard;
 
 
 
+// import React from "react";
+// import { Navigate, useLocation } from "react-router-dom";
+// import { useSelector } from "react-redux";
+// import CircularProgress from "@mui/material/CircularProgress";
+
+
+// const AuthGuard = (props) => {
+//   const { isauthenticated, isloading, user } = useSelector((state) => state.auth);
+//   const location = useLocation();
+
+//   if (isloading) {
+//     return (
+//       <div className="text-center mt-28">
+//         <CircularProgress />
+//       </div>
+//     );
+//   }
+
+//   if (!isauthenticated) {
+//     console.log("Auth Guard: Not authenticated");
+//     return <Navigate to="/signin" state={{ from: location }} replace />;
+//   }
+
+//   // Guard routes based on user role
+//   if (isauthenticated) {
+//     const { role } = user;
+//     console.log("Role:", role);
+//     const { allowedRoles } = props;
+//     console.log("Allowed Roles:", allowedRoles);
+
+//     // First check if user's role is allowed to access the route
+//     if (!allowedRoles.includes(role)) {
+//       // Redirect based on role
+//       switch (role) {
+//         case 'Customer':
+//           return <Navigate to="/customer" state={{ from: location }} replace />;
+//         case 'Rider':
+//           return <Navigate to="/riderPanel" state={{ from: location }} replace />;
+//         case 'Salesperson':
+//           return <Navigate to="/branchOwnerPanel/salespersonDashboard" state={{ from: location }} replace />;
+//         case 'Branch Owner':
+//           return <Navigate to="/branchOwnerPanel/branchOwnerDashboard" state={{ from: location }} replace />;
+//         case 'Admin':
+//           return <Navigate to="/adminPanel" state={{ from: location }} replace />;
+//         default:
+//           return <Navigate to="/" state={{ from: location }} replace />;
+//       }
+//     }
+
+//     // Additional role-specific checks
+//     if (role === 'Rider') {
+//       console.log("Rider Guard");
+//       if (!user?.isApproved || user?.status !== 'Approved') {
+//         console.log("Rider Guard: Not approved");
+//         if (user?.isDetailsAdded && user?.status === 'Pending') {
+//           return <Navigate to="/riderPanel/pendingApproval" state={{ from: location }} replace />;
+//         }
+//         if (user?.isDetailsAdded && user?.status === 'Rejected') {
+//           return <Navigate to="/riderPanel/rejectionPage" state={{ from: location }} replace />;
+//         }
+//         return <Navigate to="/riderPanel/riderDetails" state={{ from: location }} replace />;
+//       }
+//       return <Navigate to="/riderPanel/riderDashboard" state={{ from: location }} replace />;
+//     }
+
+//     if (role === 'Branch Owner') {
+//       if (!user?.activePlan) {
+//         return <Navigate to="/branchOwnerPanel/subscription" state={{ from: location }} replace />;
+//       }
+//       // Add business verification check if needed
+//     }
+//   }
+
+//   return props.children;
+// };
+
+// export default AuthGuard;
+
+
+
+
+
+
+
+
 
 
 

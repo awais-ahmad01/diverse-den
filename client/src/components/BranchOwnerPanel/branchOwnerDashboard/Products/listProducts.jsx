@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { getProducts, removeProduct } from "../../../../store/actions/products";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Loader } from "../../../../tools";
+import { Loader, showToast } from "../../../../tools";
 
 import {
   Button,
@@ -22,15 +22,22 @@ import {
   Typography,
   Box,
   IconButton,
-  Tooltip
+  Tooltip,
+  Grid,
+  TextField,
+  Chip,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel
 } from "@mui/material";
 
-
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
 const theme = createTheme({
   palette: {
@@ -46,11 +53,24 @@ const ListProducts = () => {
   const { products, meta, isloading } = useSelector((state) => state.products);
   
   const totalProducts = meta?.totalItems || 0;
+  const [open, setOpen] = useState(false);
+  const [toRemove, setToRemove] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
+  const categories = [
+    "Clothing",
+    "Shoes",
+    "Furniture",
+    "DecorationPieces",
+   
+  ];
 
   const handleNextPage = (page) => {
     const business = user?.business;
     if (business && page) {
-      console.log("Next Page:", page);
       dispatch(getProducts({ business, pageNo: page }));
     }
   };
@@ -58,16 +78,11 @@ const ListProducts = () => {
   const handlePrevPage = (page) => {
     const business = user?.business;
     if (business && page) {
-      console.log("Previous Page:", page);
       dispatch(getProducts({ business, pageNo: page }));
     }
   };
 
-  const [open, setOpen] = useState(false);
-  const [toRemove, setToRemove] = useState(null);
-
   const handleClickOpen = (productId) => {
-    console.log("Open:code:", productId);
     setToRemove(productId);
     setOpen(true);
   };
@@ -78,17 +93,54 @@ const ListProducts = () => {
 
   const handleDelete = () => {
     const business = user?.business;
-    console.log("dlete:code:", toRemove);
     dispatch(removeProduct({toRemove, business}))
       .unwrap()
+      .then(() => {
+        showToast("SUCCESS", "Product deleted successfully!");
+        window.location.reload();
+      })
+      .catch(() => {
+        showToast("ERROR", "Failed to delete product!");
+      })
       .finally(() => {
         setOpen(false);
         setToRemove(null);
-      }); 
+      });
+  };
+
+  const applyFilters = () => {
+    if (!products) return;
+
+    let filtered = [...products];
+
+    if (searchQuery) {
+      filtered = filtered.filter(product =>
+        product.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (categoryFilter) {
+      filtered = filtered.filter(product =>
+        product.category.toLowerCase() === categoryFilter.toLowerCase()
+      );
+    }
+
+    setFilteredProducts(filtered);
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setCategoryFilter("");
+    setFilteredProducts(products);
   };
 
   useEffect(() => {
-    console.log("getting products.....");
+    if (products) {
+      setFilteredProducts(products);
+    }
+  }, [products]);
+
+  useEffect(() => {
     const business = user?.business;
     dispatch(getProducts({ business }));
   }, [dispatch, user]);
@@ -101,10 +153,7 @@ const ListProducts = () => {
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5 pb-9">
         {/* Header */}
-        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
-          {/* <IconButton component={Link} to="../dashboard" color="primary">
-            <ArrowBackIcon />
-          </IconButton> */}
+        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
           <Typography variant="h4" sx={{ color: "#603F26", fontWeight: "bold" }}>
             Products
           </Typography>
@@ -139,6 +188,14 @@ const ListProducts = () => {
 
           <Box sx={{ display: "flex", gap: 2 }}>
             <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<FilterListIcon />}
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              {showFilters ? "Hide Filters" : "Show Filters"}
+            </Button>
+            <Button
               variant="contained"
               color="primary"
               startIcon={<AddCircleIcon />}
@@ -150,9 +207,70 @@ const ListProducts = () => {
           </Box>
         </Box>
 
+        {/* Filters */}
+        {showFilters && (
+          <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
+            <Paper sx={{ p: 3 }}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} md={4}>
+                  <TextField
+                    fullWidth
+                    label="Search"
+                    placeholder="Search by product name"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <SearchIcon sx={{ color: "gray", mr: 1 }} />
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                      value={categoryFilter}
+                      label="Category"
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                    >
+                      <MenuItem value="">
+                        <em>All Categories</em>
+                      </MenuItem>
+                      {categories.map((category) => (
+                        <MenuItem key={category} value={category}>
+                          {category}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={applyFilters}
+                    >
+                      Apply Filters
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={clearFilters}
+                    >
+                      Clear Filters
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Box>
+        )}
+
         {/* Products Content */}
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
-          {!products || products.length === 0 ? (
+          {!filteredProducts || filteredProducts.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
               No Products found
             </div>
@@ -222,7 +340,7 @@ const ListProducts = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {products.map((product, index) => (
+                      {filteredProducts.map((product, index) => (
                         <TableRow
                           key={index}
                           sx={{
@@ -231,8 +349,14 @@ const ListProducts = () => {
                         >
                           <TableCell>{product.title}</TableCell>
                           <TableCell>{product?.branch ? product?.branch : 'Not Assigned'}</TableCell>
-                          <TableCell>{product.category}</TableCell>
-                          <TableCell>{product.price}</TableCell>
+                          <TableCell>
+                            <Chip 
+                              label={product.category} 
+                              color="primary" 
+                              size="small"
+                            />
+                          </TableCell>
+                          <TableCell>${product.price}</TableCell>
                           <TableCell>{product.totalQuantity}</TableCell>
                           <TableCell>
                             <div className="flex justify-center gap-2">
@@ -273,16 +397,22 @@ const ListProducts = () => {
 
               {/* Mobile View */}
               <div className="block xl:hidden space-y-4">
-                {products.map((product, index) => (
+                {filteredProducts.map((product, index) => (
                   <div
                     key={index}
                     className="bg-white p-4 rounded-lg shadow"
                   >
                     <div className="space-y-2">
                       <p className="font-bold">{product.title}</p>
-                      <p>Branch: {product?.branch ? product?.branch : 'Not Assigned'}</p>
-                      <p>Category: {product.category}</p>
-                      <p>Price: {product.price}</p>
+                      <div className="flex justify-between">
+                        <p>Branch: {product?.branch ? product?.branch : 'Not Assigned'}</p>
+                        <Chip 
+                          label={product.category} 
+                          color="primary" 
+                          size="small"
+                        />
+                      </div>
+                      <p>Price: ${product.price}</p>
                       <p>Quantity: {product.totalQuantity}</p>
                     </div>
 
@@ -391,6 +521,3 @@ const ListProducts = () => {
 };
 
 export default ListProducts;
-
-
-

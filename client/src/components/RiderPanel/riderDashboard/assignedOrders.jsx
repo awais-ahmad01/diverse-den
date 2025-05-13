@@ -339,6 +339,7 @@ const RiderOrders = () => {
       .unwrap()
       .then(() => {
         showToast("SUCCESS", `Order status updated to ${newStatus}`);
+        dispatch(getRiderOrders(user._id));
       })
       .catch(() => {
         showToast("ERROR", "Failed to update status");
@@ -436,8 +437,6 @@ const RiderOrders = () => {
                 >
                   <MenuItem value="">All Statuses</MenuItem>
                   <MenuItem value="Pending">Pending</MenuItem>
-                  <MenuItem value="Online">Online</MenuItem>
-                  <MenuItem value="Out for Delivery">Out for Delivery</MenuItem>
                   <MenuItem value="Delivered">Delivered</MenuItem>
                   <MenuItem value="Returned">Returned</MenuItem>
                 </Select>

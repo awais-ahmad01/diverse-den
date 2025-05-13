@@ -1,12 +1,8 @@
-// src/pages/LoyaltyPerks.jsx
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-
 import { useNavigate } from 'react-router-dom';
-
 import { customerLoyaltyPoints } from '../../../store/actions/loyaltyPerks';
 import { Loader } from '../../../tools';
-
 import {
   Tabs,
   Tab,
@@ -41,64 +37,6 @@ const DUMMY_USER = {
   joinDate: "2023-09-15"
 };
 
-const DUMMY_HISTORY = [
-  { id: 1, date: "2024-04-01", description: "Purchase - Order #1092", points: 120, type: "earned" },
-  { id: 2, date: "2024-03-25", description: "Daily Login Streak (7 days)", points: 50, type: "earned" },
-  { id: 3, date: "2024-03-20", description: "Redeemed for 15% Discount", points: -200, type: "redeemed" },
-  { id: 4, date: "2024-03-18", description: "First Purchase Bonus", points: 100, type: "earned" },
-  { id: 5, date: "2024-03-18", description: "Purchase - Order #1085", points: 75, type: "earned" },
-  { id: 6, date: "2024-03-15", description: "Account Creation Bonus", points: 50, type: "earned" },
-];
-
-const DUMMY_DAILY_MISSIONS = [
-  { id: 1, title: "Daily Login", description: "Log in to your account today", points: 10, completed: true },
-  { id: 2, title: "Browse 5 Products", description: "View details of at least 5 different products", points: 15, completed: true },
-  { id: 3, title: "Add to Cart", description: "Add a product to your shopping cart", points: 20, completed: false },
-  { id: 4, title: "Leave a Review", description: "Write a review for a product you purchased", points: 30, completed: false },
-  { id: 5, title: "Share a Product", description: "Share a product on social media", points: 25, completed: false },
-];
-
-const DUMMY_ACHIEVEMENTS = [
-  { 
-    id: 1, 
-    title: "First Purchase", 
-    description: "Complete your first purchase", 
-    points: 100, 
-    completed: true,
-    progress: 100,
-    target: 1
-  },
-  { 
-
-    id: 2, 
-    title: "Loyal Customer", 
-    description: "Make 5 purchases", 
-    points: 200, 
-    completed: false,
-    progress: 2,
-    target: 5
-  },
-  { 
-    id: 3, 
-    title: "Big Spender", 
-    description: "Spend a total of $500", 
-    points: 250, 
-    completed: false,
-    progress: 320,
-    target: 500 
-  },
-  { 
-    id: 4, 
-    title: "Product Explorer", 
-    description: "View 50 different products", 
-    points: 150, 
-    completed: false,
-    progress: 37,
-    target: 50
-  },
-];
-
-
 const DUMMY_REWARDS = [
   { id: 1, title: "10% Discount Coupon", description: "Get 10% off your next purchase", points: 200, type: "discount" },
   { id: 2, title: "15% Discount Coupon", description: "Get 15% off your next purchase", points: 350, type: "discount" },
@@ -108,23 +46,15 @@ const DUMMY_REWARDS = [
 ];
 
 const LoyaltyPerks = () => {
-
-  
   const navigate = useNavigate();
-
-  const {user, isauthenticated} = useSelector((state) => state.auth);
-
+  const { user, isauthenticated } = useSelector((state) => state.auth);
   const { customerLoyaltyData, isloading } = useSelector((state) => state.loyaltyPerks);
-  console.log("customerLoyaltyData:", customerLoyaltyData);
   const dispatch = useDispatch();
 
   useEffect(() => {
     const userId = user?._id;
     dispatch(customerLoyaltyPoints(userId));
-  }, [dispatch]);
-
-
-
+  }, [dispatch, user]);
 
   const [tabValue, setTabValue] = useState(0);
   const [redeemDialogOpen, setRedeemDialogOpen] = useState(false);
@@ -157,48 +87,33 @@ const LoyaltyPerks = () => {
   // Calculate completed achievements
   const completedAchievements = customerLoyaltyData?.achievementMilestones?.filter(achievement => achievement.completed).length;
 
-
   if (!isauthenticated) {
     navigate("/signin");
-    return;
+    return null;
   }
-
 
   if (user?.role !== "Customer") {
     navigate("/");
-    return ;
+    return null;
   }
 
-
- if (isloading) {
+  if (isloading) {
     return <Loader />;
   }
-
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">DD Loyalty Perks</h1>
       
       {/* Points Summary Card */}
-      <Paper elevation={3} className="mb-8 p-6 bg-gradient-to-r from-purple-600 to-indigo-700 text-white">
+      <Paper elevation={3} className="mb-8 p-6 bg-[#603F26] text-white">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div>
             <h2 className="text-2xl font-bold">Your Points Balance</h2>
             <div className="text-4xl font-bold my-3">{customerLoyaltyData?.totalPoints} points</div>
             <p className="text-sm opacity-80">Member since {new Date(customerLoyaltyData?.createdAt).toLocaleDateString()}</p>
           </div>
-          <div className="mt-4 md:mt-0">
-            <Button 
-              variant="contained" 
-              color="secondary" 
-              size="large"
-              startIcon={<Redeem />}
-              onClick={() => setTabValue(3)}
-              className="font-bold"
-            >
-              Redeem Points
-            </Button>
-          </div>
+          
         </div>
       </Paper>
 
@@ -208,14 +123,19 @@ const LoyaltyPerks = () => {
           value={tabValue} 
           onChange={handleTabChange} 
           variant="fullWidth"
-          indicatorColor="primary"
-          textColor="primary"
-          aria-label="loyalty perks tabs"
+          sx={{
+            '& .MuiTabs-indicator': {
+              backgroundColor: '#603F26',
+            },
+            '& .Mui-selected': {
+              color: '#603F26 !important',
+            }
+          }}
         >
           <Tab icon={<Star />} label="Dashboard" />
           <Tab icon={<History />} label="Points History" />
           <Tab icon={<EmojiEvents />} label="Challenges" />
-          <Tab icon={<Redeem />} label="Redeem Points" />
+         
         </Tabs>
 
         {/* Dashboard Tab */}
@@ -231,19 +151,38 @@ const LoyaltyPerks = () => {
                     <h3 className="text-xl font-semibold">Daily Missions</h3>
                     <Chip 
                       label={`${completedMissions}/${customerLoyaltyData?.dailyMissions?.length} Completed`} 
-                      color="primary" 
+                      sx={{
+                        color: '#603F26',
+                        borderColor: '#603F26',
+                      }}
                       variant="outlined" 
                     />
                   </div>
                   <LinearProgress 
+                    sx={{
+                      backgroundColor: '#e0e0e0',
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: '#603F26',
+                      },
+                      height: '8px',
+                      borderRadius: '4px',
+                      mb: 2
+                    }}
                     variant="determinate" 
                     value={(completedMissions / customerLoyaltyData?.dailyMissions?.length) * 100} 
-                    className="h-2 rounded-full mb-4"
                   />
                   <p className="text-gray-600">Complete today's missions to earn extra points!</p>
                 </CardContent>
                 <CardActions>
-                  <Button onClick={() => setTabValue(2)} color="primary">View All Missions</Button>
+                  <Button 
+                    onClick={() => setTabValue(2)} 
+                    sx={{
+                      color: '#603F26',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    View All Missions
+                  </Button>
                 </CardActions>
               </Card>
 
@@ -254,19 +193,38 @@ const LoyaltyPerks = () => {
                     <h3 className="text-xl font-semibold">Achievements</h3>
                     <Chip 
                       label={`${completedAchievements}/${customerLoyaltyData?.achievementMilestones?.length} Completed`} 
-                      color="primary" 
+                      sx={{
+                        color: '#603F26',
+                        borderColor: '#603F26',
+                      }}
                       variant="outlined" 
                     />
                   </div>
                   <LinearProgress 
+                    sx={{
+                      backgroundColor: '#e0e0e0',
+                      '& .MuiLinearProgress-bar': {
+                        backgroundColor: '#603F26',
+                      },
+                      height: '8px',
+                      borderRadius: '4px',
+                      mb: 2
+                    }}
                     variant="determinate" 
                     value={(completedAchievements / customerLoyaltyData?.achievementMilestones?.length) * 100} 
-                    className="h-2 rounded-full mb-4"
                   />
                   <p className="text-gray-600">Unlock achievements through your shopping journey.</p>
                 </CardContent>
                 <CardActions>
-                  <Button onClick={() => setTabValue(2)} color="primary">View All Achievements</Button>
+                  <Button 
+                    onClick={() => setTabValue(2)} 
+                    sx={{
+                      color: '#603F26',
+                      fontWeight: 'bold'
+                    }}
+                  >
+                    View All Achievements
+                  </Button>
                 </CardActions>
               </Card>
             </div>
@@ -286,7 +244,15 @@ const LoyaltyPerks = () => {
                 </div>
               ))}
               <div className="mt-4 text-center">
-                <Button onClick={() => setTabValue(1)} color="primary">View Full History</Button>
+                <Button 
+                  onClick={() => setTabValue(1)} 
+                  sx={{
+                    color: '#603F26',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  View Full History
+                </Button>
               </div>
             </div>
           </div>
@@ -333,8 +299,7 @@ const LoyaltyPerks = () => {
                       <div className="flex items-center">
                         <div className={`p-2 rounded-full mr-4 ${mission?.completed ? 'bg-green-100' : 'bg-gray-100'}`}>
                           {mission?.completed ? (
-                 
-                 <CheckCircle className="text-green-600" />
+                            <CheckCircle className="text-green-600" />
                           ) : (
                             <DonutLarge className="text-gray-400" />
                           )}
@@ -345,7 +310,7 @@ const LoyaltyPerks = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-purple-600">+{mission?.points} pts</div>
+                        <div className="font-bold" style={{ color: '#603F26' }}>+{mission?.points} pts</div>
                         {mission.completed && (
                           <span className="text-sm text-green-600">Completed</span>
                         )}
@@ -364,7 +329,7 @@ const LoyaltyPerks = () => {
                   <Paper key={achievement?._id} className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-medium">{achievement?.title}</h4>
-                      <div className="font-bold text-purple-600">+{achievement?.points} pts</div>
+                      <div className="font-bold" style={{ color: '#603F26' }}>+{achievement?.points} pts</div>
                     </div>
                     <p className="text-sm text-gray-600 mb-3">{achievement?.description}</p>
                     
@@ -373,9 +338,16 @@ const LoyaltyPerks = () => {
                       <span>{Math.round((achievement?.progress / achievement?.target) * 100)}%</span>
                     </div>
                     <LinearProgress 
+                      sx={{
+                        backgroundColor: '#e0e0e0',
+                        '& .MuiLinearProgress-bar': {
+                          backgroundColor: '#603F26',
+                        },
+                        height: '4px',
+                        borderRadius: '2px'
+                      }}
                       variant="determinate" 
                       value={(achievement?.progress / achievement?.target) * 100} 
-                      className="h-1 rounded-full"
                     />
                     
                     {achievement?.completed && (
@@ -391,13 +363,13 @@ const LoyaltyPerks = () => {
           </div>
         )}
 
-        {/* Redeem Points Tab */}
-        {tabValue === 3 && (
+      
+        {/* {tabValue === 3 && (
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold">Redeem Your Points</h2>
               <div className="text-xl font-bold">
-                Available: <span className="text-purple-600">{DUMMY_USER.points} points</span>
+                Available: <span style={{ color: '#603F26' }}>{DUMMY_USER.points} points</span>
               </div>
             </div>
 
@@ -409,13 +381,18 @@ const LoyaltyPerks = () => {
                     <CardContent className="flex-grow">
                       <h4 className="text-lg font-semibold mb-2">{reward.title}</h4>
                       <p className="text-gray-600 mb-4">{reward.description}</p>
-                      <div className="font-bold text-purple-600">{reward.points} points</div>
+                      <div className="font-bold" style={{ color: '#603F26' }}>{reward.points} points</div>
                     </CardContent>
                     <CardActions>
                       <Button 
                         fullWidth 
                         variant="contained" 
-                        color="primary"
+                        sx={{
+                          backgroundColor: '#603F26',
+                          '&:hover': {
+                            backgroundColor: '#4a2f1d',
+                          }
+                        }}
                         disabled={DUMMY_USER.points < reward.points}
                         onClick={() => openRedeemDialog(reward)}
                       >
@@ -423,7 +400,7 @@ const LoyaltyPerks = () => {
                       </Button>
                     </CardActions>
                   </Card>
-                ))}
+                ))} 
               </div>
             </div>
 
@@ -438,13 +415,18 @@ const LoyaltyPerks = () => {
                     <CardContent className="flex-grow">
                       <h4 className="text-lg font-semibold mb-2">{reward.title}</h4>
                       <p className="text-gray-600 mb-4">{reward.description}</p>
-                      <div className="font-bold text-purple-600">{reward.points} points</div>
+                      <div className="font-bold" style={{ color: '#603F26' }}>{reward.points} points</div>
                     </CardContent>
                     <CardActions>
                       <Button 
                         fullWidth 
                         variant="contained" 
-                        color="primary"
+                        sx={{
+                          backgroundColor: '#603F26',
+                          '&:hover': {
+                            backgroundColor: '#4a2f1d',
+                          }
+                        }}
                         disabled={DUMMY_USER.points < reward.points}
                         onClick={() => openRedeemDialog(reward)}
                       >
@@ -456,7 +438,7 @@ const LoyaltyPerks = () => {
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </Paper>
 
       {/* Redeem Confirmation Dialog */}
@@ -474,7 +456,16 @@ const LoyaltyPerks = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setRedeemDialogOpen(false)}>Cancel</Button>
-          <Button onClick={handleRedeemConfirm} color="primary" variant="contained">
+          <Button 
+            onClick={handleRedeemConfirm} 
+            variant="contained"
+            sx={{
+              backgroundColor: '#603F26',
+              '&:hover': {
+                backgroundColor: '#4a2f1d',
+              }
+            }}
+          >
             Confirm Redemption
           </Button>
         </DialogActions>
@@ -490,7 +481,14 @@ const LoyaltyPerks = () => {
           </div>
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeConfirmation} color="primary" autoFocus>
+          <Button 
+            onClick={closeConfirmation} 
+            sx={{
+              color: '#603F26',
+              fontWeight: 'bold'
+            }}
+            autoFocus
+          >
             Close
           </Button>
         </DialogActions>

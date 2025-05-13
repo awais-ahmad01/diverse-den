@@ -10,7 +10,7 @@ import {
   getCartItems,
   getProductReviews,
   getSaleProductById,
- 
+  getRecomendedProducts
 
 } from "../../actions/products";
 
@@ -23,8 +23,7 @@ const default_State = {
   cartItems:[],
   productReviews:[],
   saleProduct:[],
-
-
+  recommendedProducts:[]
   
 };
 
@@ -161,14 +160,18 @@ export const addProductSlice = createSlice({
         state.isloading = false;
       })
 
-      .add
+      .addCase(getRecomendedProducts.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getRecomendedProducts.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.recommendedProducts = action.payload.data;
+      })
+      .addCase(getRecomendedProducts.rejected, (state) => {
+        state.isloading = false;
+      })
 
 
-
-  
- 
- 
- 
       
   },
 });

@@ -38,9 +38,6 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import SearchIcon from "@mui/icons-material/Search";
 import RestoreIcon from "@mui/icons-material/Restore";
 
-// Assuming these actions would be created in the Redux store
-// import { listBusinesses, deleteBusiness, enableBusiness } from "../../../../store/actions/businesses";
-
 const theme = createTheme({
   palette: {
     primary: {
@@ -82,30 +79,11 @@ const BusinessDetailsDialog = ({ open, onClose, business }) => {
             </p>
           </Grid>
 
-          {/* Address Information */}
-          {/* <Grid item xs={12}>
-            <hr className="my-4" />
-            <h3 className="text-lg font-bold mb-2">Address</h3>
-            <p>{business.address || "No address provided"}</p>
-            <p>
-              {business.city}, {business.state} {business.zipCode}
-            </p>
-            <p>{business.country}</p>
-          </Grid> */}
-
           {/* Subscription Information */}
           <Grid item xs={12}>
             <hr className="my-4" />
             <h3 className="text-lg font-bold mb-2">Subscription Information</h3>
             <p>Plan: {business?.user?.activePlan?.name}</p>
-            {/* <p>
-              Status:
-              <Chip
-                label={business.isActive ? "Active" : "Disabled"}
-                color={business.isActive ? "success" : "error"}
-                className="ml-2"
-              />
-            </p> */}
             <p>Start Date: {business?.user?.planActivation}</p>
             <p>Expiry Date: {business?.user?.planExpiry}</p>
             {business?.user?.planExpiry < new Date() && (
@@ -162,29 +140,6 @@ const DeleteConfirmationDialog = ({
   );
 };
 
-const EnableBusinessDialog = ({ open, onClose, onConfirm, businessName }) => {
-  return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle className="text-green-600">Enable Business</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          Are you sure you want to manually enable "{businessName}"? This will
-          override the automatic disabling due to subscription expiry. The
-          business will still need to renew their subscription.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={onConfirm} color="success" variant="contained">
-          Enable
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
-
 const ManageBusinesses = () => {
   const dispatch = useDispatch();
   const { user: currentUser } = useSelector((state) => state.auth);
@@ -192,86 +147,12 @@ const ManageBusinesses = () => {
     (state) => state.businesses
   );
 
-  const mockBusinesses = [
-    {
-      _id: "b123456",
-      name: "Coffee House Delights",
-      email: "info@coffeehousedelights.com",
-      phone: "555-123-4567",
-      type: "Food & Beverage",
-      address: "123 Main Street",
-      city: "Portland",
-      state: "OR",
-      zipCode: "97201",
-      country: "USA",
-      subscriptionPlan: "Premium",
-      isActive: true,
-      subscriptionStartDate: "2024-01-15T00:00:00.000Z",
-      subscriptionEndDate: "2025-01-15T00:00:00.000Z",
-      createdAt: "2023-12-10T00:00:00.000Z",
-      ownerFirstName: "Sarah",
-      ownerLastName: "Johnson",
-      website: "www.coffeehousedelights.com",
-    },
-    {
-      _id: "b234567",
-      name: "Tech Solutions Inc",
-      email: "contact@techsolutions.com",
-      phone: "555-987-6543",
-      type: "Technology",
-      address: "456 Innovation Drive",
-      city: "Austin",
-      state: "TX",
-      zipCode: "78701",
-      country: "USA",
-      subscriptionPlan: "Basic",
-      isActive: false,
-      subscriptionStartDate: "2024-01-01T00:00:00.000Z",
-      subscriptionEndDate: "2024-02-01T00:00:00.000Z",
-      createdAt: "2023-11-15T00:00:00.000Z",
-      ownerFirstName: "Michael",
-      ownerLastName: "Chen",
-      website: "www.techsolutions.com",
-    },
-    {
-      _id: "b345678",
-      name: "Fitness First Gym",
-      email: "info@fitnessfirst.com",
-      phone: "555-222-3333",
-      type: "Health & Fitness",
-      address: "789 Wellness Blvd",
-      city: "Miami",
-      state: "FL",
-      zipCode: "33101",
-      country: "USA",
-      subscriptionPlan: "Premium",
-      isActive: true,
-      subscriptionStartDate: "2023-11-01T00:00:00.000Z",
-      subscriptionEndDate: "2024-11-01T00:00:00.000Z",
-      createdAt: "2023-10-22T00:00:00.000Z",
-      ownerFirstName: "Jessica",
-      ownerLastName: "Martinez",
-      website: "www.fitnessfirstgym.com",
-    },
-  ];
-
-  // const [businesses, setBusinesses] = useState(mockBusinesses);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [meta] = useState({
-  //   totalBusinesses: 3,
-  //   currentPage: 1,
-  //   nextPage: null,
-  //   previousPage: null,
-  // });
-
   const [viewBusinessDetails, setViewBusinessDetails] = useState(null);
   const [deleteBusinessId, setDeleteBusinessId] = useState(null);
-  const [enableBusinessId, setEnableBusinessId] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [filteredBusinesses, setFilteredBusinesses] = useState(mockBusinesses);
+  const [filteredBusinesses, setFilteredBusinesses] = useState([]);
 
   const totalBusinesses = meta?.totalBusinesses || 0;
 
@@ -282,10 +163,6 @@ const ManageBusinesses = () => {
   const handleDeleteClick = (businessId) => {
     setDeleteBusinessId(businessId);
   };
-
-  // const handleEnableClick = (businessId) => {
-  //   setEnableBusinessId(businessId);
-  // };
 
   const handleDeleteConfirm = async () => {
     try {
@@ -304,27 +181,6 @@ const ManageBusinesses = () => {
     }
   };
 
-  // const handleEnableConfirm = async () => {
-  //   try {
-     
-  //     const updatedBusinesses = businesses.map((b) =>
-  //       b._id === enableBusinessId ? { ...b, isActive: true } : b
-  //     );
-  //     setBusinesses(updatedBusinesses);
-  //     setFilteredBusinesses(
-  //       filteredBusinesses.map((b) =>
-  //         b._id === enableBusinessId ? { ...b, isActive: true } : b
-  //       )
-  //     );
-  //     showToast("SUCCESS", "Business enabled successfully!");
-  //   } catch (error) {
-  //     console.error("Failed to enable business:", error);
-  //     showToast("ERROR", "Failed to enable business");
-  //   } finally {
-  //     setEnableBusinessId(null);
-  //   }
-  // };
-
   const applyFilters = () => {
     let filtered = [...businesses];
 
@@ -332,17 +188,15 @@ const ManageBusinesses = () => {
       filtered = filtered.filter(
         (business) =>
           business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          business.email.toLowerCase().includes(searchQuery.toLowerCase())
+          (business.user?.email && 
+            business.user.email.toLowerCase().includes(searchQuery.toLowerCase()))
       );
     }
 
     if (statusFilter) {
-      const isActive = statusFilter === "active";
-      filtered = filtered.filter((business) => business.isActive === isActive);
-    }
-
-    if (typeFilter) {
-      filtered = filtered.filter((business) => business.type === typeFilter);
+      filtered = filtered.filter(
+        (business) => business.status === statusFilter
+      );
     }
 
     setFilteredBusinesses(filtered);
@@ -353,8 +207,6 @@ const ManageBusinesses = () => {
       setFilteredBusinesses(businesses);
     }
   }, [businesses]);
-
-
 
   useEffect(() => {
     dispatch(listBusinesses({}));
@@ -372,11 +224,6 @@ const ManageBusinesses = () => {
     }
   };
 
-  
-  const businessTypes = [
-    ...new Set(businesses.map((business) => business.type)),
-  ];
-
   if (isloading) {
     return <Loader />;
   }
@@ -384,7 +231,6 @@ const ManageBusinesses = () => {
   return (
     <ThemeProvider theme={theme}>
       <main className="relative bg-gray-50 flex flex-col pt-5 pb-10">
-      
         <header className="px-4 md:px-6 lg:px-12 mb-6">
           <h1 className="text-3xl font-bold text-[#603F26]">
             Manage Businesses
@@ -445,28 +291,7 @@ const ManageBusinesses = () => {
                   >
                     <option value="">All Statuses</option>
                     <option value="active">Active</option>
-                    <option value="disabled">Disabled</option>
-                  </select>
-                </div>
-                <div className="min-w-[200px]">
-                  <label
-                    htmlFor="type-filter"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Business Type
-                  </label>
-                  <select
-                    id="type-filter"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#603F26]"
-                    value={typeFilter}
-                    onChange={(e) => setTypeFilter(e.target.value)}
-                  >
-                    <option value="">All Types</option>
-                    {businessTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
-                      </option>
-                    ))}
+                    <option value="inactive">Inactive</option>
                   </select>
                 </div>
                 <div className="flex gap-2">
@@ -483,7 +308,6 @@ const ManageBusinesses = () => {
                     onClick={() => {
                       setSearchQuery("");
                       setStatusFilter("");
-                      setTypeFilter("");
                       setFilteredBusinesses(businesses);
                     }}
                   >
@@ -495,7 +319,6 @@ const ManageBusinesses = () => {
           </section>
         )}
 
-    
         <section className="w-full px-4 md:px-8 lg:px-12 mt-4 flex-grow">
           {!filteredBusinesses || filteredBusinesses.length === 0 ? (
             <div className="text-3xl font-bold flex justify-center">
@@ -509,7 +332,6 @@ const ManageBusinesses = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="businesses table">
                     <TableHead sx={{ backgroundColor: "#603F26" }}>
                       <TableRow>
-                        
                         <TableCell
                           sx={{
                             color: "white",
@@ -569,7 +391,6 @@ const ManageBusinesses = () => {
                     <TableBody>
                       {filteredBusinesses.map((business) => (
                         <TableRow key={business?._id}>
-                          
                           <TableCell>{business?.name}</TableCell>
                           <TableCell>
                             {business?.user?.firstname}{" "}
@@ -601,7 +422,6 @@ const ManageBusinesses = () => {
                                   component={Link}
                                   to={`../businessProducts/${business?._id}`}
                                   onClick={() => {
-                                    // Add your logic to handle viewing products
                                     console.log(
                                       "View products for business:",
                                       business._id
@@ -612,18 +432,6 @@ const ManageBusinesses = () => {
                                   <InventoryIcon />
                                 </IconButton>
                               </Tooltip>
-                              {/* {!business.isActive && (
-                                <Tooltip title="Enable Business">
-                                  <IconButton
-                                    onClick={() =>
-                                      handleEnableClick(business._id)
-                                    }
-                                    color="success"
-                                  >
-                                    <RestoreIcon />
-                                  </IconButton>
-                                </Tooltip>
-                              )} */}
                               <Tooltip title="Delete Business">
                                 <IconButton
                                   onClick={() =>
@@ -653,7 +461,6 @@ const ManageBusinesses = () => {
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <h3 className="font-bold">{business?.name}</h3>
-                        {/* <p className="text-gray-600">{business?.email}</p> */}
                       </div>
                       <Chip
                         label={business?.status?.charAt(0).toUpperCase() + business?.status?.slice(1)}
@@ -685,14 +492,6 @@ const ManageBusinesses = () => {
                       >
                         View Products
                       </button>
-                      {/* {!business.isActive && (
-                        <button
-                          className="bg-green-600 text-white py-2 px-4 rounded-md flex-1 hover:bg-green-700 transition-colors"
-                          onClick={() => handleEnableClick(business._id)}
-                        >
-                          Enable
-                        </button>
-                      )} */}
                       <button
                         className="bg-red-600 text-white py-2 px-4 rounded-md flex-1 hover:bg-red-700 transition-colors"
                         onClick={() => handleDeleteClick(business._id)}
@@ -767,17 +566,6 @@ const ManageBusinesses = () => {
               ?.name
           }
         />
-
-        {/* Enable Business Dialog */}
-        {/* <EnableBusinessDialog
-          open={!!enableBusinessId}
-          onClose={() => setEnableBusinessId(null)}
-          onConfirm={handleEnableConfirm}
-          businessName={
-            businesses.find((business) => business._id === enableBusinessId)
-              ?.name
-          }
-        /> */}
       </main>
     </ThemeProvider>
   );

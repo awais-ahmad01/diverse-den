@@ -94,6 +94,21 @@ import GiftCardPurchase from "./components/CustomerPanel/giftCards/purchaseGiftC
 
 import NotFound from "./components/NotFound/index.jsx";
 
+import Chatbot from "./components/CustomerPanel/chatBot/index.jsx";
+import { Chat, Recommend } from "@mui/icons-material";
+
+import RecommendedProductsPage from "./components/CustomerPanel/recommendedProducts/recommendedProductsPage.jsx";
+
+import RecommendedProducts from "./components/CustomerPanel/recommendedProducts/index.jsx";
+
+import ManageRiders from "./components/AdminPanel/ManageRiders/index.jsx";
+
+import PendingApproval from "./components/RiderPanel/pendingPage.jsx";
+
+import RejectionPage from "./components/RiderPanel/rejectionPage.jsx";
+
+import Analytics from "./components/AdminPanel/Analytics/index.jsx";
+
 function App() {
   const dispatch = useDispatch();
 
@@ -251,6 +266,7 @@ function App() {
                 element={<ManageSubscriptions />}
               />
 
+
               <Route path="manageProductReviews" element={<ProductReviews />} />
 
               <Route path="manageGiftCards" element={<ManageGiftCards />} />
@@ -317,6 +333,10 @@ function App() {
 
             <Route path="riderDetails" element={<RiderDetails />} />
 
+            <Route path="pendingApproval" element={<PendingApproval />} />
+
+            <Route path="rejectionPage" element={<RejectionPage />} />
+
             <Route
               path="riderDashboard"
               element={<RiderDashboard />}
@@ -359,6 +379,11 @@ function App() {
 
             <Route path="giftCardPurchase/:id" element={<GiftCardPurchase />} />
 
+            <Route path="chatBot" element={<Chatbot />} />
+
+            <Route path="recommendedProductsPage" element={<RecommendedProductsPage/>} />
+
+
             <Route path="events/:eventId" element={<DealsPage />} />
 
 
@@ -384,6 +409,10 @@ function App() {
             <Route path="manageUsers" element={<ManageUsers />} />
 
             <Route path="manageBusinesses" element={<ManageBusinesses />} />
+
+            <Route path="manageRiders" element={<ManageRiders />} />
+
+            <Route path="analytics" element={<Analytics />} />
 
             <Route
               path="businessProducts/:businessId"

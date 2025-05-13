@@ -1,13 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-import { getListOfSalesperson, getUserChats, getListOfRiders } from "../../actions/rider";
+import { getListOfSalesperson, getUserChats, getListOfRiders
+  , getAllRiders
+ } from "../../actions/rider";
 
 
 let default_state = {
   isloading: false,
   listOfSalespersons: [],
   userChats:[],
-  listOfRiders: []
+  listOfRiders: [],
+  allRiders: [],
   
 };
 
@@ -58,6 +61,20 @@ export const riderSlice = createSlice({
     })
 
 
+    .addCase(getAllRiders.pending, (state) => {
+      state.isloading = true;
+    })
+    .addCase(getAllRiders.fulfilled, (state, action) => {
+      state.isloading = false;
+      state.allRiders = action.payload.data;
+    })
+    .addCase(getAllRiders.rejected, (state) => {
+      state.isloading = false;
+      state.allRiders = [];
+    })
+
+
+    
       
   },
 });

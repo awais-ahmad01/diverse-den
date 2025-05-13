@@ -35,6 +35,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import EditIcon from "@mui/icons-material/Edit";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 
+
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -46,7 +48,7 @@ const theme = createTheme({
 const ViewBranch = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
-  const { branchProducts, branchMeta } = useSelector((state) => state.branches);
+  const { branchProducts, branchMeta, isloading } = useSelector((state) => state.branches);
 
   
   
@@ -102,6 +104,13 @@ const ViewBranch = () => {
   useEffect(() => {
     dispatch(getBranchProducts({ branchId: id }));
   }, [dispatch, id]);
+
+
+  if(isloading){
+    return <Loader />
+  }
+
+
 
 
   return (

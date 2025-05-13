@@ -95,6 +95,8 @@
 
 
 
+
+
 import React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -132,8 +134,21 @@ const PreventSignin = (props) => {
             }
 
             if(userRole === 'Rider'){
-                return <Navigate to='/riderPanel/riderDashboard' state={{from:location}} replace/>
+                if(user?.isApproved && user?.status === 'Approved'){
+                    return <Navigate to='/riderPanel/riderDashboard' state={{from:location}} replace/>
+                }
+
+
+                if(user?.isDetailsAdded && user?.status === 'Pending'){
+                    return <Navigate to='/riderPanel/pendingApproval' state={{from:location}} replace/>
+                }
+
+                if(user?.isDetailsAdded && user?.status === 'Rejected'){
+                    return <Navigate to='/riderPanel/rejectionPage' state={{from:location}} replace/>
+                }
+                return <Navigate to='/riderPanel/riderDetails' state={{from:location}} replace/>
             }
+
 
             if(userRole === 'Customer'){
                 return <Navigate to='/customer' state={{from:location}} replace/>
@@ -150,3 +165,63 @@ const PreventSignin = (props) => {
 
 
 export default PreventSignin;
+
+
+
+
+
+
+
+
+// import React from 'react';
+// import { Navigate, useLocation } from 'react-router-dom';
+// import { useSelector } from 'react-redux';
+// import CircularProgress from '@mui/material/CircularProgress';
+
+// const PreventSignin = (props) => {
+//   const { isauthenticated, isloading, user } = useSelector((state) => state.auth);
+//   const location = useLocation();
+
+//   if (isloading) {
+//     return (
+//       <div className="text-center mt-28">
+//         <CircularProgress />
+//       </div>
+//     );
+//   }
+
+//   // Only prevent access to auth routes (signin/signup) for authenticated users
+//   const isAuthRoute = ['/signin', '/signup'].includes(location.pathname);
+  
+//   if (isauthenticated && isAuthRoute) {
+//     // Redirect to their respective dashboard based on role
+//     const role = user?.role;
+//     let redirectPath = '/';
+
+//     switch (role) {
+//       case 'Branch Owner':
+//         redirectPath = '/branchOwnerPanel/branchOwnerDashboard';
+//         break;
+//       case 'Rider':
+//         redirectPath = '/riderPanel/riderDashboard';
+//         break;
+//       case 'Salesperson':
+//         redirectPath = '/branchOwnerPanel/salespersonDashboard';
+//         break;
+//       case 'Customer':
+//         redirectPath = '/customer';
+//         break;
+//       case 'Admin':
+//         redirectPath = '/adminPanel';
+//         break;
+//       default:
+//         redirectPath = '/';
+//     }
+
+//     return <Navigate to={redirectPath} replace />;
+//   }
+
+//   return props.children;
+// };
+
+// export default PreventSignin;

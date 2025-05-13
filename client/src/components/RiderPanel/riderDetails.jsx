@@ -171,13 +171,15 @@ const RiderDetails = () => {
 
     // In a real implementation, this would be an API call
     dispatch(addRiderDetails(formData))
+    .unwrap()
     .then(() => {
       
-        dispatch(showToast("SUCCESS","Rider added successfully"));
+        showToast("SUCCESS","Rider details added successfully")
+        navigate("/riderPanel/pendingApproval");
       
     })
     .catch(() => {
-      dispatch(errorGlobal("ERROR","Failed to add rider"));
+      showToast("ERROR","Failed to add rider")
     })
   };
 

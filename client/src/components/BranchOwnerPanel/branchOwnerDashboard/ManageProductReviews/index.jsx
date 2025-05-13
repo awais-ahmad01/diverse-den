@@ -31,9 +31,13 @@ import {
   MenuItem,
   Typography,
   Box,
+  TextField,
+  Grid
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { Loader } from "../../../../tools";
 import { showToast } from "../../../../tools";
@@ -132,7 +136,6 @@ const ReviewDetailsDialog = ({
                   </div>
                   <IconButton
                     color="error"
-                    // onClick={() => onDeleteReview(review?._id)}
                     onClick={() => setDeleteReviewId(review?._id)}
                     size="small"
                   >
@@ -140,30 +143,10 @@ const ReviewDetailsDialog = ({
                   </IconButton>
                 </div>
 
-
                 <div>
                   <Rating value={review.rating} readOnly size="small" />
                   <p className="mt-2">{review.comment}</p>
                 </div>
-
-                {/* {review?.images && review?.images?.length > 0 && (
-                  <div className="flex gap-2 mt-2">
-                    {review?.images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={image}
-                        alt={`Review image ${index + 1}`}
-                        className="w-20 h-20 object-cover rounded"
-                      />
-                    ))}
-                  </div>
-                )} */}
-
-                {/* {review.verifiedPurchase && (
-                  <div className="mt-2">
-                    <Chip label="Verified Purchase" color="success" size="small" />
-                  </div>
-                )} */}
               </Paper>
             ))}
           </div>
@@ -226,10 +209,8 @@ const ProductReviews = () => {
   const [deleteProductId, setDeleteProductId] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState([]);
-
-  console.log("Delete Product Id:", deleteProductId);
-
-  // const totalProducts = meta?.totalProducts || 0;
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const totalProducts = reviewsMeta?.totalReviews || 0;
 
@@ -244,12 +225,24 @@ const ProductReviews = () => {
     }
   }, [businessProductReviews]);
 
+  const applyFilters = () => {
+    if (!businessProductReviews) return;
+
+    let filtered = [...businessProductReviews];
+
+    if (searchQuery) {
+      filtered = filtered.filter(product =>
+        product.productName.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    setFilteredProducts(filtered);
+  };
+
   const handleDeleteReview = (productId, reviewId) => {
     dispatch(
       deleteSpecificCustomerReview({
-        // productId,
         reviewId,
-        // action: 'delete'
       })
     )
       .unwrap()
@@ -280,7 +273,6 @@ const ProductReviews = () => {
       });
   };
 
-  // View product details
   const handleViewDetails = (product) => {
     setSelectedProduct(product);
   };
@@ -302,23 +294,85 @@ const ProductReviews = () => {
           </Typography>
         </Box>
 
-        {/* Stats */}
-        <div className="px-4 md:px-8 lg:px-12 mb-3 flex justify-between items-center">
-          <Paper
-            sx={{
-              bgcolor: "#603F26",
-              color: "white",
-              px: 3,
-              py: 2,
-              borderRadius: 2,
-            }}
-          >
-            <h2 className="text-2xl font-bold">
-              {String(totalProducts || 0).padStart(2, "0")}
-            </h2>
-            <p className="text-sm">Total Product Reviews</p>
-          </Paper>
-        </div>
+        {/* Stats and Filters */}
+        <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Paper
+                sx={{
+                  bgcolor: "#603F26",
+                  color: "white",
+                  px: 3,
+                  py: 2,
+                  borderRadius: 2,
+                  width: 'fit-content'
+                }}
+              >
+                <Typography variant="h4" component="div">
+                  {String(totalProducts || 0).padStart(2, "0")}
+                </Typography>
+                <Typography variant="body2">Total Product Reviews</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<FilterListIcon />}
+                  onClick={() => setShowFilters(!showFilters)}
+                >
+                  {showFilters ? "Hide Filters" : "Show Filters"}
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+
+        {/* Filters */}
+        {showFilters && (
+          <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
+            <Paper sx={{ p: 3 }}>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Search by Product Name"
+                    placeholder="Enter product name"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <SearchIcon sx={{ color: "gray", mr: 1 }} />
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Box sx={{ display: "flex", gap: 2 }}>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={applyFilters}
+                    >
+                      Apply Filters
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setFilteredProducts(businessProductReviews);
+                      }}
+                    >
+                      Clear Filters
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Box>
+        )}
 
         <div className="w-full px-4 md:px-8 lg:px-12 mt-4">
           {!filteredProducts || filteredProducts.length === 0 ? (
@@ -434,7 +488,7 @@ const ProductReviews = () => {
 
               {/* Mobile View */}
               <div className="block xl:hidden space-y-4">
-                {businessProductReviews?.map((product) => (
+                {filteredProducts.map((product) => (
                   <Paper key={product?.productId} className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">

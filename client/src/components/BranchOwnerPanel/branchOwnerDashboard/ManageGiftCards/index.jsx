@@ -27,7 +27,9 @@ import {
   Box,
   Select,
   MenuItem,
-  Tooltip
+  Tooltip,
+  Modal,
+  Zoom
 } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import {
@@ -37,7 +39,8 @@ import {
   Search as SearchIcon,
   CardGiftcard as GiftCardIcon,
   FilterList as FilterListIcon,
-  CloudUpload as CloudUploadIcon
+  CloudUpload as CloudUploadIcon,
+  Close as CloseIcon
 } from "@mui/icons-material";
 
 const theme = createTheme({
@@ -66,19 +69,19 @@ const ManageGiftCards = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredGiftCards, setFilteredGiftCards] = useState([]);
   const [showFilters, setShowFilters] = useState(false);
-  const [codeFilter, setCodeFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [priceFilter, setPriceFilter] = useState("");
   
   // States for dialog management
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   
+  // State for image zoom
+  const [zoomedImage, setZoomedImage] = useState(null);
+  
   // Form states
   const [currentGiftCard, setCurrentGiftCard] = useState(null);
   const [formData, setFormData] = useState({
-    code: "",
     minPrice: "",
     maxPrice: "",
     description: "",
@@ -112,14 +115,7 @@ const ManageGiftCards = () => {
     
     if (searchTerm.trim() !== "") {
       filtered = filtered.filter(card => 
-        card.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (card.description && card.description.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-    
-    if (codeFilter.trim() !== "") {
-      filtered = filtered.filter(card =>
-        card.code.toLowerCase().includes(codeFilter.toLowerCase())
       );
     }
     
@@ -127,19 +123,8 @@ const ManageGiftCards = () => {
       filtered = filtered.filter(card => card.status === statusFilter);
     }
     
-    if (priceFilter !== "") {
-      const price = parseFloat(priceFilter);
-      if (!isNaN(price)) {
-        filtered = filtered.filter(card => 
-          parseFloat(card.minPrice) <= price && parseFloat(card.maxPrice) >= price
-        );
-      }
-    }
-    
     setFilteredGiftCards(filtered);
   };
-
-
 
   const handleNextPage = (page) => {
       const businessId = user?.business;
@@ -157,23 +142,17 @@ const ManageGiftCards = () => {
       }
     };
   
-
-// Add this function with your other handler functions
-const openEditDialog = (giftCard) => {
-  setCurrentGiftCard(giftCard);
-  setFormData({
-    code: giftCard.code,
-    minPrice: giftCard.minPrice.toString(),
-    maxPrice: giftCard.maxPrice.toString(),
-    description: giftCard.description || "",
-    imageFile: null,
-    imagePreview: giftCard.imagePath
-  });
-  setShowEditDialog(true);
-};
-
-
-
+  const openEditDialog = (giftCard) => {
+    setCurrentGiftCard(giftCard);
+    setFormData({
+      minPrice: giftCard.minPrice.toString(),
+      maxPrice: giftCard.maxPrice.toString(),
+      description: giftCard.description || "",
+      imageFile: null,
+      imagePreview: giftCard.imagePath
+    });
+    setShowEditDialog(true);
+  };
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -208,7 +187,6 @@ const openEditDialog = (giftCard) => {
   const validateForm = () => {
     const errors = {};
     
-    if (!formData.code) errors.code = "Gift card code is required";
     if (!formData.minPrice) errors.minPrice = "Minimum price is required";
     else if (isNaN(formData.minPrice) || parseFloat(formData.minPrice) <= 0) 
       errors.minPrice = "Minimum price must be a positive number";
@@ -227,12 +205,9 @@ const openEditDialog = (giftCard) => {
   const handleAddGiftCard = () => {
     if (!validateForm()) return;
     
-
-    
     const businessId = user?.business;
   
     const formDataToSend = new FormData();
-    formDataToSend.append("code", formData.code);
     formDataToSend.append("minPrice", formData.minPrice);
     formDataToSend.append("maxPrice", formData.maxPrice);
     formDataToSend.append("description", formData.description || "");
@@ -255,69 +230,53 @@ const openEditDialog = (giftCard) => {
         showToast("ERROR", "Failed to add gift card");
         console.error("Error adding gift card:", error);
       })
-      
   };
   
+  const handleEditGiftCard = () => {
+    if (!validateForm()) return;
+    
+    const businessId = user?.business;
 
-// Update the handleEditGiftCard function
-const handleEditGiftCard = () => {
-  if (!validateForm()) return;
+    const formDataToSend = new FormData();
+    formDataToSend.append("giftCardId", currentGiftCard._id);
+    formDataToSend.append("minPrice", formData.minPrice);
+    formDataToSend.append("maxPrice", formData.maxPrice);
+    formDataToSend.append("description", formData.description || "");
+    
+    if (formData.imageFile) {
+      formDataToSend.append("imageUrl", formData.imageFile);
+    }
+
+    dispatch(updateGiftCard({ businessId, formdata: formDataToSend }))
+      .unwrap()
+      .then((response) => {
+        showToast("SUCCESS", "Gift card updated successfully");
+        setShowEditDialog(false);
+        resetForm();
+        
+        dispatch(getGiftCards({ businessId }));
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed to update gift card");
+        console.error("Error updating gift card:", error);
+      })
+  };
   
-  
-  const businessId = user?.business;
-
-  const formDataToSend = new FormData();
-  formDataToSend.append("giftCardId", currentGiftCard._id);
-  formDataToSend.append("code", formData.code);
-  formDataToSend.append("minPrice", formData.minPrice);
-  formDataToSend.append("maxPrice", formData.maxPrice);
-  formDataToSend.append("description", formData.description || "");
-  
-  // Only append image if it exists
-  if (formData.imageFile) {
-    formDataToSend.append("imageUrl", formData.imageFile);
-  }
-
-  dispatch(updateGiftCard({ businessId, formdata: formDataToSend }))
-    .unwrap()
-    .then((response) => {
-      showToast("SUCCESS", "Gift card updated successfully");
-      setShowEditDialog(false);
-      resetForm();
-      
-      // Refresh the gift cards list
-      dispatch(getGiftCards({ businessId }));
-    })
-    .catch((error) => {
-      showToast("ERROR", "Failed to update gift card");
-      console.error("Error updating gift card:", error);
-    })
-   
-};
-  
-
-const handleDeleteGiftCard = () => {
-
-  const giftCardId = currentGiftCard._id
-
-  console.log("giftCardId:", giftCardId);
-  
-  dispatch(deleteGiftCard(giftCardId))
-    .unwrap()
-    .then((response) => {
-      showToast("SUCCESS", "Gift card deleted successfully");
-      setShowDeleteDialog(false);
-      
-      // // Refresh the gift cards list
-      // const businessId = user?.business;
-      // dispatch(getGiftCards({ businessId }));
-    })
-    .catch((error) => {
-      showToast("ERROR", "Failed to delete gift card");
-      console.error("Error deleting gift card:", error);
-    })
-   
-};
+  const handleDeleteGiftCard = () => {
+    const giftCardId = currentGiftCard._id
+    console.log("giftCardId:", giftCardId);
+    
+    dispatch(deleteGiftCard(giftCardId))
+      .unwrap()
+      .then((response) => {
+        showToast("SUCCESS", "Gift card deleted successfully");
+        setShowDeleteDialog(false);
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed to delete gift card");
+        console.error("Error deleting gift card:", error);
+      })
+  };
   
   const openDeleteDialog = (giftCard) => {
     setCurrentGiftCard(giftCard);
@@ -326,7 +285,6 @@ const handleDeleteGiftCard = () => {
   
   const resetForm = () => {
     setFormData({
-      code: "",
       minPrice: "",
       maxPrice: "",
       description: "",
@@ -343,8 +301,6 @@ const handleDeleteGiftCard = () => {
         return "success";
       case "redeemed":
         return "primary";
-      case "expired":
-        return "error";
       default:
         return "default";
     }
@@ -356,8 +312,6 @@ const handleDeleteGiftCard = () => {
         return "bg-green-100 text-green-800";
       case "redeemed":
         return "bg-blue-100 text-blue-800";
-      case "expired":
-        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -372,6 +326,14 @@ const handleDeleteGiftCard = () => {
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
   
+  const handleImageClick = (imageUrl) => {
+    setZoomedImage(imageUrl);
+  };
+  
+  const handleCloseZoom = () => {
+    setZoomedImage(null);
+  };
+  
   if (isloading) {
     return <Loader />;
   }
@@ -379,6 +341,59 @@ const handleDeleteGiftCard = () => {
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
+        {/* Image Zoom Modal */}
+        <Modal
+          open={!!zoomedImage}
+          onClose={handleCloseZoom}
+          closeAfterTransition
+          BackdropProps={{
+            timeout: 500,
+          }}
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 'auto',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              outline: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <IconButton
+              sx={{
+                position: 'absolute',
+                right: 10,
+                top: 10,
+                color: 'white',
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                zIndex: 1,
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.7)',
+                }
+              }}
+              onClick={handleCloseZoom}
+            >
+              <CloseIcon />
+            </IconButton>
+            <img 
+              src={zoomedImage} 
+              alt="Zoomed gift card" 
+              style={{ 
+                maxHeight: '90vh', 
+                maxWidth: '90vw',
+                borderRadius: '4px',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.25)'
+              }}
+            />
+          </Box>
+        </Modal>
+
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
           <Typography
             variant="h4"
@@ -386,9 +401,7 @@ const handleDeleteGiftCard = () => {
           >
             Gift Cards
           </Typography>
-          <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-            Create, view, update, and manage gift cards for your customers
-          </Typography>
+          
         </Box>
 
         <Box
@@ -442,22 +455,6 @@ const handleDeleteGiftCard = () => {
           <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
             <Paper sx={{ p: 3 }}>
               <Box sx={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
-                <TextField
-                  label="Gift Card Code"
-                  placeholder="Search by code"
-                  value={codeFilter}
-                  onChange={(e) => setCodeFilter(e.target.value)}
-                />
-                <TextField
-                  label="Price Range"
-                  placeholder="Search by price"
-                  type="number"
-                  value={priceFilter}
-                  onChange={(e) => setPriceFilter(e.target.value)}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start">Rs</InputAdornment>,
-                  }}
-                />
                 <Select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -467,7 +464,6 @@ const handleDeleteGiftCard = () => {
                   <MenuItem value="">All Statuses</MenuItem>
                   <MenuItem value="active">Active</MenuItem>
                   <MenuItem value="redeemed">Redeemed</MenuItem>
-                  <MenuItem value="expired">Expired</MenuItem>
                 </Select>
                 <Button
                   variant="contained"
@@ -480,9 +476,7 @@ const handleDeleteGiftCard = () => {
                   variant="outlined"
                   color="primary"
                   onClick={() => {
-                    setCodeFilter("");
                     setStatusFilter("");
-                    setPriceFilter("");
                     setFilteredGiftCards(giftCards);
                   }}
                 >
@@ -501,7 +495,7 @@ const handleDeleteGiftCard = () => {
                 No gift cards found
               </Typography>
               <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-                {searchTerm || codeFilter || statusFilter || priceFilter ? 
+                {searchTerm || statusFilter ? 
                   "Try different filter options" : 
                   "Create your first gift card to get started"}
               </Typography>
@@ -514,15 +508,6 @@ const handleDeleteGiftCard = () => {
                   <Table sx={{ minWidth: 650 }} aria-label="gift cards table">
                     <TableHead sx={{ backgroundColor: "#603F26" }}>
                       <TableRow>
-                        <TableCell
-                          sx={{
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          Code
-                        </TableCell>
                         <TableCell
                           sx={{
                             color: "white",
@@ -582,7 +567,6 @@ const handleDeleteGiftCard = () => {
                     <TableBody>
                       {filteredGiftCards.map((giftCard) => (
                         <TableRow key={giftCard._id}>
-                          <TableCell className="font-medium">{giftCard.code}</TableCell>
                           <TableCell>{formatCurrency(giftCard.minPrice)} - {formatCurrency(giftCard.maxPrice)}</TableCell>
                           <TableCell>
                             <Chip
@@ -606,7 +590,19 @@ const handleDeleteGiftCard = () => {
                               <img 
                                 src={giftCard.imagePath} 
                                 alt={giftCard.code}
-                                style={{ width: '60px', height: '40px', objectFit: 'cover' }}
+                                style={{ 
+                                  width: '60px', 
+                                  height: '40px', 
+                                  objectFit: 'cover',
+                                  cursor: 'pointer',
+                                  borderRadius: '4px',
+                                  transition: 'transform 0.2s',
+                                  '&:hover': {
+                                    transform: 'scale(1.05)'
+                                  }
+                                }}
+                                onClick={() => handleImageClick(giftCard.imagePath)}
+                                className="hover:scale-105"
                               />
                             ) : (
                               <span className="text-gray-400">—</span>
@@ -650,7 +646,6 @@ const handleDeleteGiftCard = () => {
                   >
                     <div className="flex justify-between items-start mb-3">
                       <div>
-                        <p className="font-bold">{giftCard.code}</p>
                         <p className="text-sm text-gray-600">
                           {formatDate(giftCard.createdAt)}
                         </p>
@@ -669,7 +664,8 @@ const handleDeleteGiftCard = () => {
                           <img 
                             src={giftCard.imagePath} 
                             alt={giftCard.code}
-                            className="h-20 object-cover rounded"
+                            className="h-20 object-cover rounded cursor-pointer hover:scale-105 transition-transform"
+                            onClick={() => handleImageClick(giftCard.imagePath)}
                           />
                         </div>
                       )}
@@ -702,9 +698,8 @@ const handleDeleteGiftCard = () => {
           )}
         </div>
 
-
-         {/* Pagination */}
-         {meta?.nextPage || meta?.previousPage ? (
+        {/* Pagination */}
+        {meta?.nextPage || meta?.previousPage ? (
           <nav className="w-full flex justify-center items-center my-16">
             <ul className="inline-flex items-center -space-x-px text-sm">
               {meta?.previousPage && (
@@ -760,19 +755,6 @@ const handleDeleteGiftCard = () => {
             <Grid container spacing={3} sx={{ mt: 0.5 }}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  name="code"
-                  label="Gift Card Code"
-                  variant="outlined"
-                  fullWidth
-                  required
-                  value={formData.code}
-                  onChange={handleInputChange}
-                  error={!!formErrors.code}
-                  helperText={formErrors.code}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <TextField
                   name="minPrice"
                   label="Min Price"
                   type="number"
@@ -788,7 +770,7 @@ const handleDeleteGiftCard = () => {
                   helperText={formErrors.minPrice}
                 />
               </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   name="maxPrice"
                   label="Max Price"
@@ -900,19 +882,6 @@ const handleDeleteGiftCard = () => {
             <Grid container spacing={3} sx={{ mt: 0.5 }}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  name="code"
-                  label="Gift Card Code"
-                  variant="outlined"
-                  fullWidth
-                  required
-                  value={formData.code}
-                  onChange={handleInputChange}
-                  error={!!formErrors.code}
-                  helperText={formErrors.code}
-                />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <TextField
                   name="minPrice"
                   label="Min Price"
                   type="number"
@@ -928,7 +897,7 @@ const handleDeleteGiftCard = () => {
                   helperText={formErrors.minPrice}
                 />
               </Grid>
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   name="maxPrice"
                   label="Max Price"
@@ -1036,7 +1005,7 @@ const handleDeleteGiftCard = () => {
           </DialogTitle>
           <DialogContent>
             <DialogContentText className="mb-3">
-              Are you sure you want to delete the gift card <strong>{currentGiftCard?.code}</strong>? This action cannot be undone.
+              Are you sure you want to delete this gift card? This action cannot be undone.
             </DialogContentText>
           </DialogContent>
           <DialogActions>

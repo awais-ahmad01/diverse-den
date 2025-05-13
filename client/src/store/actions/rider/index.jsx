@@ -14,7 +14,7 @@ export const addRiderDetails = createAsyncThunk(
       console.log("myToken:", token);
 
       if (!token) {
-        thunkAPI.dispatch(errorGlobal("No token found"));
+     
         return;
       }
       
@@ -59,7 +59,7 @@ export const getListOfSalesperson = createAsyncThunk(
         console.log("myToken:", token);
   
         if (!token) {
-          thunkAPI.dispatch(errorGlobal("No token found"));
+        
           return;
         }
         
@@ -108,7 +108,7 @@ export const getUserChats = createAsyncThunk(
         console.log("myToken:", token);
   
         if (!token) {
-          thunkAPI.dispatch(errorGlobal("No token found"));
+        
           return;
         }
         
@@ -157,7 +157,7 @@ export const getListOfRiders = createAsyncThunk(
         console.log("myToken:", token);
   
         if (!token) {
-          thunkAPI.dispatch(errorGlobal("No token found"));
+         
           return;
         }
         
@@ -191,6 +191,181 @@ export const getListOfRiders = createAsyncThunk(
 
 
 
+
+  export const getAllRiders = createAsyncThunk(
+    "rider/getAllRiders",
+    async (thunkAPI) => {
+      try {
+        console.log("get list of All riders....");
+  
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+       
+          return;
+        }
+        
+  
+  
+        const response = await axios.get(
+          "http://localhost:3000/admin/getAllRiders",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+          }
+        );
+  
+        console.log("Ridersssss List:", response.data);
+  
+       
+  
+        return {data: response.data.data};
+      } catch (error) {
+        
+        console.log("errorrrr:",error.response.data.message);
+        throw error;
+      }
+    }
+  );
+
+
+
+
+
+
+  export const approveRider = createAsyncThunk(
+    "rider/approveRider",
+    async ({riderId}, thunkAPI) => {
+      try {
+        console.log("Approve Rider.....");
+
+        console.log("riderId:", riderId);
+  
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+       
+          return;
+        }
+        
+  
+  
+        const response = await axios.post(
+          "http://localhost:3000/admin/approveRider", {riderId},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+          }
+        );
+  
+        console.log("Rider approved:", response.data);
+  
+       
+  
+        return true;
+      } catch (error) {
+        
+        console.log("errorrrr:",error.response.data.message);
+        throw error;
+      }
+    }
+  );
+
+
+
+  export const rejectRider = createAsyncThunk(
+    "rider/rejectRider",
+    async ({riderId}, thunkAPI) => {
+      try {
+        console.log("reject Rider.....");
+
+        console.log("riderId:", riderId);
+  
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+         
+          return;
+        }
+        
+  
+  
+        const response = await axios.post(
+          "http://localhost:3000/admin/rejectRider", {riderId},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+          }
+        );
+  
+        console.log("Rider rejected:", response.data);
+  
+       
+  
+        return true;
+      } catch (error) {
+        
+        console.log("errorrrr:",error.response.data.message);
+        throw error;
+      }
+    }
+  );
+
+
+
+  export const deleteRider = createAsyncThunk(
+    "rider/rejectRider",
+    async ({riderId}, thunkAPI) => {
+      try {
+        console.log("dleete Rider.....");
+
+        console.log("riderId:", riderId);
+  
+  
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+  
+        if (!token) {
+         
+          return;
+        }
+        
+  
+  
+        const response = await axios.post(
+          "http://localhost:3000/admin/deleteRider", {riderId},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+
+          }
+        );
+  
+        console.log("Rider deleted:", response.data);
+  
+       
+  
+        return true;
+      } catch (error) {
+        
+        console.log("errorrrr:",error.response.data.message);
+        throw error;
+      }
+    }
+  );
 
 
 

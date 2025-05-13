@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { showToast } from "../../../../tools";
@@ -47,7 +45,6 @@ const theme = createTheme({
     primary: {
       main: "#603F26",
     },
-    
   },
 });
 
@@ -61,7 +58,6 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
       </DialogTitle>
       <DialogContent className="mt-4">
         <Grid container spacing={3}>
-         
           <Grid item xs={12} md={6}>
             <Typography variant="h6" className="font-bold mb-2">
               Customer Information
@@ -73,12 +69,10 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
             <Typography>Phone: {order.userInfo?.phone}</Typography>
           </Grid>
 
-      
           <Grid item xs={12} md={6}>
             <Typography>{order.userInfo?.address}</Typography>
           </Grid>
 
-       
           <Grid item xs={12}>
             <Divider className="my-4" />
             <Typography variant="h6" className="font-bold mb-2">
@@ -135,11 +129,8 @@ const OrderDetailsDialog = ({ open, onClose, order }) => {
               Payment Information
             </Typography>
             <Typography>Method: {order.userInfo?.paymentMethod}</Typography>
-            {/* <Typography>Status: {order?.status}</Typography> */}
-            {/* <Typography>Transaction ID: {order.transactionId}</Typography> */}
           </Grid>
 
-       
           <Grid item xs={12} md={6}>
             <Typography variant="h6" className="font-bold mb-2">
               Order Status
@@ -206,8 +197,6 @@ const ListOrders = () => {
   const business = user?.business;
   const { orders, isloading, meta } = useSelector((state) => state.orders);
 
-  console.log("orders:", orders);
-
   const [viewOrderDetails, setViewOrderDetails] = useState(null);
   const [deleteOrderId, setDeleteOrderId] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -220,36 +209,30 @@ const ListOrders = () => {
 
   const handleStatusChange = (orderId, newStatus) => {
     dispatch(updateOrderStatus({ orderId, status: newStatus }))
-        .unwrap()
-        .then((response) => {
-          
-          const business = user?.business;
-          dispatch(listOrders({ business }));
-          showToast("SUCCESS", "Status Updated Successfully!!");
-        })
-        .catch((error) => {
-          showToast("ERROR", "Failed! to update status");
-          // throw error;
-        });
+      .unwrap()
+      .then((response) => {
+        const business = user?.business;
+        dispatch(listOrders({ business }));
+        showToast("SUCCESS", "Status Updated Successfully!!");
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed! to update status");
+      });
   };
 
+  const handleNextPage = (page) => {
+    const business = user?.business;
+    if (business && page) {
+      dispatch(listOrders({ business, pageNo: page }));
+    }
+  };
 
-    const handleNextPage = (page) => {
-      const business = user?.business;
-      if (business && page) {
-        dispatch(listOrders({ business, pageNo: page }));
-       
-      }
-    };
-  
-    const handlePrevPage = (page) => {
-      const business = user?.business;
-      if (business && page) {
-        dispatch(listOrders({ business, pageNo: page }));
-       
-      }
-    };
-  
+  const handlePrevPage = (page) => {
+    const business = user?.business;
+    if (business && page) {
+      dispatch(listOrders({ business, pageNo: page }));
+    }
+  };
 
   const handleViewDetails = (order) => {
     setViewOrderDetails(order);
@@ -262,17 +245,13 @@ const ListOrders = () => {
   const handleDeleteConfirm = async () => {
     try {
       await dispatch(deleteOrder({deleteOrderId, business}))
-      .unwrap()
+        .unwrap()
         .then((response) => {
-          
           showToast("SUCCESS", "Order deleted Successfully!!");
         })
         .catch((error) => {
           showToast("ERROR", "Failed! to delete order");
-          // throw error;
         });
-
-     
     } catch (error) {
       console.error("Failed to delete order:", error);
     } finally {
@@ -284,7 +263,6 @@ const ListOrders = () => {
     let filtered = [...orders];
 
     if (orderNumber.trim() !== "") {
-     
       filtered = filtered.filter((order) => {
         const shortOrderId = order._id.slice(-6);
         return shortOrderId.includes(orderNumber.trim());
@@ -292,7 +270,6 @@ const ListOrders = () => {
     }
 
     if (customerName.trim() !== "") {
-     
       filtered = filtered.filter((order) => {
         const fullName = `${order?.userInfo?.firstname || ""} ${order?.userInfo?.lastname || ""}`.toLowerCase();
         return fullName.includes(customerName.trim().toLowerCase());
@@ -315,7 +292,6 @@ const ListOrders = () => {
   useEffect(() => {
     const business = user?.business;
     dispatch(listOrders({ business }));
-    
   }, [dispatch, user]);
 
   if (isloading) {
@@ -332,15 +308,41 @@ const ListOrders = () => {
         return "bg-blue-100 text-blue-800";
       case "Shipped":
         return "bg-purple-100 text-purple-800";
+      case "Returned":
+        return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
+  const renderStatusControl = (order) => {
+    if (order.status === "Returned") {
+      return (
+        <Chip
+          label="Returned"
+          className={getStatusColor("Returned")}
+        />
+      );
+    }
+
+    return (
+      <Select
+        value={order.status}
+        onChange={(e) => handleStatusChange(order._id, e.target.value)}
+        className={getStatusColor(order.status)}
+      >
+        <MenuItem value="Pending">Pending</MenuItem>
+        <MenuItem value="Processing">Processing</MenuItem>
+        <MenuItem value="Shipped">Shipped</MenuItem>
+        <MenuItem value="Delivered">Delivered</MenuItem>
+        <MenuItem value="Cancelled">Cancelled</MenuItem>
+      </Select>
+    );
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <div className="relative bg-gray-50 flex flex-col pt-5">
-       
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
           <Typography
             variant="h4"
@@ -359,7 +361,7 @@ const ListOrders = () => {
             mb: 3,
           }}
         >
-          <Box >
+          <Box>
             <Paper
               sx={{
                 bgcolor: "#603F26",
@@ -397,7 +399,6 @@ const ListOrders = () => {
             </Button>
           </Box>
         </Box>
-       
 
         {showFilters && (
           <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
@@ -426,6 +427,7 @@ const ListOrders = () => {
                   <MenuItem value="Processing">Processing</MenuItem>
                   <MenuItem value="Shipped">Shipped</MenuItem>
                   <MenuItem value="Delivered">Delivered</MenuItem>
+                  <MenuItem value="Returned">Returned</MenuItem>
                   <MenuItem value="Cancelled">Cancelled</MenuItem>
                 </Select>
                 <Button
@@ -459,8 +461,7 @@ const ListOrders = () => {
             </div>
           ) : (
             <>
-            
-            {/* Desktop view */}
+              {/* Desktop view */}
               <div className="relative overflow-x-auto shadow-md sm:rounded-lg hidden xl:block">
                 <TableContainer component={Paper}>
                   <Table sx={{ minWidth: 650 }} aria-label="orders table">
@@ -545,19 +546,7 @@ const ListOrders = () => {
                           <TableCell>{order?.cartItemCount}</TableCell>
                           <TableCell>Rs {order?.totalAmount}</TableCell>
                           <TableCell>
-                            <Select
-                              value={order.status}
-                              onChange={(e) =>
-                                handleStatusChange(order._id, e.target.value)
-                              }
-                              className={getStatusColor(order.status)}
-                            >
-                              <MenuItem value="Pending">Pending</MenuItem>
-                              <MenuItem value="Processing">Processing</MenuItem>
-                              <MenuItem value="Shipped">Shipped</MenuItem>
-                              <MenuItem value="Delivered">Delivered</MenuItem>
-                              <MenuItem value="Cancelled">Cancelled</MenuItem>
-                            </Select>
+                            {renderStatusControl(order)}
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2">
@@ -575,7 +564,8 @@ const ListOrders = () => {
                                   color="error"
                                   disabled={
                                     order.status === "Shipped" ||
-                                    order.status === "Delivered"
+                                    order.status === "Delivered" ||
+                                    order.status === "Returned"
                                   }
                                 >
                                   <DeleteIcon />
@@ -618,19 +608,27 @@ const ListOrders = () => {
                     </div>
 
                     <div className="mt-4 space-y-2">
-                      <Select
-                        fullWidth
-                        value={order.status}
-                        onChange={(e) =>
-                          handleStatusChange(order._id, e.target.value)
-                        }
-                      >
-                        <MenuItem value="Pending">Pending</MenuItem>
-                        <MenuItem value="Processing">Processing</MenuItem>
-                        <MenuItem value="Shipped">Shipped</MenuItem>
-                        <MenuItem value="Delivered">Delivered</MenuItem>
-                        <MenuItem value="Cancelled">Cancelled</MenuItem>
-                      </Select>
+                      {order.status === "Returned" ? (
+                        <Chip
+                          label="Returned"
+                          className={getStatusColor("Returned")}
+                          fullWidth
+                        />
+                      ) : (
+                        <Select
+                          fullWidth
+                          value={order.status}
+                          onChange={(e) =>
+                            handleStatusChange(order._id, e.target.value)
+                          }
+                        >
+                          <MenuItem value="Pending">Pending</MenuItem>
+                          <MenuItem value="Processing">Processing</MenuItem>
+                          <MenuItem value="Shipped">Shipped</MenuItem>
+                          <MenuItem value="Delivered">Delivered</MenuItem>
+                          <MenuItem value="Cancelled">Cancelled</MenuItem>
+                        </Select>
+                      )}
 
                       <div className="flex gap-2">
                         <Button
@@ -646,13 +644,13 @@ const ListOrders = () => {
                           onClick={() => handleDeleteClick(order._id)}
                           disabled={
                             order.status === "Shipped" ||
-                            order.status === "Delivered"
+                            order.status === "Delivered" ||
+                            order.status === "Returned"
                           }
                           fullWidth
                         >
                           Delete
                         </Button>
-                        
                       </div>
                     </div>
                   </div>
@@ -662,8 +660,8 @@ const ListOrders = () => {
           )}
         </div>
 
-     {/* Pagination */}
-     {meta?.nextPage || meta?.previousPage ? (
+        {/* Pagination */}
+        {meta?.nextPage || meta?.previousPage ? (
           <nav className="w-full flex justify-center items-center my-16">
             <ul className="inline-flex items-center -space-x-px text-sm">
               {meta?.previousPage && (
@@ -705,14 +703,12 @@ const ListOrders = () => {
           </nav>
         ) : null}
 
-      
         <OrderDetailsDialog
           open={!!viewOrderDetails}
           onClose={() => setViewOrderDetails(null)}
           order={viewOrderDetails}
         />
 
-     
         <DeleteConfirmationDialog
           open={!!deleteOrderId}
           onClose={() => setDeleteOrderId(null)}
@@ -720,7 +716,6 @@ const ListOrders = () => {
           orderNumber={deleteOrderId?.slice(-6)}
         />
       </div>
-
     </ThemeProvider>
   );
 };

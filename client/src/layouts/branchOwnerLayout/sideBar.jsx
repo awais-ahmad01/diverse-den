@@ -131,6 +131,14 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
         '/branchOwnerPanel/branchOwnerDashboard/manageGiftCards'
       ]
     },
+    { 
+      to: 'analytics', 
+      label: 'Analytics',
+      icon: <FaStar className="text-xl" />,
+      activePaths: [
+        '/branchOwnerPanel/branchOwnerDashboard/analytics'
+      ]
+    },
   
   ];
 

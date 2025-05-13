@@ -58,7 +58,7 @@ export const addProduct = createAsyncThunk(
 
 export const getProducts = createAsyncThunk(
   "products/getProducts",
-  async ({ business, pageNo = 1, limit = 7 }, thunkAPI) => {
+  async ({ business, pageNo = 1, limit = 20 }, thunkAPI) => {
     try {
       console.log("Get Products.....");
 
@@ -669,6 +669,73 @@ export const getProductReviews = createAsyncThunk(
     
       console.log(error);
       throw error;
+    }
+  }
+);
+
+
+
+
+
+export const getRecomendedProducts = createAsyncThunk(
+  "products/getRecomendedProducts",
+  async (userId, thunkAPI) => {
+    try {
+      // First validate the userId is not empty
+      if (!userId) {
+        throw new Error("User ID is required");
+      }
+
+      const response = await axios.post(
+        "https://6392-35-244-86-173.ngrok-free.app/recommend",
+        {
+          user_id: userId,  // Matches your RecommendationRequest model
+          k: 15             // Number of recommendations to return
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'ngrok-skip-browser-warning': '69420'  // Bypass ngrok warning
+          },
+          // Only include credentials if your API requires authentication
+          withCredentials: false  
+        }
+      );
+
+      // Validate response structure matches ProductResponse
+      if (!Array.isArray(response.data)) {
+        throw new Error("Invalid response format from server");
+      }
+
+      console.log("Recommended Products:", response.data);
+      
+      // Return the array of products directly
+      return { data: response.data };
+      
+    } catch (error) {
+      console.error("Recommendation error:", error);
+      
+      // Handle different error cases
+      let errorMessage = "Failed to get recommendations";
+      let errorStatus = 500;
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        errorStatus = error.response.status;
+        errorMessage = error.response.data?.detail || error.response.statusText;
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = "No response from server";
+      } else {
+        // Something happened in setting up the request
+        errorMessage = error.message;
+      }
+      
+      return thunkAPI.rejectWithValue({
+        message: errorMessage,
+        status: errorStatus
+      });
     }
   }
 );
