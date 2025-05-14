@@ -379,7 +379,7 @@ const ListOrders = () => {
           </Box>
 
           <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
+            {/* <Button
               variant="contained"
               color="primary"
               startIcon={<ReceiptLongIcon />}
@@ -387,7 +387,7 @@ const ListOrders = () => {
               to="../OrdersPaymentHistory"
             >
               Payment History
-            </Button>
+            </Button> */}
 
             <Button
               variant="outlined"

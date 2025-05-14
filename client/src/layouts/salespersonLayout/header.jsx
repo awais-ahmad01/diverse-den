@@ -2,13 +2,15 @@ import React from "react";
 import { useState } from "react";
 import { FaBars } from "react-icons/fa";
 import Avatar from "@mui/material/Avatar";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { signOut } from "../../store/actions/auth";
 import { Link } from "react-router-dom";
 
 const BranchOwnerDashboardHeader = ({ toggleSidebar, hamburgerRef }) => {
 
   const dispatch = useDispatch()
+
+  const user = useSelector((state) => state.auth.user);
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -50,12 +52,13 @@ const BranchOwnerDashboardHeader = ({ toggleSidebar, hamburgerRef }) => {
             onClick={handleDropdown}
           >
             <Avatar
+
               alt="Awais"
-              src="/images/me.jpeg"
+              src={user?.profilePicture}
               sx={{ width: 28, height: 28,  border: '1px solid white' }}
             />
             <div className="hidden sm:block">
-              <h1>Awais Ahmad</h1>
+              <h1> {user.firstname} {user.lastname}</h1>
             </div>
           </div>
           {isDropdownOpen && (
@@ -63,6 +66,7 @@ const BranchOwnerDashboardHeader = ({ toggleSidebar, hamburgerRef }) => {
               <Link to='salespersonProfile'>View Profile</Link>
               <Link onClick={()=>signOutUSer()}>Logout</Link>
             </div>
+            
           )}
         </div>
       </div>

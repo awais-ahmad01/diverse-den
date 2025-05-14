@@ -687,7 +687,7 @@ export const getRecomendedProducts = createAsyncThunk(
       }
 
       const response = await axios.post(
-        "https://6392-35-244-86-173.ngrok-free.app/recommend",
+        "https://d582-35-234-170-59.ngrok-free.app/recommend",
         {
           user_id: userId,  
           k: 4

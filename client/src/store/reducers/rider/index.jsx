@@ -67,12 +67,12 @@ export const riderSlice = createSlice({
     .addCase(getAllRiders.fulfilled, (state, action) => {
       state.isloading = false;
       state.allRiders = action.payload.data;
+      state.meta = action.payload.metaData;
     })
     .addCase(getAllRiders.rejected, (state) => {
       state.isloading = false;
       state.allRiders = [];
     })
-
 
     
       

@@ -997,11 +997,13 @@ const ImageViewDialog = ({ open, onClose, imageUrl, title }) => {
 
 const ManageRiders = () => {
   const dispatch = useDispatch();
-  const { allRiders, isloading } = useSelector((state) => state.rider);
+  const user = useSelector((state) => state.auth.user);
+  const { allRiders, meta, isloading } = useSelector((state) => state.rider);
+
 
   useEffect(() => {
-    dispatch(getAllRiders());
-  }, [dispatch]);
+    dispatch(getAllRiders({}));
+  }, [user,dispatch]);
   
   const [viewRiderDetails, setViewRiderDetails] = useState(null);
   const [statusAction, setStatusAction] = useState(null);
@@ -1012,7 +1014,25 @@ const ManageRiders = () => {
   const [imageView, setImageView] = useState({ open: false, url: "", title: "" });
   const [deleteRiderId, setDeleteRiderId] = useState(null);
 
-  const totalRiders = allRiders?.length || 0;
+  const totalRiders = meta?.totalItems || 0;
+
+
+   const handleNextPage = (page) => {
+      
+      if (page) {
+        console.log("Next Page:", page);
+        dispatch(getAllRiders({pageNo: page }));
+      }
+    };
+  
+    const handlePrevPage = (page) => {
+      if (page) {
+          console.log("Next Page:", page);
+          dispatch(getAllRiders({pageNo: page }));
+        }
+    };
+
+
 
   const handleViewDetails = (rider) => {
     setViewRiderDetails(rider);
@@ -1063,7 +1083,7 @@ const ManageRiders = () => {
         .unwrap()
         .then(() => {
           showToast("SUCCESS", "Rider deleted successfully!");
-          dispatch(getAllRiders());
+          dispatch(getAllRiders({}));
         })
         .catch((error) => {
           showToast("ERROR", error.message || "Failed to delete rider");
@@ -1423,6 +1443,51 @@ const ManageRiders = () => {
             </>
           )}
         </section>
+
+
+          {/* Pagination */}
+          {meta?.nextPage || meta?.previousPage ? (
+          <nav className="w-full flex justify-center items-center my-16">
+            <ul className="inline-flex items-center -space-x-px text-sm">
+              {meta?.previousPage && (
+                <>
+                  <li 
+                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    className="px-4 py-2 border rounded-l hover:bg-gray-100 cursor-pointer"
+                  >
+                    Previous
+                  </li>
+                  <li 
+                    onClick={() => handlePrevPage(meta?.previousPage)}
+                    className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
+                  >
+                    {meta?.previousPage}
+                  </li>
+                </>
+              )}
+              <li className="px-4 py-2 bg-[#603F26] text-white border">
+                {meta?.currentPage}
+              </li>
+              {meta?.nextPage && (
+                <>
+                  <li 
+                    onClick={() => handleNextPage(meta?.nextPage)}
+                    className="px-4 py-2 border hover:bg-gray-100 cursor-pointer"
+                  >
+                    {meta?.nextPage}
+                  </li>
+                  
+                  <li 
+                    onClick={() => handleNextPage(meta?.nextPage)}
+                    className="px-4 py-2 border rounded-r hover:bg-gray-100 cursor-pointer"
+                  >
+                    Next
+                  </li>
+                </>
+              )}
+            </ul>
+          </nav>
+        ) : null}
 
         {/* Rider Details Dialog */}
         <RiderDetailsDialog
