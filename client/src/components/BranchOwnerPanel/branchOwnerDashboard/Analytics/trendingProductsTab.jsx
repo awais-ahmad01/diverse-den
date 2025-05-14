@@ -703,8 +703,8 @@ const TrendingProductsTab = () => {
     return {
       labels: topProducts.map(product => {
         // Truncate long product names for better display
-        const title = product.productTitle;
-        return title.length > 15 ? title.substring(0, 15) + '...' : title;
+        const title = product?.productTitle;
+        return title?.length > 15 ? title?.substring(0, 15) + '...' : title;
       }),
       datasets: [
         {

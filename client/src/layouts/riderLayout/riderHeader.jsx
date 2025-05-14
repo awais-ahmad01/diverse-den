@@ -77,7 +77,7 @@ const RiderHeader = ({ toggleSidebar, hamburgerRef }) => {
           >
             <Avatar
               alt="Awais"
-              src="/images/me.jpeg"
+              src={user?.profilePicture}
               sx={{ width: 28, height: 28, border: "1px solid white" }}
             />
             <div className="hidden sm:block text-white ml-2">
