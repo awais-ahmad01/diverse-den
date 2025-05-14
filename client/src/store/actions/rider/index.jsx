@@ -194,7 +194,7 @@ export const getListOfRiders = createAsyncThunk(
 
   export const getAllRiders = createAsyncThunk(
     "rider/getAllRiders",
-    async (thunkAPI) => {
+    async ({pageNo=1, limit=7},thunkAPI) => {
       try {
         console.log("get list of All riders....");
   
@@ -215,7 +215,10 @@ export const getListOfRiders = createAsyncThunk(
             headers: {
               Authorization: `Bearer ${token}`,
             },
-
+            params: {
+              pageNo,
+              limit
+            },
           }
         );
   
@@ -223,7 +226,7 @@ export const getListOfRiders = createAsyncThunk(
   
        
   
-        return {data: response.data.data};
+        return {data: response.data.data, metaData: response.data.meta};
       } catch (error) {
         
         console.log("errorrrr:",error.response.data.message);
