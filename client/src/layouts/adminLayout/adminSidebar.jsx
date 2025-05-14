@@ -51,11 +51,11 @@ const AdminSideBar = ({
   }, [location]);
 
   const navItems = [
-    {
-      to: "",
-      label: "Dashboard",
-      icon: <FaHome className="text-xl" />,
-    },
+    // {
+    //   to: "",
+    //   label: "Dashboard",
+    //   icon: <FaHome className="text-xl" />,
+    // },
     {
       to: "manageUsers",
       label: "Manage Users",

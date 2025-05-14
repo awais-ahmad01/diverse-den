@@ -117,6 +117,7 @@ export const getGiftCards = createAsyncThunk(
 
       console.log('metadata',response.data.meta);
 
+      
       return {
         data: response.data,
         metaData: response.data.meta,
@@ -229,7 +230,7 @@ export const getAllGiftCards = createAsyncThunk(
 
 export const deleteGiftCard = createAsyncThunk(
   "giftCards/deleteGiftCard",
-  async (giftCardId, { dispatch, getState }) => {
+  async ({giftCardId,businessId}, { dispatch, getState }) => {
     try {
       console.log("Delete Guft Card.....");
 
@@ -260,7 +261,7 @@ export const deleteGiftCard = createAsyncThunk(
 
       const { meta } = getState().giftCards;
       const pageNo = meta.currentPage;
-      dispatch(getGiftCards({ business, pageNo }));
+      dispatch(getGiftCards({ businessId, pageNo }));
 
       return true;
     } catch (error) {

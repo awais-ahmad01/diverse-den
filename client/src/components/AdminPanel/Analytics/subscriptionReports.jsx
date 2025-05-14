@@ -520,8 +520,6 @@
 
 
 
-
-
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWeeklySubscriptionReports, getMonthlySubscriptionReports, getYearlySubscriptionReports } from "../../../store/actions/analytics";
@@ -751,7 +749,7 @@ const SubscriptionTab = () => {
       labels: subscriptionData.data.map((item) => item.date),
       datasets: [
         {
-          label: "Revenue (Rs)",
+          label: "Revenue ($)",
           data: subscriptionData.data.map((item) => item.revenue),
           borderColor: COLORS[0],
           backgroundColor: `${COLORS[0]}33`,
@@ -767,7 +765,7 @@ const SubscriptionTab = () => {
       labels: subscriptionData.data.map((item) => item.date),
       datasets: [
         {
-          label: "Revenue (Rs)",
+          label: "Revenue ($)",
           data: subscriptionData.data.map((item) => item.revenue),
           backgroundColor: COLORS[0],
         }
@@ -1023,7 +1021,7 @@ const SubscriptionTab = () => {
                   Total {summaryTitle} Revenue
                 </Typography>
                 <Typography variant="h4" sx={{ color: "#603F26", fontWeight: "bold" }}>
-                  Rs {subscriptionData.totalAmount.toLocaleString()}
+                  $ {subscriptionData.totalAmount.toLocaleString()}
                 </Typography>
               </Box>
 
@@ -1039,7 +1037,7 @@ const SubscriptionTab = () => {
                   <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography variant="body2">{day.date}</Typography>
                     <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                      Rs {day.revenue.toLocaleString()}
+                      $ {day.revenue.toLocaleString()}
                     </Typography>
                   </Box>
                 ))}

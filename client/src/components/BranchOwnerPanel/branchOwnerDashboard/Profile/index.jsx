@@ -22,8 +22,9 @@ import {
   Paper,
   Chip,
   Grid,
+  Modal,
 } from "@mui/material";
-import { PhotoCamera } from "@mui/icons-material";
+import { PhotoCamera, Close } from "@mui/icons-material";
 
 import { getUserDetails, updateUserDetails, updateBusinessDetails, uploadImage,
   updatePassword
@@ -47,6 +48,7 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingBusiness, setIsEditingBusiness] = useState(false);
   const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [openImageModal, setOpenImageModal] = useState(false);
 
   const [formData, setFormData] = useState({
     firstname: "",
@@ -111,6 +113,7 @@ const ProfilePage = () => {
 
       setIsEditingBusiness(false);
       showToast("SUCCESS", "Business information updated successfully");
+      dispatch(getUserDetails(currentUser._id));
     } catch (error) {
       showToast("ERROR", "Failed to update business information");
     }
@@ -185,7 +188,6 @@ const ProfilePage = () => {
         confirmPassword: "",
       }));
       showToast("SUCCESS", "Password updated successfully");
-      // dispatch(getUserDetails(currentUser._id));
     } catch (error) {
       showToast("ERROR", "Failed to update password");
     }
@@ -215,6 +217,49 @@ const ProfilePage = () => {
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ bgcolor: "background.default", py: 4 }}>
+        {/* Image Zoom Modal */}
+        <Modal
+          open={openImageModal}
+          onClose={() => setOpenImageModal(false)}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Box
+            sx={{
+              position: "relative",
+              bgcolor: "background.paper",
+              boxShadow: 24,
+              p: 2,
+              maxWidth: "90%",
+              maxHeight: "90%",
+            }}
+          >
+            <IconButton
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                color: "text.primary",
+              }}
+              onClick={() => setOpenImageModal(false)}
+            >
+              <Close />
+            </IconButton>
+            <img
+              src={userDetails?.basicInfo?.profilePicture}
+              alt="Profile Preview"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "calc(100vh - 100px)",
+                display: "block",
+              }}
+            />
+          </Box>
+        </Modal>
+
         {/* Header */}
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3 }}>
           <Typography variant="h4" sx={{ color: "#603F26", fontWeight: "bold" }}>
@@ -229,9 +274,17 @@ const ProfilePage = () => {
               <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
                 <Box sx={{ position: "relative", mr: 3 }}>
                   <Avatar
-                    src={userDetails?.profileImage}
+                    src={userDetails?.basicInfo?.profilePicture}
                     alt={`${userDetails?.basicInfo?.firstname} ${userDetails?.basicInfo?.lastname}`}
-                    sx={{ width: 96, height: 96 }}
+                    sx={{ 
+                      width: 96, 
+                      height: 96,
+                      cursor: "pointer",
+                      "&:hover": {
+                        opacity: 0.8,
+                      }
+                    }}
+                    onClick={() => setOpenImageModal(true)}
                   />
                   <input
                     accept="image/*"

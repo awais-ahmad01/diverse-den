@@ -60,7 +60,7 @@ const BranchOwnerDashboardHeader = ({ toggleSidebar, hamburgerRef }) => {
           </div>
           {isDropdownOpen && (
             <div className="dropdown-menu w-[150px] sm:w-[100%] border-t-0 pt-2">
-              <Link to='/salespersonDashboard/salespersonProfile'>View Profile</Link>
+              <Link to='salespersonProfile'>View Profile</Link>
               <Link onClick={()=>signOutUSer()}>Logout</Link>
             </div>
           )}

@@ -125,7 +125,7 @@ export const updateUserDetails = createAsyncThunk(
           return;
         }
 
-          const response = await axios.post('http://localhost:3000/user/updateProfileDetails', body, 
+          const response = await axios.post('http://localhost:3000/user/updatePersonelDetails', body, 
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
@@ -261,12 +261,7 @@ export const uploadImage = createAsyncThunk(
 
         console.log("upload Image.....");
 
-        const body = {
-          userId,
-          formData
-        }
-
-        console.log("Body:", body);
+       formData.append("userId", userId);
 
         const token = localStorage.getItem("token");
         console.log("myToken:", token);
@@ -276,7 +271,7 @@ export const uploadImage = createAsyncThunk(
           return;
         }
 
-          const response = await axios.post('http://localhost:3000/user/updatePicture', body, 
+          const response = await axios.post('http://localhost:3000/user/updatePicture', formData, 
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,

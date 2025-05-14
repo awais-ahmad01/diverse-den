@@ -382,13 +382,13 @@ const GiftCardPurchase = () => {
                   stripeKey="pk_test_51QOJ4oDZzPFomXhEJc2PFEnX4MqUEEzMkA8gwhbgA7I7GzXobg0QAwn06yuHn2Gb1ofTkwLHiGPI7N8XrxVMi0xt00zvcbJDcy"
                   token={makePayment}
                   name="Gift Card Payment"
-                  amount={parseFloat(amount || 0) * 100}
+                  // amount={parseFloat(amount || 0) * 100}
                  
-                  currency="PKR"  
-                  label={`Pay ${parseFloat(amount || 0).toFixed(2)}`} 
+                  // currency="PKR"  
+                  // label={`Pay ${parseFloat(amount || 0).toFixed(2)}`} 
                  
                   disabled={!isValid || processingPayment}
-                  locale="auto"
+                  // locale="auto"
                 >
                   <button
                     type="button"

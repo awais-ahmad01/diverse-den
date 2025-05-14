@@ -43,11 +43,11 @@ const RiderSideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburge
   }, [location]);
 
   const navItems = [
-    {
-      to: '',
-      label: 'Dashboard',
-      icon: <FaHome className="text-xl" />
-    },
+    // {
+    //   to: '',
+    //   label: 'Dashboard',
+    //   icon: <FaHome className="text-xl" />
+    // },
     {
       to: 'assignedOrders',
       label: 'Orders',

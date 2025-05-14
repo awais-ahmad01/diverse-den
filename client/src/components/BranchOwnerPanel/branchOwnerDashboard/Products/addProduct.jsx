@@ -302,7 +302,11 @@ const AddProduct = () => {
         setSelectedSubCategory("");
         setSelectedImage(null);
         setLoading(false);
-      });
+      })
+      .catch((error) => {
+        
+        setLoading(false);
+      })
   };
 
 

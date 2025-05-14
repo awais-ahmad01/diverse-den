@@ -103,9 +103,9 @@ const ManageInventory = () => {
       <div className="relative bg-gray-50 flex flex-col pt-5">
         {/* Header */}
         <Box sx={{ px: { xs: 2, md: 4, lg: 6 }, mb: 3, display: "flex", alignItems: "center", gap: 2 }}>
-          <IconButton component={Link} to="../branchesList" color="primary">
+          {/* <IconButton component={Link} to="../branchesList" color="primary">
             <ArrowBackIcon />
-          </IconButton>
+          </IconButton> */}
           <Typography variant="h4" sx={{ color: "#603F26", fontWeight: "bold" }}>
             {name}
           </Typography>

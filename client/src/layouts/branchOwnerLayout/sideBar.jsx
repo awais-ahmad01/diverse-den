@@ -54,9 +54,12 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
 
   const navItems = [
     { 
-      to: '', 
+      to: 'analytics', 
       label: 'Dashboard', 
-      icon: <FaHome className="text-xl" />
+      icon: <FaHome className="text-xl" />,
+      activePaths: [
+        '/branchOwnerPanel/branchOwnerDashboard/analytics'
+      ]
     },
     {
       to: 'branchesList',

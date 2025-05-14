@@ -266,7 +266,7 @@ const ManageGiftCards = () => {
     const giftCardId = currentGiftCard._id
     console.log("giftCardId:", giftCardId);
     
-    dispatch(deleteGiftCard(giftCardId))
+    dispatch(deleteGiftCard({giftCardId, businessId: user?.business}))
       .unwrap()
       .then((response) => {
         showToast("SUCCESS", "Gift card deleted successfully");
@@ -403,6 +403,7 @@ const ManageGiftCards = () => {
           </Typography>
           
         </Box>
+
 
         <Box
           sx={{

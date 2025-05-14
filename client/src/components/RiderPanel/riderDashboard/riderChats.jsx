@@ -99,70 +99,6 @@ const ImagePreviewDialog = ({ open, handleClose, imageUrl }) => (
   </Dialog>
 );
 
-// const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
-//   const [selectedUserId, setSelectedUserId] = useState("");
-
-//   console.log("users:", users);
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     if (selectedUserId) {
-//       handleCreateChat(selectedUserId);
-//       handleClose();
-//     }
-//   };
-
-//   return (
-//     <Modal open={open} onClose={handleClose}>
-//       <Box
-//         sx={{
-//           position: "absolute",
-//           top: "50%",
-//           left: "50%",
-//           transform: "translate(-50%, -50%)",
-//           width: 400,
-//           bgcolor: "background.paper",
-//           boxShadow: 24,
-//           p: 4,
-//           borderRadius: 1,
-//         }}
-//       >
-//         <Typography variant="h6" gutterBottom>
-//           Start New Chat
-//         </Typography>
-//         <form onSubmit={handleSubmit}>
-//           <FormControl fullWidth sx={{ mb: 2 }}>
-//             <InputLabel>Select User</InputLabel>
-//             <Select
-//               value={selectedUserId}
-//               onChange={(e) => setSelectedUserId(e.target.value)}
-//               label="Select User"
-//               required
-//             >
-
-              // {users.map((user) => (
-              //   <MenuItem key={user._id} value={user?.salespersonDetails?._id}>
-              //     {user?.salespersonDetails?.firstname}{" "}
-              //     {user?.salespersonDetails?.lastname}
-              //   </MenuItem>
-              // ))}
-//             </Select>
-//           </FormControl>
-//           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-//             <Button onClick={handleClose} sx={{ mr: 1 }}>
-//               Cancel
-//             </Button>
-//             <Button type="submit" variant="contained" color="primary">
-//               Create Chat
-//             </Button>
-//           </Box>
-//         </form>
-//       </Box>
-//     </Modal>
-//   );
-// };
-
-
 
 const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -174,6 +110,11 @@ const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
       handleClose();
     }
   };
+
+
+  const availableSalespersons = users.filter(user => 
+    user?.salespersonDetails?.firstname && user?.salespersonDetails?.lastname
+  );
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -189,7 +130,7 @@ const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
         borderRadius: 1
       }}>
         <Typography variant="h6" gutterBottom>Start New Chat</Typography>
-        {users.length > 0 ? (
+        {availableSalespersons.length > 0 ? (
           <form onSubmit={handleSubmit}>
             <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Select Salesperson</InputLabel>
@@ -199,7 +140,7 @@ const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
                 label="Select Salesperson"
                 required
               >
-                {users.map(user => (
+                {availableSalespersons.map(user => (
                   <MenuItem 
                     key={user?.salespersonDetails?._id} 
                     value={user?.salespersonDetails?._id}
@@ -386,7 +327,7 @@ const RiderChatModule = () => {
     return otherUser?.name?.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
-  // Socket.IO setup function
+  // // Socket.IO setup function
   const setupSocket = useCallback(() => {
     if (currentUser?._id && !socketRef.current) {
       const newSocket = io("http://localhost:5000", {
@@ -464,10 +405,10 @@ const RiderChatModule = () => {
       });
 
 
-      newSocket.on("messageDeleted", ({ messageId }) => {
-        console.log("Message deleted notification received:", messageId);
-        setMessages(prev => prev.filter(msg => msg._id !== messageId));
-      });
+      // newSocket.on("messageDeleted", ({ messageId }) => {
+      //   console.log("Message deleted notification received:", messageId);
+      //   setMessages(prev => prev.filter(msg => msg._id !== messageId));
+      // });
   
 
       socketRef.current = newSocket;
@@ -477,6 +418,129 @@ const RiderChatModule = () => {
     }
     return socketRef.current;
   }, [currentUser?._id]);
+
+
+
+
+  // Update the setupSocket function to include the messageDeleted listener
+// const setupSocket = useCallback(() => {
+//   if (currentUser?._id && !socketRef.current) {
+//     const newSocket = io("http://localhost:5000", {
+//       withCredentials: true,
+//       transports: ["websocket"],
+//       autoConnect: true,
+//       reconnection: true,
+//       reconnectionAttempts: Infinity,
+//       reconnectionDelay: 1000,
+//       reconnectionDelayMax: 5000
+//     });
+
+//     // Connection events
+//     newSocket.on("connect", () => {
+//       console.log("Socket connected with ID:", newSocket.id);
+//       newSocket.emit("addNewUser", currentUser._id);
+//     });
+
+//     newSocket.on("disconnect", (reason) => {
+//       console.log("Socket disconnected:", reason);
+//     });
+
+//     newSocket.on("connect_error", (error) => {
+//       console.log("Socket connection error:", error);
+//     });
+
+//     // Message reception event - keep as is
+//     newSocket.on("receiveMessage", (message) => {
+//       console.log("New message received:", message);
+//       console.log("Current selected chat:", selectedChat?._id);
+//       console.log("Message chatId:", message.chatId);
+
+//       // Update messages if in the same chat
+//       setMessages((prev) => {
+//         // Check if this message is already in our list to prevent duplicates
+//         if (
+//           !prev.some(
+//             (m) =>
+//               m._id === message._id ||
+//               (m.senderId === message.senderId &&
+//                 m.text === message.text &&
+//                 new Date(m.createdAt).getTime() ===
+//                   new Date(message.createdAt).getTime())
+//           )
+//         ) {
+//           return [...prev, message];
+//         }
+//         return prev;
+//       });
+
+//       // Update last message in contacts list regardless of selected chat
+//       setContacts((prev) => {
+//         return prev.map((contact) => {
+//           if (contact._id === message.chatId) {
+//             return {
+//               ...contact,
+//               lastMessage: message.text,
+//               updatedAt: message.createdAt || new Date(),
+//             };
+//           }
+//           return contact;
+//         });
+//       });
+//     });
+
+//     // Message sent confirmation - keep as is
+//     newSocket.on("messageSent", (message) => {
+//       console.log("Message sent confirmation received:", message);
+//     });
+
+//     // Online users update - keep as is
+//     newSocket.on("getOnlineUsers", (users) => {
+//       console.log("Online users updated:", users);
+//       setOnlineUsers(users);
+//     });
+
+//     // Updated message deletion listener
+//     newSocket.on("messageDeleted", ({ messageId, chatId }) => {
+//       console.log("Message deleted notification received:", messageId, "for chat:", chatId);
+      
+//       // Update messages state for the current chat
+//       setMessages(prev => prev.filter(msg => msg._id !== messageId));
+      
+//       // Find most recent message after deletion to update the chat preview
+//       if (chatId) {
+//         // Get messages for this chat excluding the deleted one
+//         const updatedMessages = messages.filter(msg => 
+//           msg.chatId === chatId && msg._id !== messageId
+//         );
+        
+//         // Update the chat preview with the new last message
+//         const lastMsg = updatedMessages.length > 0 ? 
+//           updatedMessages[updatedMessages.length - 1].text : 
+//           "";
+          
+//         setContacts(prev => 
+//           prev.map(contact => 
+//             contact._id === chatId 
+//               ? { ...contact, lastMessage: lastMsg || "No messages" } 
+//               : contact
+//           )
+//         );
+//       }
+//     });
+
+//     socketRef.current = newSocket;
+//     setSocket(newSocket);
+
+//     return newSocket;
+//   }
+//   return socketRef.current;
+// }, [currentUser?._id, messages]);  // Add messages as dependency for deletion updates
+
+
+
+
+
+
 
   // Handlers
   const handleContactsMenuOpen = (event) =>
@@ -542,64 +606,54 @@ const RiderChatModule = () => {
     try {
       const userId = currentUser._id;
       const response = await dispatch(getListOfSalesperson(userId)).unwrap();
-  
+      
+      console.log("API Response (Salespersons):", response);
+      
       if (response) {
-        // Extract salesperson IDs from contacts
-        const existingSalespersonIds = contacts.flatMap(chat => 
-          chat.members
-            .filter(member => member.role === "salesperson") // Only get salespersons
-            .map(member => member.userId)
-        );
-  
+        // Log current contacts for debugging
+        console.log("Current contacts:", contacts);
+        
+        // Extract all salesperson IDs from existing contacts
+        const existingSalespersonIds = [];
+        
+        // Loop through each contact/chat
+        if (contacts && contacts.length > 0) {
+          contacts.forEach(chat => {
+            // Make sure members array exists and has items
+            if (chat.members && Array.isArray(chat.members)) {
+              // Find all members who are salespersons
+              chat.members.forEach(member => {
+                if (member.role === "salesperson") {
+                  existingSalespersonIds.push(member.userId);
+                }
+              });
+            }
+          });
+        }
+        
         console.log("Existing salesperson IDs:", existingSalespersonIds);
-  
+        
         // Filter out salespersons already in contacts
         const filteredUsers = response?.data?.filter(user => {
           const salespersonId = user?.salespersonDetails?._id;
-          return !existingSalespersonIds.includes(salespersonId);
+          const isNotInContacts = !existingSalespersonIds.includes(salespersonId);
+          
+          console.log(`Salesperson ${user?.salespersonDetails?.name || 'Unknown'}:`, {
+            id: salespersonId,
+            isNotInContacts
+          });
+          
+          return isNotInContacts;
         });
-  
-        console.log("Filtered Users:", filteredUsers);
+        
+        console.log("Filtered Salespersons:", filteredUsers);
         setUsers(filteredUsers || []);
       }
     } catch (error) {
-      console.error("Error fetching users:", error);
+      console.error("Error fetching salespersons:", error);
       setUsers([]);
     }
   };
-
-
-
-//  const fetchUsers = async () => {
-//   try {
-//     const riderId = currentUser._id;
-//     const response = await dispatch(getListOfSalesperson(riderId)).unwrap();
-
-//     if (response) {
-//       // Get all salesperson IDs from existing chats
-//       const existingSalespersonIds = contacts.flatMap(chat => 
-//         chat.members
-//           .filter(member => member.userId !== currentUser._id) // Exclude current user
-//           .map(member => member.userId)
-//       );
-
-//       console.log("Existing salesperson IDs:", existingSalespersonIds);
-
-//       // Filter out current user and salespersons already in contacts
-//       const filteredUsers = response?.data?.filter(
-//         (user) =>
-//           user?.salespersonDetails?._id !== currentUser._id &&
-//           !existingSalespersonIds.includes(user?.salespersonDetails?._id)
-//       );
-
-//       console.log("Filtered Users:", filteredUsers);
-//       setUsers(filteredUsers || []);
-//     }
-//   } catch (error) {
-//     console.error("Error fetching users:", error);
-//     setUsers([]);
-//   }
-// };
 
   const handleCreateChat = async (userId) => {
     try {
@@ -751,6 +805,60 @@ const RiderChatModule = () => {
 
 
 
+  // const confirmDeleteMessage = async () => {
+  //   try {
+  //     const recipient = getOtherUser(selectedChat);
+  //     if (!recipient) {
+  //       console.error("Recipient not found");
+  //       return;
+  //     }
+  
+  //     const response = await axios.post(
+  //       'http://localhost:3000/api/messages/deleteMessage',
+  //       {
+  //         messageId: messageToDelete
+  //       }
+  //     );
+  
+  //     console.log("delete response", response.data);
+  
+  //     // Update local state immediately
+  //     setMessages(prev => prev.filter(message => message._id !== messageToDelete));
+      
+  //     // Update contacts with new last message
+  //     const remainingMessages = messages.filter(msg => msg._id !== messageToDelete);
+  //     const lastMsg = remainingMessages.length > 0 ? 
+  //       remainingMessages[remainingMessages.length - 1].text : 
+  //       "No messages";
+        
+  //     setContacts(prev => 
+  //       prev.map(contact => 
+  //         contact._id === selectedChat._id 
+  //           ? { ...contact, lastMessage: lastMsg } 
+  //           : contact
+  //       )
+  //     );
+      
+  //     setDeleteDialogOpen(false);
+  //     showToast("SUCCESS", "Message deleted successfully");
+  
+  //     // Emit deletion via socket
+  //     if (socketRef.current) {
+  //       socketRef.current.emit("deleteMessage", {
+  //         messageId: messageToDelete,
+  //         recipientId: recipient.userId,
+  //         chatId: selectedChat._id
+  //       });
+  //       console.log("Delete message emitted via socket");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error deleting message:", error);
+  //     showToast("ERROR", "Failed to delete message");
+  //   }
+  // };
+
+
+
   // Effects
   useEffect(() => {
     const handleResize = () => {
@@ -769,23 +877,42 @@ const RiderChatModule = () => {
     }
   }, [currentUser]);
 
-  useEffect(() => {
-    // Setup socket connection
-    const socket = setupSocket();
+  // useEffect(() => {
+  //   // Setup socket connection
+  //   const socket = setupSocket();
     
-    // Cleanup function
-    return () => {
-      if (socket) {
-        console.log("Cleaning up socket listeners");
-        socket.off("receiveMessage");
-        socket.off("messageSent");
-        socket.off("getOnlineUsers");
-        socket.off("messageDeleted");
-      }
-    };
-  }, [setupSocket]);
+  //   // Cleanup function
+  //   return () => {
+  //     if (socket) {
+  //       console.log("Cleaning up socket listeners");
+  //       socket.off("receiveMessage");
+  //       socket.off("messageSent");
+  //       socket.off("getOnlineUsers");
+  //       socket.off("messageDeleted");
+  //     }
+  //   };
+  // }, [setupSocket]);
 
-  useEffect(() => {
+
+ // Update the useEffect for socket setup
+useEffect(() => {
+  // Setup socket connection
+  const socket = setupSocket();
+  
+  // Cleanup function
+  return () => {
+    if (socket) {
+      console.log("Cleaning up socket listeners");
+      socket.off("receiveMessage");
+      socket.off("messageSent");
+      socket.off("getOnlineUsers");
+      socket.off("messageDeleted");
+    }
+  };
+}, [setupSocket]); // Remove messages dependency from here to avoid re-establishing socket connection
+  
+
+useEffect(() => {
     if (selectedChat) {
       fetchMessages();
       if (mobileView) setShowContactList(false);
