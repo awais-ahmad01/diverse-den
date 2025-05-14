@@ -4,11 +4,12 @@ import { useParams, Link } from "react-router-dom";
 import { getSubCategoryProducts } from "../../../store/actions/products";
 import { clearSubCategoryProducts } from "../../../store/reducers/products";
 import { Chip } from "@mui/material";
+import { Loader } from "../../../tools";
 
 const SubCategory = () => {
   const dispatch = useDispatch();
   const { category, subcategory, productType } = useParams();
-  const { subCategoryProducts } = useSelector((state) => state.products);
+  const { subCategoryProducts, isloading } = useSelector((state) => state.products);
 
   const [filterOption, setFilterOption] = useState("bestMatch");
   const [sortedProducts, setSortedProducts] = useState(null);
@@ -63,6 +64,11 @@ const SubCategory = () => {
       setFilteredProducts([]);
     }
   }, [subCategoryProducts]);
+
+
+  if(isloading) return <div className="my-36"><Loader /></div>
+
+
 
   return (
     <div className="pt-5 px-4 sm:px-6 pb-12 sm:pb-16">
@@ -146,7 +152,7 @@ const SubCategory = () => {
           </div>
         </>
       ) : (
-        <div className="col-span-full text-center py-12 text-gray-500 text-sm sm:text-base">
+        <div className="col-span-full text-center py-36 text-gray-500 text-sm sm:text-base">
           No related products found
         </div>
       )}

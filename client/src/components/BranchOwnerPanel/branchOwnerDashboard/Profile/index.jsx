@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import {
   TextField,
@@ -15,15 +16,19 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Divider,
   createTheme,
   ThemeProvider,
 } from "@mui/material";
 import { PhotoCamera } from "@mui/icons-material";
 
+import { getUserDetails, updateUserDetails } from "../../../../store/actions/users";
+import { showToast, Loader } from "../../../../tools";
+
 const ProfilePage = () => {
-  // Previous states remain...
-  const [user, setUser] = useState(null);
+  const dispatch = useDispatch();
+  const { user: currentUser } = useSelector((state) => state.auth);
+  const { userDetails, isLoading } = useSelector((state) => state.users);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -43,24 +48,24 @@ const ProfilePage = () => {
     },
   });
 
-  // Extended formData with business information
   const [formData, setFormData] = useState({
-    name: "",
+    firstname: "",
+    lastname: "",
     email: "",
     phone: "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
     // Business Information
-    businessName: "",
-    businessDescription: "",
+    name: "",
+    description: "",
     bankName: "",
     accountHolderName: "",
     accountNumber: "",
   });
 
-  
   const bankList = [
+    "Allied Bank Limited (ABL)",
     "Bank of America",
     "Chase",
     "Wells Fargo",
@@ -68,75 +73,51 @@ const ProfilePage = () => {
     "Capital One",
   ];
 
-  
   useEffect(() => {
-    console.log("Fetching profile data...");
+    const userId = currentUser._id;
+    dispatch(getUserDetails(userId));
+  }, [currentUser._id, dispatch]);
 
-    const fetchData = async () => {
-      await axios
-        .get("/api/user/profile")
-        .then((response) => {
-          if (response.status === 200) {
-            // Ensure the request was successful
-            console.log("Profile data fetched successfully");
-            setUser(response.data);
-            setFormData({
-              name: response.data.name,
-              email: response.data.email,
-              phone: response.data.phone || "",
-              businessName: response.data.businessName || "",
-              businessDescription: response.data.businessDescription || "",
-              bankName: response.data.bankName || "",
-              accountHolderName: response.data.accountHolderName || "",
-              accountNumber: response.data.accountNumber || "",
-            });
-          } else {
-            console.log("Unexpected response status:", response.status);
-            setError("Failed to fetch profile data.");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching profile:", error);
-          setError("Error fetching profile. Please try again.");
-          setNotification({
-            open: true,
-            message: "Failed to load profile data",
-            type: "error",
-          });
-        })
-        .finally(() => {
-          setLoading(false);
-          console.log("API call finished");
-        });
-    };
-
-    fetchData();
-  }, []);
+  useEffect(() => {
+    if (userDetails) {
+      setFormData({
+        firstname: userDetails.basicInfo?.firstname || "",
+        lastname: userDetails.basicInfo?.lastname || "",
+        email: userDetails.basicInfo?.email || "",
+        phone: userDetails.basicInfo?.phone || "",
+        // Business Information
+        name: userDetails.businessDetails?.name || "",
+        description: userDetails.businessDetails?.description || "",
+        bankName: userDetails.businessDetails?.bankName || "",
+        accountHolderName: userDetails.businessDetails?.accountHolderName || "",
+        accountNumber: userDetails.businessDetails?.accountNumber || "",
+      });
+      setLoading(false);
+    }
+  }, [userDetails]);
 
   const handleBusinessUpdate = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put("/api/user/business", {
-        businessName: formData.businessName,
-        businessDescription: formData.businessDescription,
-        bankName: formData.bankName,
-        accountHolderName: formData.accountHolderName,
-        accountNumber: formData.accountNumber,
-      });
+      const businessData = {
+        businessDetails: {
+          name: formData.name,
+          description: formData.description,
+          bankName: formData.bankName,
+          accountHolderName: formData.accountHolderName,
+          accountNumber: formData.accountNumber,
+        }
+      };
+      
+      await dispatch(updateUserDetails({
+        userId: currentUser._id,
+        formData: businessData
+      }));
 
-      setUser((prev) => ({ ...prev, ...response.data }));
       setIsEditingBusiness(false);
-      setNotification({
-        open: true,
-        message: "Business information updated successfully",
-        type: "success",
-      });
+      showToast("SUCCESS", "Business information updated successfully");
     } catch (error) {
-      setNotification({
-        open: true,
-        message: "Failed to update business information",
-        type: "error",
-      });
+     showToast("ERROR", "Failed to update business information");
     }
   };
 
@@ -147,67 +128,72 @@ const ProfilePage = () => {
     const formData = new FormData();
     formData.append("image", file);
 
+    console.log("formData", formData);
+
     try {
-      const response = await axios.post("/api/user/profile/image", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setUser((prev) => ({ ...prev, profileImage: response.data.imageUrl }));
-      setNotification({
-        open: true,
-        message: "Profile picture updated successfully",
-        type: "success",
-      });
+      // Using the same updateUserDetails API for image upload
+      await dispatch(updateUserDetails({
+        userId: currentUser._id,
+        formData: formData,
+        // isImageUpload: true
+      }));
+
+      showToast("SUCCESS", "Image uploaded successfully");
+      // Refresh user details to show the new image
+      dispatch(getUserDetails(currentUser._id));
     } catch (error) {
-      setNotification({
-        open: true,
-        message: "Failed to upload image",
-        type: "error",
-      });
+      showToast("ERROR", "Failed to upload image");
     }
   };
 
-  // Handle profile update
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put("/api/user/profile", {
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-      });
-      setUser(response.data);
+      const basicInfoData = {
+        basicInfo: {
+          firstname: formData.firstname,
+          lastname: formData.lastname,
+          email: formData.email,
+          phone: formData.phone,
+        }
+      };
+
+      console.log("basicInfoData",basicInfoData);
+      
+      await dispatch(updateUserDetails({
+        userId: currentUser._id,
+        formData: basicInfoData
+      }));
+
       setIsEditing(false);
-      setNotification({
-        open: true,
-        message: "Profile updated successfully",
-        type: "success",
-      });
+      showToast("SUCCESS", "Profile updated successfully");
     } catch (error) {
-      setNotification({
-        open: true,
-        message: "Failed to update profile",
-        type: "error",
-      });
+      showToast("ERROR", "Failed to update profile");
     }
   };
 
- 
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
-      setNotification({
-        open: true,
-        message: "Passwords do not match",
-        type: "error",
-      });
+      showToast("ERROR", "Passwords do not match");
       return;
     }
 
     try {
-      await axios.put("/api/user/password", {
-        currentPassword: formData.currentPassword,
-        newPassword: formData.newPassword,
-      });
+      const passwordData = {
+       
+          oldPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+      
+      };
+
+      console.log("passwordData",passwordData);
+      
+      await dispatch(updateUserDetails({
+        userId: currentUser._id,
+        formData: passwordData
+      }));
+
       setShowPasswordForm(false);
       setFormData((prev) => ({
         ...prev,
@@ -215,25 +201,15 @@ const ProfilePage = () => {
         newPassword: "",
         confirmPassword: "",
       }));
-      setNotification({
-        open: true,
-        message: "Password updated successfully",
-        type: "success",
-      });
+      showToast("SUCCESS", "Password updated successfully");
     } catch (error) {
-      setNotification({
-        open: true,
-        message: "Failed to update password",
-        type: "error",
-      });
+      showToast("ERROR", "Failed to update password");
     }
   };
 
-  if (loading) {
+  if (isLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <CircularProgress />
-      </div>
+      <Loader />
     );
   }
 
@@ -267,8 +243,8 @@ const ProfilePage = () => {
             <div className="flex items-center space-x-6 mb-8">
               <div className="relative">
                 <Avatar
-                  src={user?.profileImage}
-                  alt={user?.name}
+                  src={userDetails?.profileImage}
+                  alt={`${userDetails?.basicInfo?.firstname} ${userDetails?.basicInfo?.lastname}`}
                   sx={{ width: 96, height: 96 }}
                 />
                 <input
@@ -292,7 +268,12 @@ const ProfilePage = () => {
                 </label>
               </div>
               <div>
-                <Typography variant="h6">{user?.name}</Typography>
+                <Typography variant="h6">
+                  {userDetails?.basicInfo?.firstname} {userDetails?.basicInfo?.lastname}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {userDetails?.basicInfo?.role}
+                </Typography>
                 <Typography variant="body2" color="textSecondary">
                   Click the camera icon to update your profile picture
                 </Typography>
@@ -302,16 +283,28 @@ const ProfilePage = () => {
             {/* User Information Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <ThemeProvider theme={theme}>
-                <TextField
-                  fullWidth
-                  label="Full Name"
-                  value={formData.name}
-                  disabled={!isEditing}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  margin="normal"
-                />
+                <div className="flex space-x-4">
+                  <TextField
+                    fullWidth
+                    label="First Name"
+                    value={formData.firstname}
+                    disabled={!isEditing}
+                    onChange={(e) =>
+                      setFormData({ ...formData, firstname: e.target.value })
+                    }
+                    margin="normal"
+                  />
+                  <TextField
+                    fullWidth
+                    label="Last Name"
+                    value={formData.lastname}
+                    disabled={!isEditing}
+                    onChange={(e) =>
+                      setFormData({ ...formData, lastname: e.target.value })
+                    }
+                    margin="normal"
+                  />
+                </div>
 
                 <TextField
                   fullWidth
@@ -339,7 +332,7 @@ const ProfilePage = () => {
                 <TextField
                   fullWidth
                   label="Role"
-                  value={user?.role}
+                  value={userDetails?.basicInfo?.role}
                   disabled
                   margin="normal"
                 />
@@ -364,9 +357,10 @@ const ProfilePage = () => {
                           setIsEditing(false);
                           setFormData({
                             ...formData,
-                            name: user.name,
-                            email: user.email,
-                            phone: user.phone || "",
+                            firstname: userDetails.basicInfo.firstname,
+                            lastname: userDetails.basicInfo.lastname,
+                            email: userDetails.basicInfo.email,
+                            phone: userDetails.basicInfo.phone,
                           });
                         }}
                       >
@@ -391,64 +385,67 @@ const ProfilePage = () => {
                 className="mt-6 pt-6 border-t"
               >
                 <ThemeProvider theme={theme}>
-                <TextField
-                  fullWidth
-                  type="password"
-                  label="Current Password"
-                  value={formData.currentPassword}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      currentPassword: e.target.value,
-                    })
-                  }
-                  margin="normal"
-                />
+                  <TextField
+                    fullWidth
+                    type="password"
+                    label="Current Password"
+                    value={formData.currentPassword}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        currentPassword: e.target.value,
+                      })
+                    }
+                    margin="normal"
+                    required
+                  />
 
-                <TextField
-                  fullWidth
-                  type="password"
-                  label="New Password"
-                  value={formData.newPassword}
-                  onChange={(e) =>
-                    setFormData({ ...formData, newPassword: e.target.value })
-                  }
-                  margin="normal"
-                />
+                  <TextField
+                    fullWidth
+                    type="password"
+                    label="New Password"
+                    value={formData.newPassword}
+                    onChange={(e) =>
+                      setFormData({ ...formData, newPassword: e.target.value })
+                    }
+                    margin="normal"
+                    required
+                  />
 
-                <TextField
-                  fullWidth
-                  type="password"
-                  label="Confirm New Password"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  margin="normal"
-                />
+                  <TextField
+                    fullWidth
+                    type="password"
+                    label="Confirm New Password"
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    margin="normal"
+                    required
+                  />
 
-                <div className="flex space-x-4 pt-4">
-                  <Button type="submit" variant="contained" color="primary">
-                    Update Password
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      setShowPasswordForm(false);
-                      setFormData((prev) => ({
-                        ...prev,
-                        currentPassword: "",
-                        newPassword: "",
-                        confirmPassword: "",
-                      }));
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
+                  <div className="flex space-x-4 pt-4">
+                    <Button type="submit" variant="contained" color="primary">
+                      Update Password
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setShowPasswordForm(false);
+                        setFormData((prev) => ({
+                          ...prev,
+                          currentPassword: "",
+                          newPassword: "",
+                          confirmPassword: "",
+                        }));
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </ThemeProvider>
               </form>
             )}
@@ -478,10 +475,10 @@ const ProfilePage = () => {
                 <TextField
                   fullWidth
                   label="Business Name"
-                  value={formData.businessName}
+                  value={formData.name}
                   disabled={!isEditingBusiness}
                   onChange={(e) =>
-                    setFormData({ ...formData, businessName: e.target.value })
+                    setFormData({ ...formData, name: e.target.value })
                   }
                   margin="normal"
                 />
@@ -489,12 +486,12 @@ const ProfilePage = () => {
                 <TextField
                   fullWidth
                   label="Business Description"
-                  value={formData.businessDescription}
+                  value={formData.description}
                   disabled={!isEditingBusiness}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      businessDescription: e.target.value,
+                      description: e.target.value,
                     })
                   }
                   margin="normal"
@@ -557,11 +554,11 @@ const ProfilePage = () => {
                         setIsEditingBusiness(false);
                         setFormData((prev) => ({
                           ...prev,
-                          businessName: user.businessName || "",
-                          businessDescription: user.businessDescription || "",
-                          bankName: user.bankName || "",
-                          accountHolderName: user.accountHolderName || "",
-                          accountNumber: user.accountNumber || "",
+                          name: userDetails.businessDetails?.name || "",
+                          description: userDetails.businessDetails?.description || "",
+                          bankName: userDetails.businessDetails?.bankName || "",
+                          accountHolderName: userDetails.businessDetails?.accountHolderName || "",
+                          accountNumber: userDetails.businessDetails?.accountNumber || "",
                         }));
                       }}
                     >
@@ -574,7 +571,6 @@ const ProfilePage = () => {
           </CardContent>
         </Card>
 
-      
         <Snackbar
           open={notification.open}
           autoHideDuration={6000}

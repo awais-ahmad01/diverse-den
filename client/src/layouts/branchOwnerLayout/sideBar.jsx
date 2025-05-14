@@ -11,6 +11,8 @@ import {
   FaCalendarAlt, 
   FaCreditCard, 
   FaStar,
+  FaGift,
+  FaChartBar,
   FaCoffee
 } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
@@ -126,7 +128,7 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
     { 
       to: 'manageGiftCards', 
       label: 'Manage Gift Cards',
-      icon: <FaStar className="text-xl" />,
+      icon: <FaGift className="text-xl" />,
       activePaths: [
         '/branchOwnerPanel/branchOwnerDashboard/manageGiftCards'
       ]
@@ -134,12 +136,11 @@ const SideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburgerRef 
     { 
       to: 'analytics', 
       label: 'Analytics',
-      icon: <FaStar className="text-xl" />,
+      icon: <FaChartBar className="text-xl" />,
       activePaths: [
         '/branchOwnerPanel/branchOwnerDashboard/analytics'
       ]
     },
-  
   ];
 
   return (

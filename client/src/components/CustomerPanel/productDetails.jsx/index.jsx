@@ -600,6 +600,7 @@ import {
   Dialog,
   DialogContent,
   IconButton,
+
 } from "@mui/material";
 import { AddShoppingCart, Add, Remove, Close } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
@@ -620,6 +621,9 @@ const ProductDetails = () => {
   const { customerProduct, productReviews } = useSelector(
     (state) => state.products
   );
+
+  console.log("customerProduct", customerProduct);
+  
 
   const business = customerProduct?.business;
 
@@ -1099,6 +1103,7 @@ const ProductDetails = () => {
           <p className="text-xl md:text-2xl text-primary font-semibold mb-4">
             Rs {customerProduct?.price.toFixed(2)}
           </p>
+          <p className="text-gray-600 mb-2">Brand: {customerProduct?.business?.name}</p>
           <p className="text-gray-700 mb-4">{customerProduct?.description}</p>
 
           {variantRender()}

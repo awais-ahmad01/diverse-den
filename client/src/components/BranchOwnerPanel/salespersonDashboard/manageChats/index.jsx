@@ -91,10 +91,63 @@ const ImagePreviewDialog = ({ open, handleClose, imageUrl }) => (
   </Dialog>
 );
 
+// const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
+//   const [selectedUserId, setSelectedUserId] = useState('');
+
+//   console.log('selectedUserId:', selectedUserId);
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     if (selectedUserId) {
+//       handleCreateChat(selectedUserId);
+//       handleClose();
+//     }
+//   };
+
+//   return (
+//     <Modal open={open} onClose={handleClose}>
+//       <Box sx={{
+//         position: 'absolute',
+//         top: '50%',
+//         left: '50%',
+//         transform: 'translate(-50%, -50%)',
+//         width: 400,
+//         bgcolor: 'background.paper',
+//         boxShadow: 24,
+//         p: 4,
+//         borderRadius: 1
+//       }}>
+//         <Typography variant="h6" gutterBottom>Start New Chat</Typography>
+//         <form onSubmit={handleSubmit}>
+//           <FormControl fullWidth sx={{ mb: 2 }}>
+//             <InputLabel>Select User</InputLabel>
+//             <Select
+//               value={selectedUserId}
+//               onChange={(e) => setSelectedUserId(e.target.value)}
+//               label="Select User"
+//               required
+//             >
+//               {users.map(user => (
+//                 <MenuItem key={user._id} value={user?.riderId}>
+//                   {user?.name}
+//                 </MenuItem>
+//               ))}
+//             </Select>
+//           </FormControl>
+//           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+//             <Button onClick={handleClose} sx={{ mr: 1 }}>Cancel</Button>
+//             <Button type="submit" variant="contained" color="primary">Create Chat</Button>
+//           </Box>
+//         </form>
+//       </Box>
+//     </Modal>
+//   );
+// };
+
+
+
 const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
   const [selectedUserId, setSelectedUserId] = useState('');
-
-  console.log('selectedUserId:', selectedUserId);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -118,31 +171,39 @@ const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
         borderRadius: 1
       }}>
         <Typography variant="h6" gutterBottom>Start New Chat</Typography>
-        <form onSubmit={handleSubmit}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Select User</InputLabel>
-            <Select
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              label="Select User"
-              required
-            >
-              {users.map(user => (
-                <MenuItem key={user._id} value={user?.riderId}>
-                  {user?.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button onClick={handleClose} sx={{ mr: 1 }}>Cancel</Button>
-            <Button type="submit" variant="contained" color="primary">Create Chat</Button>
+        {users.length > 0 ? (
+          <form onSubmit={handleSubmit}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Select User</InputLabel>
+              <Select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                label="Select User"
+                required
+              >
+                {users.map(user => (
+                  <MenuItem key={user._id} value={user?.riderId}>
+                    {user?.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button onClick={handleClose} sx={{ mr: 1 }}>Cancel</Button>
+              <Button type="submit" variant="contained" color="primary">Create Chat</Button>
+            </Box>
+          </form>
+        ) : (
+          <Box sx={{ textAlign: 'center', p: 2 }}>
+            <Typography color="textSecondary">No available users to chat with</Typography>
+            <Button onClick={handleClose} sx={{ mt: 2 }}>Close</Button>
           </Box>
-        </form>
+        )}
       </Box>
     </Modal>
   );
 };
+
 
 const Message = ({ message, onDelete, onImageClick, currentUserId }) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
@@ -237,6 +298,12 @@ const [contacts, setContacts] = useState([]);
   const currentUser = useSelector(state => state.auth.user);
 
   console.log("onlineUsers:", onlineUsers);
+
+  console.log("users:", users);
+
+  console.log("contacts:", contacts);
+
+ 
 
 
  
@@ -447,17 +514,36 @@ const [contacts, setContacts] = useState([]);
       
       if (response) {
         console.log("response.data:", response.data); 
-        const filteredUsers = response?.data?.riders?.filter(user => 
-          user?._id !== currentUser._id && 
-          !contacts.some(chat => chat.members.some(m => m._id === user?._id))
+        
+        // Get all member IDs from existing chats (excluding current user)
+        const existingChatMemberIds = contacts.flatMap(chat => 
+          chat.members
+            .filter(member => member.userId !== userId) // Exclude current user
+            .map(member => member.userId)
         );
+        
+        console.log("Existing chat member IDs:", existingChatMemberIds);
+        
+        // Filter out current user and users already in contacts
+        const filteredUsers = response?.data?.riders?.filter(user => {
+          const isNotCurrentUser = user?.riderId !== userId;
+          const isNotInContacts = !existingChatMemberIds.includes(user?.riderId);
+          
+          console.log(`User ${user?.name}:`, {
+            id: user?.riderId,
+            isNotCurrentUser,
+            isNotInContacts
+          });
+          
+          return isNotCurrentUser && isNotInContacts;
+        });
+        
         console.log("Filtered Users:", filteredUsers);
         setUsers(filteredUsers || []);
       }
-
+  
     } catch (error) {
       console.error("Error fetching users:", error);
-      // dispatch(showToast("ERROR", "Failed to load users"));
       setUsers([]);
     }
   };
@@ -482,6 +568,9 @@ const [contacts, setContacts] = useState([]);
     }
   };
   
+
+
+ 
 
   const findOrCreateChat = async (userId) => {
     try {
@@ -623,6 +712,10 @@ const [contacts, setContacts] = useState([]);
      }
    }, [currentUser]);
  
+
+
+
+
  useEffect(() => {
     // Setup socket connection
     const socket = setupSocket();
@@ -655,6 +748,7 @@ const [contacts, setContacts] = useState([]);
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
 
   return (
       <ThemeProvider theme={theme}>
@@ -831,12 +925,12 @@ const [contacts, setContacts] = useState([]);
                         </Box>
                       )}
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <input accept="image/*" style={{ display: 'none' }} id="image-upload" type="file" ref={fileInputRef} onChange={handleFileUpload} />
+                        {/* <input accept="image/*" style={{ display: 'none' }} id="image-upload" type="file" ref={fileInputRef} onChange={handleFileUpload} />
                         <label htmlFor="image-upload">
                           <IconButton component="span">
                             <InsertPhotoIcon />
                           </IconButton>
-                        </label>
+                        </label> */}
                         <TextField
                           fullWidth
                           placeholder="Type a message..."

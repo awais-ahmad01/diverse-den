@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { listUsers, deleteUser } from "../../actions/users";
+import { listUsers, deleteUser, getUserDetails } from "../../actions/users";
 
 let default_state = {
   isloading: false,
   users: [],
+  userDetails:[]
   
 };
 
@@ -29,6 +30,18 @@ export const usersSlice = createSlice({
         state.users = [];
       })
 
+      .addCase(getUserDetails.pending, (state) => {
+        state.isloading = true;
+      })
+      .addCase(getUserDetails.fulfilled, (state, action) => {
+        state.isloading = false;
+        state.userDetails = action.payload.data;
+       
+      })
+      .addCase(getUserDetails.rejected, (state) => {
+        state.isloading = false;
+        state.userDetails = [];
+      })
     
       
   },

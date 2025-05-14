@@ -1,9 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { 
-  FaHome, 
-  FaUsers, 
-  FaBuilding, 
-  FaCreditCard,
+import {
+  FaHome,
+  FaShoppingBag,
+  FaComments,
   FaCoffee
 } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
@@ -44,29 +43,27 @@ const RiderSideBar = ({ isSidebarOpen, setIsSidebarOpen, toggleSidebar, hamburge
   }, [location]);
 
   const navItems = [
-    { 
-      to: '', 
-      label: 'Dashboard', 
+    {
+      to: '',
+      label: 'Dashboard',
       icon: <FaHome className="text-xl" />
     },
     {
       to: 'assignedOrders',
       label: 'Orders',
-      icon: <FaUsers className="text-xl" />,
+      icon: <FaShoppingBag className="text-xl" />,
       activePaths: [
         '/riderPanel/riderDashboard/assignedOrders',
       ],
     },
-    { 
-      to: 'riderChats', 
+    {
+      to: 'riderChats',
       label: 'Chats',
-      icon: <FaBuilding className="text-xl" />,
+      icon: <FaComments className="text-xl" />,
       activePaths: [
         '/riderPanel/riderDashboard/riderChats',
-       
       ]
     },
-   
   ];
 
   return (

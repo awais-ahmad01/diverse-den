@@ -133,10 +133,12 @@ export const assignOrderToBranch = createAsyncThunk(
       return true;
      
     } catch (error) {
-      console.log("errro000r................");
-     
-      console.log(error);
-      throw error;
+      const errorMessage = error.response?.data?.message || "Unknown error occurred";
+      console.log("branch assign error", errorMessage);
+      
+      // Important: Reject with the error message to propagate it to the catch block
+      return thunkAPI.rejectWithValue(errorMessage);
+    
     }
   }
 );

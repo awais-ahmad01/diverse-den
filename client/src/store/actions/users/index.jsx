@@ -67,3 +67,92 @@ export const deleteUser = createAsyncThunk(
   
     }
   )
+
+
+
+
+  
+
+export const getUserDetails = createAsyncThunk(
+  'users/getUserDetails',
+  async(userId)=>{
+      try{
+
+        console.log("get User Details.....");
+
+          const response = await axios.get('http://localhost:3000/user/getProfileDetails', 
+              {
+                  params: {
+                      userId
+                    },
+              }
+           );
+
+           console.log("user Datails:", response.data);
+
+           
+          return {data:response.data}
+      }
+      catch(error){
+          
+          throw error;
+      }
+  }
+
+)
+
+
+
+export const updateUserDetails = createAsyncThunk(
+  'users/updateUserDetails',
+  async({userId, formData})=>{
+      try{
+
+        console.log("update User Details.....");
+
+        const body = {
+          userId,
+          formData
+        }
+
+        console.log("Body:", body);
+
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+
+        if (!token) {
+          dispatch(errorGlobal("No token found"));
+          return;
+        }
+
+          const response = await axios.post('http://localhost:3000/user/updateProfileDetails', body, 
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                  
+                  },
+                }
+                 
+           );
+
+           console.log("updated user Datails:", response.data);
+
+           
+          return response.data
+      }
+      catch(error){
+
+        console.log("error:", error.response?.data?.message);
+          
+          throw error;
+      }
+  }
+
+)
+
+
+
+
+
+

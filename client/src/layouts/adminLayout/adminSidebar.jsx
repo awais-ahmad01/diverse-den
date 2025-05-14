@@ -4,7 +4,9 @@ import {
   FaUsers,
   FaBuilding,
   FaCreditCard,
-  FaCoffee,
+  FaMotorcycle,
+  FaChartBar,
+  FaStore
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 
@@ -63,7 +65,7 @@ const AdminSideBar = ({
     {
       to: "manageBusinesses",
       label: "Manage Businesses",
-      icon: <FaBuilding className="text-xl" />,
+      icon: <FaStore className="text-xl" />,
       activePaths: [
         "/adminPanel/manageBusinesses",
         "/adminPanel/businessProducts",
@@ -73,7 +75,7 @@ const AdminSideBar = ({
     {
       to: "manageRiders",
       label: "Manage Riders",
-      icon: <FaBuilding className="text-xl" />,
+      icon: <FaMotorcycle className="text-xl" />,
       activePaths: ["/adminPanel/manageRiders"],
     },
     {
@@ -85,7 +87,7 @@ const AdminSideBar = ({
     {
       to: "analytics",
       label: "Analytics",
-      icon: <FaCreditCard className="text-xl" />,
+      icon: <FaChartBar className="text-xl" />,
       activePaths: ["/adminPanel/analytics"],
     },
   ];

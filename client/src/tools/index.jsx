@@ -24,7 +24,7 @@ export const Loader = () => (
   //     <CircularProgress/>
   // </div>
 
-  <div className="flex justify-center items-center h-80">
+  <div className="flex justify-center items-center h-80 ">
     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#603F26]"></div>
   </div>
 );

@@ -99,8 +99,73 @@ const ImagePreviewDialog = ({ open, handleClose, imageUrl }) => (
   </Dialog>
 );
 
+// const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
+//   const [selectedUserId, setSelectedUserId] = useState("");
+
+//   console.log("users:", users);
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     if (selectedUserId) {
+//       handleCreateChat(selectedUserId);
+//       handleClose();
+//     }
+//   };
+
+//   return (
+//     <Modal open={open} onClose={handleClose}>
+//       <Box
+//         sx={{
+//           position: "absolute",
+//           top: "50%",
+//           left: "50%",
+//           transform: "translate(-50%, -50%)",
+//           width: 400,
+//           bgcolor: "background.paper",
+//           boxShadow: 24,
+//           p: 4,
+//           borderRadius: 1,
+//         }}
+//       >
+//         <Typography variant="h6" gutterBottom>
+//           Start New Chat
+//         </Typography>
+//         <form onSubmit={handleSubmit}>
+//           <FormControl fullWidth sx={{ mb: 2 }}>
+//             <InputLabel>Select User</InputLabel>
+//             <Select
+//               value={selectedUserId}
+//               onChange={(e) => setSelectedUserId(e.target.value)}
+//               label="Select User"
+//               required
+//             >
+
+              // {users.map((user) => (
+              //   <MenuItem key={user._id} value={user?.salespersonDetails?._id}>
+              //     {user?.salespersonDetails?.firstname}{" "}
+              //     {user?.salespersonDetails?.lastname}
+              //   </MenuItem>
+              // ))}
+//             </Select>
+//           </FormControl>
+//           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+//             <Button onClick={handleClose} sx={{ mr: 1 }}>
+//               Cancel
+//             </Button>
+//             <Button type="submit" variant="contained" color="primary">
+//               Create Chat
+//             </Button>
+//           </Box>
+//         </form>
+//       </Box>
+//     </Modal>
+//   );
+// };
+
+
+
 const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
-  const [selectedUserId, setSelectedUserId] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -112,52 +177,55 @@ const NewChatModal = ({ open, handleClose, handleCreateChat, users }) => {
 
   return (
     <Modal open={open} onClose={handleClose}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: 400,
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-          borderRadius: 1,
-        }}
-      >
-        <Typography variant="h6" gutterBottom>
-          Start New Chat
-        </Typography>
-        <form onSubmit={handleSubmit}>
-          <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Select User</InputLabel>
-            <Select
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              label="Select User"
-              required
-            >
-              {users.map((user) => (
-                <MenuItem key={user._id} value={user?.salespersonDetails?._id}>
-                  {user?.salespersonDetails?.firstname}{" "}
-                  {user?.salespersonDetails?.lastname}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button onClick={handleClose} sx={{ mr: 1 }}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="contained" color="primary">
-              Create Chat
-            </Button>
+      <Box sx={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: 'background.paper',
+        boxShadow: 24,
+        p: 4,
+        borderRadius: 1
+      }}>
+        <Typography variant="h6" gutterBottom>Start New Chat</Typography>
+        {users.length > 0 ? (
+          <form onSubmit={handleSubmit}>
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Select Salesperson</InputLabel>
+              <Select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                label="Select Salesperson"
+                required
+              >
+                {users.map(user => (
+                  <MenuItem 
+                    key={user?.salespersonDetails?._id} 
+                    value={user?.salespersonDetails?._id}
+                  >
+                    {`${user?.salespersonDetails?.firstname} ${user?.salespersonDetails?.lastname}`}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button onClick={handleClose} sx={{ mr: 1 }}>Cancel</Button>
+              <Button type="submit" variant="contained" color="primary">Create Chat</Button>
+            </Box>
+          </form>
+        ) : (
+          <Box sx={{ textAlign: 'center', p: 2 }}>
+            <Typography color="textSecondary">No available salespersons to chat with</Typography>
+            <Button onClick={handleClose} sx={{ mt: 2 }}>Close</Button>
           </Box>
-        </form>
+        )}
       </Box>
     </Modal>
   );
 };
+
+
 
 const Message = ({ message, onDelete, onImageClick, currentUserId }) => {
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
@@ -267,6 +335,12 @@ const RiderChatModule = () => {
   const socketRef = useRef(null);
 
   console.log("messages", messages);
+
+  console.log('contacts', contacts);
+
+ console.log("users", users);
+
+
 
   // Helper functions
   const getOtherUser = (chat) => {
@@ -462,20 +536,30 @@ const RiderChatModule = () => {
     }
   };
 
+
+
   const fetchUsers = async () => {
     try {
-      const riderId = currentUser._id;
-      const response = await dispatch(getListOfSalesperson(riderId)).unwrap();
-
+      const userId = currentUser._id;
+      const response = await dispatch(getListOfSalesperson(userId)).unwrap();
+  
       if (response) {
-        const filteredUsers = response?.data?.filter(
-          (user) =>
-            user?.salespersonDetails?._id !== currentUser._id &&
-            !contacts.some((chat) =>
-              chat.members.some((m) => m._id === user?.salespersonDetails?._id)
-            )
+        // Extract salesperson IDs from contacts
+        const existingSalespersonIds = contacts.flatMap(chat => 
+          chat.members
+            .filter(member => member.role === "salesperson") // Only get salespersons
+            .map(member => member.userId)
         );
-
+  
+        console.log("Existing salesperson IDs:", existingSalespersonIds);
+  
+        // Filter out salespersons already in contacts
+        const filteredUsers = response?.data?.filter(user => {
+          const salespersonId = user?.salespersonDetails?._id;
+          return !existingSalespersonIds.includes(salespersonId);
+        });
+  
+        console.log("Filtered Users:", filteredUsers);
         setUsers(filteredUsers || []);
       }
     } catch (error) {
@@ -483,6 +567,39 @@ const RiderChatModule = () => {
       setUsers([]);
     }
   };
+
+
+
+//  const fetchUsers = async () => {
+//   try {
+//     const riderId = currentUser._id;
+//     const response = await dispatch(getListOfSalesperson(riderId)).unwrap();
+
+//     if (response) {
+//       // Get all salesperson IDs from existing chats
+//       const existingSalespersonIds = contacts.flatMap(chat => 
+//         chat.members
+//           .filter(member => member.userId !== currentUser._id) // Exclude current user
+//           .map(member => member.userId)
+//       );
+
+//       console.log("Existing salesperson IDs:", existingSalespersonIds);
+
+//       // Filter out current user and salespersons already in contacts
+//       const filteredUsers = response?.data?.filter(
+//         (user) =>
+//           user?.salespersonDetails?._id !== currentUser._id &&
+//           !existingSalespersonIds.includes(user?.salespersonDetails?._id)
+//       );
+
+//       console.log("Filtered Users:", filteredUsers);
+//       setUsers(filteredUsers || []);
+//     }
+//   } catch (error) {
+//     console.error("Error fetching users:", error);
+//     setUsers([]);
+//   }
+// };
 
   const handleCreateChat = async (userId) => {
     try {
@@ -992,7 +1109,7 @@ const RiderChatModule = () => {
                       </Box>
                     )}
                     <Box sx={{ display: "flex", alignItems: "center" }}>
-                      <input
+                      {/* <input
                         accept="image/*"
                         style={{ display: "none" }}
                         id="image-upload"
@@ -1004,7 +1121,7 @@ const RiderChatModule = () => {
                         <IconButton component="span">
                           <InsertPhotoIcon />
                         </IconButton>
-                      </label>
+                      </label> */}
                       <TextField
                         fullWidth
                         placeholder="Type a message..."

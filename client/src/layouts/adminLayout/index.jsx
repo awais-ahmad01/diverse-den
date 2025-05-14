@@ -42,6 +42,7 @@ const AdminLayout = (props) => {
         <div className="flex-1 sm:pl-64 pt-1">
           {props.children}
         </div>
+        
       </div>
     </div>
   );

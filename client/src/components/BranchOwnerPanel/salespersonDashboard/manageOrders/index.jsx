@@ -367,22 +367,24 @@ const ReceiptDialog = ({ open, onClose, order }) => {
 };
 
 // Order Details Dialog Component
-const OrderDetailsDialog = ({ open, onClose, order, riders, handleAssignRider }) => {
-
+const OrderDetailsDialog = ({
+  open,
+  onClose,
+  order,
+  riders,
+  handleAssignRider,
+}) => {
   console.log("riders", riders);
 
   const [selectedRider, setSelectedRider] = useState(null);
 
   console.log("selectedRider", selectedRider);
 
-  const riderAssign = ()=>{
+  const riderAssign = () => {
     handleAssignRider(order._id, selectedRider);
-  }
- 
-
+  };
 
   if (!order) return null;
-
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -501,8 +503,8 @@ const OrderDetailsDialog = ({ open, onClose, order, riders, handleAssignRider })
             <Typography>
               Order Date: {format(new Date(order?.createdAt), "PPP")}
             </Typography>
-            {order?.rider && (
-              <Typography>Assigned Rider: {order?.rider?.name}</Typography>
+            {order?.riderId && (
+              <Typography>Assigned Rider: {order?.riderId?.firstname} {order?.riderId?.lastname}</Typography>
             )}
           </Grid>
 
@@ -530,9 +532,7 @@ const OrderDetailsDialog = ({ open, onClose, order, riders, handleAssignRider })
                       <MenuItem key={rider._id} value={rider?.riderId}>
                         {rider.name}
                       </MenuItem>
-                    ))
-
-                    }
+                    ))}
                     {/* <MenuItem value="rider1">John Doe (Rider 1)</MenuItem>
                     <MenuItem value="rider2">Jane Smith (Rider 2)</MenuItem>
                     <MenuItem value="rider3">Alex Johnson (Rider 3)</MenuItem>
@@ -1530,8 +1530,11 @@ const SalespersonOrderManagement = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
 
-  const {listOfRiders} = useSelector((state) => state.rider);
-    console.log("listOfRiders:", listOfRiders);
+  console.log("user assignedBranch:", user?.assignedBranch);
+
+  const { listOfRiders } = useSelector((state) => state.rider);
+
+  console.log("listOfRiders:", listOfRiders);
 
   const branchCode = user?.assignedBranch;
 
@@ -1559,7 +1562,6 @@ const SalespersonOrderManagement = () => {
   console.log("filteredOrders:", filteredOrders);
   console.log("allOrders:", allOrders);
 
-
   useEffect(() => {
     const branchCode = user?.assignedBranch;
 
@@ -1570,8 +1572,7 @@ const SalespersonOrderManagement = () => {
     const business = user?.business;
     dispatch(getBranches({ business }));
 
-    dispatch(getListOfRiders(userId))
-
+    dispatch(getListOfRiders(userId));
   }, [dispatch, user]);
 
   useEffect(() => {
@@ -1581,19 +1582,17 @@ const SalespersonOrderManagement = () => {
     }
   }, [salespersonOrders]);
 
-
   const handleAssignRider = (orderId, riderId) => {
     console.log("handleAssignRider", orderId, riderId);
     dispatch(assignOrderToRider({ orderId, riderId }))
-    .unwrap()
-    .then(() => {
-      showToast("SUCCESS", "Order assigned to rider Successfully!!");
-    })
-    .catch((error) => {
-      showToast("ERROR", "Failed to assigned order to rider");
-    });
-  }
-
+      .unwrap()
+      .then(() => {
+        showToast("SUCCESS", "Order assigned to rider Successfully!!");
+      })
+      .catch((error) => {
+        showToast("ERROR", "Failed to assigned order to rider");
+      });
+  };
 
   const totalOrders = salespersonOrders?.length || 0;
   const totalOnlineOrders =
@@ -1700,8 +1699,10 @@ const SalespersonOrderManagement = () => {
         const branchCode = user?.assignedBranch;
         dispatch(getSalespersonOrders({ branchCode }));
       })
-      .catch((error) => {
-        showToast("ERROR", "Failed to assigned order to branch");
+      .catch((errorMessage) => {
+       
+        showToast("ERROR", errorMessage || "Failed to assign order to branch");
+        console.log("error branch", errorMessage);
       });
   };
 
@@ -2100,28 +2101,40 @@ const SalespersonOrderManagement = () => {
                               <MenuItem value="Cancelled">Cancelled</MenuItem>
                             </Select>
                           </TableCell>
-                          {isMainSalesperson() &&
-                            order?.orderType === "Online" && (
+                        
+                          {(isMainSalesperson() &&
+                            order?.orderType === "Online") ?(
                               <TableCell>
-                                <Select
-                                  value={order?.assignedBranch || ""}
-                                  onChange={(e) =>
-                                    handleBranchChange(
-                                      order?._id,
-                                      order?.cartItems,
-                                      e.target.value
-                                    )
-                                  }
-                                  displayEmpty
-                                  fullWidth
-                                >
-                                  <MenuItem value="">Select Branch</MenuItem>
-                                  {branches.map((branch) => (
-                                    <MenuItem key={branch?._id} value={branch}>
-                                      {branch?.name}
-                                    </MenuItem>
-                                  ))}
-                                </Select>
+                                {order?.status === "Pending" ? (
+                                  <Select
+                                    value={order?.assignedBranch || ""}
+                                    onChange={(e) =>
+                                      handleBranchChange(
+                                        order?._id,
+                                        order?.cartItems,
+                                        e.target.value
+                                      )
+                                    }
+                                    displayEmpty
+                                    fullWidth
+                                  >
+                                    <MenuItem value="">Select Branch</MenuItem>
+                                    {branches.map((branch) => (
+                                      <MenuItem
+                                        key={branch?._id}
+                                        value={branch}
+                                      >
+                                        {branch?.name}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                ) : (
+                                  order?.assignedBranch || order?.branchCode || "N/A"
+                                )}
+                              </TableCell>
+                            ):(
+                              <TableCell>
+                                {order?.assignedBranch || order?.branchCode || "N/A"}
                               </TableCell>
                             )}
                           <TableCell>
@@ -2205,32 +2218,44 @@ const SalespersonOrderManagement = () => {
                         <MenuItem value="Delivered">Delivered</MenuItem>
                         <MenuItem value="Cancelled">Cancelled</MenuItem>
                       </Select>
-
-                      {isMainSalesperson() && order.orderType === "Online" && (
+                     
+                      {(isMainSalesperson() && order.orderType === "Online") ? (
                         <div className="mt-4">
-                          <p className="font-bold mb-1">Select Branch:</p>
-                          <Select
-                            fullWidth
-                            value={order?.assignedBranch || ""}
-                            onChange={(e) =>
-                              handleBranchChange(
-                                order?._id,
-                                order?.cartItems,
-                                e.target.value
-                              )
-                            }
-                            displayEmpty
-                          >
-                            <MenuItem value="">Select Branch</MenuItem>
-                            {branches?.map((branch) => (
-                              <MenuItem key={branch.id} value={branch.id}>
-                                {branch.name}
-                              </MenuItem>
-                            ))}
-                          </Select>
+                          <p className="font-bold mb-1">Branch:</p>
+                          {order?.status === "Pending" ? (
+                            <Select
+                              fullWidth
+                              value={order?.assignedBranch || ""}
+                              onChange={(e) =>
+                                handleBranchChange(
+                                  order?._id,
+                                  order?.cartItems,
+                                  e.target.value
+                                )
+                              }
+                              displayEmpty
+                            >
+                              <MenuItem value="">Select Branch</MenuItem>
+                              {branches?.map((branch) => (
+                                <MenuItem key={branch.id} value={branch.id}>
+                                  {branch.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          ) : (
+                            <Typography>
+                              {order?.assignedBranch || order?.branchCode || "N/A"}
+                            </Typography>
+                          )
+                          }
                         </div>
-                      )}
-
+                      ):
+                      (
+                        <Typography>
+                          {order?.assignedBranch || order?.branchCode || "N/A"}
+                        </Typography>
+                      )
+                    }
                       <div className="flex gap-2">
                         <Button
                           variant="contained"
@@ -2318,7 +2343,6 @@ const SalespersonOrderManagement = () => {
           order={viewOrderDetails}
           riders={listOfRiders}
           handleAssignRider={handleAssignRider}
-          
         />
 
         {/* Delete Confirmation Dialog */}

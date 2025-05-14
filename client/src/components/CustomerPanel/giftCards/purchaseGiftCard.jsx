@@ -93,6 +93,8 @@ const GiftCardPurchase = () => {
 
   const amount = watch("amount");
 
+  console.log("amount:", amount);
+
   const makePayment = (token) => {
     const tokenId = localStorage.getItem("token");
 
@@ -381,7 +383,12 @@ const GiftCardPurchase = () => {
                   token={makePayment}
                   name="Gift Card Payment"
                   amount={parseFloat(amount || 0) * 100}
+                 
+                  currency="PKR"  
+                  label={`Pay ${parseFloat(amount || 0).toFixed(2)}`} 
+                 
                   disabled={!isValid || processingPayment}
+                  locale="auto"
                 >
                   <button
                     type="button"
