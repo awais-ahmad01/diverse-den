@@ -114,7 +114,7 @@ const RiderHeader = ({ toggleSidebar, hamburgerRef }) => {
               }}
             >
               <Link
-                to="branchOwnerProfile"
+                to="riderProfile"
                 style={{ textDecoration: "none", color: "inherit" }}
               >
                 View Profile

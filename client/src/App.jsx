@@ -109,6 +109,12 @@ import RejectionPage from "./components/RiderPanel/rejectionPage.jsx";
 
 import Analytics from "./components/AdminPanel/Analytics/index.jsx";
 
+import RiderProfile from "./components/RiderPanel/riderDashboard/profile.jsx";
+
+import SalespersonProfile from "./components/BranchOwnerPanel/salespersonDashboard/Profile/index.jsx";
+
+import CustomerProfile from "./components/CustomerPanel/profile/index.jsx";
+
 function App() {
   const dispatch = useDispatch();
 
@@ -157,6 +163,8 @@ function App() {
           {/* Landing Page */}
 
           <Route path="/" element={<LandingPage />} />
+
+        
 
           {/* Branch Owner Panel */}
 
@@ -292,6 +300,8 @@ function App() {
 
               <Route path="businessInventory" element={<BusinessInventory />} />
 
+              <Route path="salespersonProfile" element={<SalespersonProfile />} />
+
               <Route
                 path="viewProduct/:productId/:productTitle"
                 element={<ViewProduct />}
@@ -333,6 +343,8 @@ function App() {
 
             <Route path="riderDetails" element={<RiderDetails />} />
 
+          
+
             <Route path="pendingApproval" element={<PendingApproval />} />
 
             <Route path="rejectionPage" element={<RejectionPage />} />
@@ -344,6 +356,8 @@ function App() {
               <Route path="assignedOrders" element={<RiderOrders/>} />
 
               <Route path="riderChats" element={<ChatModule/>} />
+
+              <Route path="riderProfile" element={<RiderProfile />} />
 
             </Route>
           </Route>
@@ -371,7 +385,7 @@ function App() {
             <Route path="cart" element={<Cart />} />
             <Route path="checkout" element={<Checkout />} />
 
-           
+            <Route path="profile" element={<CustomerProfile />} />
 
             <Route path="loyalty" element={<LoyaltyPerks />} />
 
@@ -379,7 +393,7 @@ function App() {
 
             <Route path="giftCardPurchase/:id" element={<GiftCardPurchase />} />
 
-            <Route path="chatBot" element={<Chatbot />} />
+            {/* <Route path="chatBot" element={<Chatbot />} /> */}
 
             <Route path="recommendedProductsPage" element={<RecommendedProductsPage/>} />
 

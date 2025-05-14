@@ -387,7 +387,7 @@ const Header = () => {
         }}
       >
         <Link
-          to="/"
+          to="profile"
           style={{ textDecoration: "none", color: "inherit" }}
         >
           Profile

@@ -129,7 +129,7 @@ export const updateUserDetails = createAsyncThunk(
                 {
                   headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data',
+                    // 'Content-Type': 'multipart/form-data',
                   
                   },
                 }
@@ -137,6 +137,157 @@ export const updateUserDetails = createAsyncThunk(
            );
 
            console.log("updated user Datails:", response.data);
+
+           
+          return response.data
+      }
+      catch(error){
+
+        console.log("error:", error.response?.data?.message);
+          
+          throw error;
+      }
+  }
+
+)
+
+
+
+
+export const updateBusinessDetails = createAsyncThunk(
+  'users/updateBusinessDetails',
+  async({userId, formData})=>{
+      try{
+
+        console.log("update Business Details.....");
+
+        const body = {
+          userId,
+          formData
+        }
+
+        console.log("Body:", body);
+
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+
+        if (!token) {
+          dispatch(errorGlobal("No token found"));
+          return;
+        }
+
+          const response = await axios.post('http://localhost:3000/user/updateBusinessDetails', body, 
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    // 'Content-Type': 'multipart/form-data',
+                  
+                  },
+                }
+                 
+           );
+
+           console.log("updated Business Datails:", response.data);
+
+           
+          return response.data
+      }
+      catch(error){
+
+        console.log("error:", error.response?.data?.message);
+          
+          throw error;
+      }
+  }
+
+)
+
+
+
+export const updatePassword = createAsyncThunk(
+  'users/updatePassword',
+  async({userId, formData})=>{
+      try{
+
+        console.log("update Password.....");
+
+        const body = {
+          userId,
+          formData
+        }
+
+        console.log("Body:", body);
+
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+
+        if (!token) {
+          // dispatch(errorGlobal("No token found"));
+          return;
+        }
+
+          const response = await axios.post('http://localhost:3000/user/updatePassword', body, 
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    // 'Content-Type': 'multipart/form-data',
+                  
+                  },
+                }
+                 
+           );
+
+           console.log("updated Password:", response.data);
+
+           
+          return response.data
+      }
+      catch(error){
+
+        console.log("error:", error.response?.data?.message);
+          
+          throw error;
+      }
+  }
+
+)
+
+
+
+export const uploadImage = createAsyncThunk(
+  'users/updateImage',
+  async({userId, formData})=>{
+      try{
+
+        console.log("upload Image.....");
+
+        const body = {
+          userId,
+          formData
+        }
+
+        console.log("Body:", body);
+
+        const token = localStorage.getItem("token");
+        console.log("myToken:", token);
+
+        if (!token) {
+          dispatch(errorGlobal("No token found"));
+          return;
+        }
+
+          const response = await axios.post('http://localhost:3000/user/updatePicture', body, 
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                  
+                  },
+                }
+                 
+           );
+
+           console.log("uloaded Image:", response.data);
 
            
           return response.data
